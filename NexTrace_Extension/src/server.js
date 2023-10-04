@@ -13,6 +13,14 @@ app.use('/otel', (req, res, next) => {
   return res.status(200).json(res.locals.trace);
 });
 
+app.use('/otel', (req, res, next) => {
+  res.locals.trace = req.body;
+  return next();
+}, (req, res) => {
+  return res.status(200).json(res.locals.trace);
+});
+
+
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
