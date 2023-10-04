@@ -3,33 +3,63 @@
   "displayName": "NexTrace",
   "description": "Waterfalls all network requests with click navigation of request origin for Next.js Applications.",
   "version": "0.0.1",
+  "publisher": "Team-NexTrace",
   "engines": {
     "vscode": "^1.82.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
-  "main": "./extension.js",
+  "activationEvents": [
+    "onCommand:NexTrace.helloWorld",
+    "onView:nextrace-primary-sidebar",
+    "onStartupFinished"
+  ],
+  "main": "./src/extension.js",
   "contributes": {
-    "commands": [{
-      "command": "NexTrace.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "NexTrace.startServer",
+        "title": "Start Server"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nextrace-activitybar",
+          "title": "NexTrace",
+          "icon": "$(squirrel)",
+          "command": "NexTrace.startServer"
+        }
+      ]
+    },
+    "views": {
+      "nextrace-activitybar": [
+        {
+          "id": "nextrace-primary-sidebar",
+          "name": "NexTrace",
+          "icon": "$(squirrel)",
+          "contextualTitle": "NexTrace"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",
+    "start": "nodemon /src/server.js",
     "pretest": "npm run lint",
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.82.0",
     "@types/mocha": "^10.0.2",
     "@types/node": "18.x",
+    "@types/vscode": "^1.82.0",
+    "@vscode/test-electron": "^2.3.4",
     "eslint": "^8.50.0",
+    "express": "^4.18.2",
     "glob": "^10.3.3",
     "mocha": "^10.2.0",
-    "typescript": "^5.2.2",
-    "@vscode/test-electron": "^2.3.4"
+    "nodemon": "^3.0.1",
+    "typescript": "^5.2.2"
   }
 }
