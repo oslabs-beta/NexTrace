@@ -1,0 +1,50 @@
+body {
+  background-color: rgb(61, 52, 40);
+}
+
+.panel {
+  display:flex;
+  flex-direction: column;
+}
+
+.startButton{
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin-top: 2em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.startButton:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.startButton:active {
+  background-color: #00418a;
+  transform: scale(0.95);
+}
+
+.buttonOne{
+  display: inline-block;
+  border: none;
+  border-radius: 5px;
+  margin-top: 2em;
+  cursor: pointer;
+  /* Set the background image and adjust its size and position */
+  background-image: url('../assets/round-power-button-gold-logo-vector-43813764.jpg');
+  background-size: cover; /* or background-size: contain; depending on your preference */
+  background-position: center center; /* Center the image */
+  background-repeat: no-repeat;
+  /* Optionally, you can add some padding to the button to make space for the logo */
+  padding: 2em;
+}
+
