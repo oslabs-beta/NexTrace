@@ -7,8 +7,24 @@ const path = require('path');
  */
 function activate(context) {
 
+  try {
+    const panel = vscode.window.createWebviewPanel(
+      'nextrace-display', // Identifies the type of the webview. Used internally
+      'NexTrace Display', // Title of the panel displayed to the user
+      vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+      {
+        enableScripts: true,
+        localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))]
+      } // Webview options. More on these later.
+    );
+
+
   const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
-  const reactAppUri = vscode.Uri.file(reactAppPath).with({ scheme: 'vscode-resource' });
+  const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
+
+  const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
+  const cssAppUri = vscode.Uri.file(cssAppPath).with({ scheme: 'vscode-webview-resource' });
+  // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
 
   const webviewContent = `
     <!DOCTYPE html>
@@ -16,26 +32,27 @@ function activate(context) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src vscode-resource:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' vscode-webview-resource:; style-src-elem 'self' 'unsafe-inline' vscode-webview-resource:; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+        <link rel="stylesheet" type="text/css" href="${cssAppUri}">
     </head>
     <body>
         <div id="root"></div>
+        <h1>Hello WOrld</h1>
         <script src="${reactAppUri}"></script>
     </body>
     </html>
   `;
 
-	console.log('Congratulations, your extension "NexTrace" is now active!');
+  panel.webview.html = webviewContent;
 
-	const panel = vscode.window.createWebviewPanel(
-		'nextrace-display', // Identifies the type of the webview. Used internally
-		'NexTrace Display', // Title of the panel displayed to the user
-		vscode.ViewColumn.One, // Editor column to show the new webview panel in.
-		{
-      enableScripts: true
-    } // Webview options. More on these later.
-	);
-	panel.webview.html = webviewContent;
+
+	console.log('Congratulations, your extension "NexTrace" is now active!');
+    
+  }
+  catch(err) {
+    console.log(err);
+  }
+	
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -54,29 +71,6 @@ function activate(context) {
 
 // This method is called when your extension is deactivated
 function deactivate() {}
-
-// function getWebviewContent() {
-//   const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
-//   const reactAppUri = vscode.Uri.file(reactAppPath).with({ scheme: 'vscode-resource' });
-
-//   const webviewContent = `
-//     <!DOCTYPE html>
-//     <html lang="en">
-//     <head>
-//         <meta charset="UTF-8">
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//     </head>
-//     <body>
-//         <div id="root"></div>
-//         <script src="${reactAppUri}"></script>
-//     </body>
-//     </html>
-//   `;
-
-//   return webviewContent;
-// }
-
-
 
 // function getWebviewContent() {
 //   return `
