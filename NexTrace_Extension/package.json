@@ -61,5 +61,8 @@
     "mocha": "^10.2.0",
     "nodemon": "^3.0.1",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5"
   }
 }
