@@ -72,7 +72,6 @@ function activate(context) {
       </head>
       <body>
           <div id="root"></div>
-          <h1>Hello this is Primary Side Panel!</h1>
           <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
           <script src="${panelAppUri}"></script>
       </body>
