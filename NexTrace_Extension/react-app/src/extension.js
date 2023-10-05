@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const path = require('path');
+import { SidebarProvider } from './components/SidebarProvider';
 
 
 /**
@@ -23,7 +24,7 @@ function activate(context) {
   const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
   const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
-  const cssAppUri = vscode.Uri.file(cssAppPath).with({ scheme: 'vscode-webview-resource' });
+  const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
   // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
 
   const webviewContent = `
@@ -32,7 +33,7 @@ function activate(context) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' vscode-webview-resource:; style-src-elem 'self' 'unsafe-inline' vscode-webview-resource:; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
         <link rel="stylesheet" type="text/css" href="${cssAppUri}">
     </head>
     <body>
@@ -44,8 +45,7 @@ function activate(context) {
   `;
 
   panel.webview.html = webviewContent;
-
-
+  
 	console.log('Congratulations, your extension "NexTrace" is now active!');
     
   }
