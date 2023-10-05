@@ -1,6 +1,6 @@
 {
 	"env": {
-		"browser": false,
+		"browser": true,
 		"commonjs": true,
 		"es6": true,
 		"node": true,
@@ -13,6 +13,7 @@
 		},
 		"sourceType": "module"
 	},
+	"plugins": ["react", "react-hooks"],
 	"rules": {
 		"no-const-assign": "warn",
 		"no-this-before-super": "warn",
