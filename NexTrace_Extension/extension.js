@@ -73,6 +73,9 @@ function activate(context) {
       <body>
           <div id="root"></div>
           <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
+          <script>
+            const vscode = acquireVsCodeApi();
+          </script>
           <script src="${panelAppUri}"></script>
       </body>
       </html>
@@ -81,6 +84,8 @@ function activate(context) {
       // Handle any messages or events from the webview view here
       webviewView.webview.onDidReceiveMessage((message) => {
         // Handle the message from the webview view
+        console.log(message);
+        vscode.commands.executeCommand(message);
       });
     },
   };

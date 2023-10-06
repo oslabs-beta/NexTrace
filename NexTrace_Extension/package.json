@@ -42,8 +42,7 @@
           "id": "nextrace-primary-sidebar.views",
           "name": "NexTrace",
           "contextualTitle": "NexTrace",
-          "type": "webview",
-          "content": "hello world"
+          "type": "webview"
         }]
     
       }
