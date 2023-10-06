@@ -12,6 +12,8 @@ app.get('/', (req, res) => {
   console.log('in get / request')
 });
 
+
+
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
   // console.log('THE SPAN TRACE', res.locals.trace.resourceSpans[0].scopeSpans[0].spans[0]);
@@ -67,6 +69,10 @@ app.use('/otel', (req, res, next) => {
   requestArray.push(obj)
   console.log(requestArray);
   return res.status(200).json('Span Received');
+})
+
+app.get('/getData', (req,res) =>{
+  return res.status(200).send(requestArray);
 })
 
 
