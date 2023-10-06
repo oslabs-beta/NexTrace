@@ -28,7 +28,7 @@ app.use('/otel', (req, res, next) => {
     // console.log('Name:', name)
     obj.name = name;
 
-    console.log('SPAN', span)
+    // console.log('SPAN', span)
     
     //TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
     for (let i = 0; i < span.attributes.length; i++){
@@ -67,7 +67,7 @@ app.use('/otel', (req, res, next) => {
 
   }
   requestArray.push(obj)
-  console.log(requestArray);
+  // console.log(requestArray);
   return res.status(200).json('Span Received');
 })
 
