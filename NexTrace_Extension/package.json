@@ -22,8 +22,8 @@
         "title": "Start Server"
       },
       {
-        "command": "myExtension.openWebview",
-        "title": "Open Webview"
+        "command": "NexTrace.openTable",
+        "title": "Open NexTrace Metrics"
       }
     ],
     "viewsContainers": {
