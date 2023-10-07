@@ -27,10 +27,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+
+
 function createNewData(name, status, method, type, duration, rendering) {
     return { name, status, method, type, duration, rendering };
   }
-  
+
   export default function CustomizedTables() {
     const [awaitedData, setAwaitedData] = useState([]);
 

@@ -47,7 +47,7 @@ app.use('/otel', (req, res, next) => {
         // console.log('Status', status); 
         obj.status = status;
       }
-      
+  
     }
     
     //DURATION IN MS DONE
@@ -65,9 +65,6 @@ app.use('/otel', (req, res, next) => {
       else{
         obj.rendering = '';
       }
-      
-  
-
   }
   requestArray.push(obj)
   // console.log(requestArray);
@@ -77,6 +74,7 @@ app.use('/otel', (req, res, next) => {
 app.get('/getData', (req,res) =>{
   return res.status(200).json(requestArray);
 })
+/
 
 
 

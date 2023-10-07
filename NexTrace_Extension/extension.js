@@ -24,6 +24,7 @@ function activate(context) {
 
   const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
   const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath)); //.with({ scheme: 'vscode-webview-resource' })
+  
   // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
 
   const webviewContent = `
