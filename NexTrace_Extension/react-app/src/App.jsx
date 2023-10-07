@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,6 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -26,7 +28,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-
 
 
 function createNewData(name, status, method, type, duration, rendering) {
@@ -69,26 +70,26 @@ function createNewData(name, status, method, type, duration, rendering) {
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
           <TableHead>
             <TableRow>
-              <TableCell>Endpoint</TableCell>
-              <TableCell align="right">Status</TableCell>
-              <TableCell align="right">Method</TableCell>
-              <TableCell align="right">Type</TableCell>
-              <TableCell align="right">Duration(ms)</TableCell>
-              <TableCell align="right">Rendering</TableCell>
+              <StyledTableCell>Endpoint</StyledTableCell>
+              <StyledTableCell align="right">Status</StyledTableCell>
+              <StyledTableCell align="right">Method</StyledTableCell>
+              <StyledTableCell align="right">Type</StyledTableCell>
+              <StyledTableCell align="right">Duration;(ms)</StyledTableCell>
+              <StyledTableCell align="right">Rendering</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {awaitedData.map((row) => (
-              <TableRow key={row.name}>
-                <TableCell component="th" scope="row">
+              <StyledTableRow key={row.name}>
+                <StyledTableCell component="th" scope="row">
                   {row.name}
-                </TableCell>
-                <TableCell align="right">{row.status}</TableCell>
-                <TableCell align="right">{row.method}</TableCell>
-                <TableCell align="right">{row.type}</TableCell>
-                <TableCell align="right">{row.duration}</TableCell>
-                <TableCell align="right">{row.rendering}</TableCell>
-              </TableRow>
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.status}</StyledTableCell>
+                <StyledTableCell align="right">{row.method}</StyledTableCell>
+                <StyledTableCell align="right">{row.type}</StyledTableCell>
+                <StyledTableCell align="right">{row.duration}</StyledTableCell>
+                <StyledTableCell align="right">{row.rendering}</StyledTableCell>
+              </StyledTableRow>
             ))}
           </TableBody>
         </Table>

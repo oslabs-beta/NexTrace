@@ -53,7 +53,7 @@ app.use('/otel', (req, res, next) => {
     //DURATION IN MS DONE
     const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     // console.log('Duration:', duration, 'ms');
-    obj.duration = duration;
+    obj.duration = Math.floor(duration);
 
     
       if (span.kind === 3){
