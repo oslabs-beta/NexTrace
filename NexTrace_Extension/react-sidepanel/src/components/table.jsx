@@ -41,7 +41,7 @@ export default function Table() {
             className={`serverButton ${buttonState === 'Start' ? 'startButton' : 'stopButton'}`}
             onClick={(e) => {
             buttonState === 'Start' ? handleClick('startServer') : handleClick('stopServer')
-            handleClick('transformCode');
+            buttonState === 'Start' ? handleClick('transformCode') : '';
             }}
           >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<> <i className="fas fa-stop"></i>  Stop</>)}
           </button>
