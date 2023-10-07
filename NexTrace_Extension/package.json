@@ -11,17 +11,19 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:NexTrace.helloWorld",
-    "onView:nextrace-primary-sidebar",
-    "onView:nextrace-activitybar",
+    "onView:nextrace-primary-sidebar.views",
     "onStartupFinished"
   ],
-  "main": "./react-app/src/extension.js",
+  "main": "./extension.js",
   "contributes": {
     "commands": [
       {
         "command": "NexTrace.startServer",
         "title": "Start Server"
+      },
+      {
+        "command": "myExtension.openWebview",
+        "title": "Open Webview"
       }
     ],
     "viewsContainers": {
@@ -38,11 +40,11 @@
     "views": {
       "nextrace-activitybar": [
         {
-          "id": "nextrace-primary-sidebar",
+          "id": "nextrace-primary-sidebar.views",
           "name": "NexTrace",
-          "icon": "$(squirrel)",
           "contextualTitle": "NexTrace",
-          "type": "webview"
+          "type": "webview",
+          "content": "hello world"
         }
       ]
     }
@@ -52,7 +54,8 @@
     "start": "nodemon /src/server.js",
     "pretest": "npm run lint",
     "test": "node ./test/runTest.js",
-    "build-react": "webpack --config ./react-app/webpack.config.js"
+    "build-react": "webpack --config ./react-app/webpack.config.js",
+    "build-sidepanel": "webpack --config ./react-sidepanel/webpack.config.js"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
@@ -78,6 +81,7 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "jscodeshift": "^0.15.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^5.2.2"
