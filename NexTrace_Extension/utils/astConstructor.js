@@ -100,7 +100,7 @@ const transformer = (file, api) => {
     The following code generates this using jscodeshift:
 
     const collectorOptions = {
-  url: 'http://localhost:9999/otel', 
+  url: 'http://localhost:3695/otel', 
 };
 
     */
@@ -226,7 +226,7 @@ const transformer = (file, api) => {
 
     The following code generates this using jscodeshift:
     
-    fetch("http://localhost:9999", {
+    fetch("http://localhost:3695", {
         method: "POST",
 
         headers: {
@@ -291,7 +291,7 @@ const transformer = (file, api) => {
     function captureAndSend(...args) {
         const content = args.map(arg => JSON.stringify(arg));
 
-        fetch("http://localhost:9999", {
+        fetch("http://localhost:3695", {
             method: "POST",
 
             headers: {
@@ -445,7 +445,7 @@ const {
  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));  ---WAIT FOR THIS ONE
  trace.setGlobalTracerProvider(provider);
 
- 
+
 */
 
 //Babel parser.
