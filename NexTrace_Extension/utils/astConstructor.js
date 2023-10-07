@@ -445,13 +445,7 @@ const {
  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));  ---WAIT FOR THIS ONE
  trace.setGlobalTracerProvider(provider);
 
- ---CURRENTLY MISSING---
-
-
- const collectorOptions = {
-  url: 'http://localhost:9999/otel',
-};
-
+ 
 */
 
 //Babel parser.
