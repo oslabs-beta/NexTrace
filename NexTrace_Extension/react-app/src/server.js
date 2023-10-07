@@ -1,9 +1,12 @@
 const express = require('express');
 const { request } = require('http');
+const cors = require('cors');
 const app = express();
 const port = 3695;
 
 app.use(express.json());
+app.use(cors());
+
 
 let requestArray = [];
 
@@ -72,7 +75,7 @@ app.use('/otel', (req, res, next) => {
 })
 
 app.get('/getData', (req,res) =>{
-  return res.status(200).send(requestArray);
+  return res.status(200).json(requestArray);
 })
 
 

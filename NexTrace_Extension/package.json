@@ -43,11 +43,10 @@
           "name": "NexTrace",
           "contextualTitle": "NexTrace",
           "type": "webview"
-        }]
-    
-      }
-      
-    },
+        }
+      ]
+    }
+  },
   "scripts": {
     "lint": "eslint .",
     "start": "nodemon /src/server.js",
@@ -79,12 +78,12 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.12",
     "cors": "^2.8.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^5.2.2"
-  },
-  "contentSecurityPolicy": {
-    "connect-src": ["'self'", "http://localhost:3695"]
   }
 }
