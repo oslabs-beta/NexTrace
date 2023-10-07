@@ -8,7 +8,6 @@ const { transformer } = require('./utils/astConstructor');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-
   //PRIMARY PANEL FOR HTTP REQUESTS W/ METRICS & GRAPHS
   try {
     context.subscriptions.push(
@@ -22,38 +21,35 @@ function activate(context) {
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))]
           } // Webview options. More on these later.
         );
-   
-      
 
-  const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
-  const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
+    const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
+    const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
-  const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
-  const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath)); //.with({ scheme: 'vscode-webview-resource' })
-  
-  // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
+    const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
+    const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath)); //.with({ scheme: 'vscode-webview-resource' })
+    
+    // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
 
-  const webviewContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+    const webviewContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+          <link rel="stylesheet" type="text/css" href="${cssAppUri}">
+      </head>
+      <body>
+          <div id="root"></div>
+          <h1>Hello World!</h1>
+          <script src="${reactAppUri}"></script>
+      </body>
+      </html>
+    `;
 
-
-        <link rel="stylesheet" type="text/css" href="${cssAppUri}">
-    </head>
-    <body>
-        <div id="root"></div>
-        <h1>Hello World!</h1>
-        <script src="${reactAppUri}"></script>
-    </body>
-    </html>
-  `;
-
-  panel.webview.html = webviewContent;
-}))
+    panel.webview.html = webviewContent;
+  })
+);
   }
   catch(err) {
     console.log(err);
