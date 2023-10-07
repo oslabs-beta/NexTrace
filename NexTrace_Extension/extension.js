@@ -2,7 +2,7 @@ const vscode = require('vscode');
 const path = require('path');
 const jscodeshift = require('jscodeshift');
 const { transformer } = require('./utils/astConstructor');
-
+const { server, closeServer } = require('./react-app/src/server');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -108,23 +108,20 @@ function activate(context) {
   );
   context.subscriptions.push(disposable2);
 
-  let serverInstance
+
   //REGISTERS START SERVER COMMAND
   const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {
   // Start your server here
-  console.log('server is starting')
-  serverInstance = require('./react-app/src/server'); 
+    console.log('server is starting')
+    server();
+
   });
   context.subscriptions.push(disposable);
 
   const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => {
     // Stop your server here
     console.log('server is STOPPING')
-    if (serverInstance) {
-      serverInstance.close(() => {
-        console.log('Server stopped.');
-      });
-    }
+    closeServer();
   });
   context.subscriptions.push(stopDisposable);
 
