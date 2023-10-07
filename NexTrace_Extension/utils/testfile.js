@@ -1,7 +1,3 @@
-const collectorOptions = {
-    url: "http://localhost:9999/otel"
-};
-
 console.log('Test log 1');
 console.log('Test log 2');
 function testFunction() {

@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 
 
 export default function Table() {
-    const [filePath, setFilePath] = useState('')
+    const [originFileContent, setOriginalFileContent] = useState('');
+    const [filePath, setFilePath] = useState('');
     const vscode = window.vscodeApi;
 
     const handleClick = (cmd) => {        
         // Send a message to your extension with the command
         if(cmd === 'startServer') vscode.postMessage('NexTrace.startServer');
         if(cmd === 'openMetrics') vscode.postMessage('NexTrace.openTable');
+        if(cmd === 'transformCode' && filePath !== '') vscode.postMessage({ command: 'transformCode', path: filePath });
       };
 
     function handleFile() {
@@ -20,7 +22,8 @@ export default function Table() {
             const reader = new FileReader();
             reader.onload = function (event) {
                 const fileContent = event.target.result;
-                vscode.postMessage({ command: 'transformCode', path: file.path });
+                setOriginalFileContent(fileContent);
+                setFilePath(file.path);
             }
             reader.readAsText(file);
         }
@@ -31,11 +34,10 @@ export default function Table() {
             <button className='startButton' 
             onClick={e => {
                 handleClick('startServer');
-                handleFile()
+                handleClick('transformCode');
             }}>Start</button>
             <p>NexTrace running on port: 3695....</p>
-
-            <input type="file" id="fileInput" name="fileInput"></input>
+            <input type="file" id="fileInput" name="fileInput" onChange={handleFile}></input>
             <button className='buttonOne'  onClick={e => {handleClick('openMetrics')}}></button>
             <button className='buttonOne'  onClick={e => {}}></button>
             <button className='buttonOne'></button>
