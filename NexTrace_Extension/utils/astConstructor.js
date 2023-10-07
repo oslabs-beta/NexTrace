@@ -115,7 +115,7 @@ const transformer = (file, api) => {
                         j.property(
                             'init',
                             j.identifier('url'),
-                            j.literal('http://localhost:9999/otel')
+                            j.literal('http://localhost:3695/otel')
                         )
                     ]
                 )
@@ -244,7 +244,7 @@ const transformer = (file, api) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:9999'),
+                j.literal('http://localhost:3695'),
                 j.objectExpression([
                     j.property(
                         'init',

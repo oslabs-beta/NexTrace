@@ -11,7 +11,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:nextrace-primary-sidebar.views",
     "onStartupFinished"
   ],
   "main": "./extension.js",
@@ -22,8 +21,12 @@
         "title": "Start Server"
       },
       {
-        "command": "myExtension.openWebview",
-        "title": "Open Webview"
+        "command": "NexTrace.stopServer",
+        "title": "Stop Server"
+      },
+      {
+        "command": "NexTrace.openTable",
+        "title": "Open NexTrace Metrics"
       }
     ],
     "viewsContainers": {
@@ -42,8 +45,7 @@
           "id": "nextrace-primary-sidebar.views",
           "name": "NexTrace",
           "contextualTitle": "NexTrace",
-          "type": "webview",
-          "content": "hello world"
+          "type": "webview"
         }
       ]
     }
@@ -79,6 +81,9 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.12",
     "cors": "^2.8.5",
     "jscodeshift": "^0.15.0",
     "react": "^18.2.0",
