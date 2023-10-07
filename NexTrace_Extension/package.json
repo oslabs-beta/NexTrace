@@ -11,7 +11,6 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:nextrace-primary-sidebar.views",
     "onStartupFinished"
   ],
   "main": "./extension.js",
@@ -20,6 +19,10 @@
       {
         "command": "NexTrace.startServer",
         "title": "Start Server"
+      },
+      {
+        "command": "NexTrace.stopServer",
+        "title": "Stop Server"
       },
       {
         "command": "NexTrace.openTable",

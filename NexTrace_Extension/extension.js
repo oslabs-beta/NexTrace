@@ -75,6 +75,7 @@ function activate(context) {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https: http: vscode-webview-resource: 'unsafe-inline'; img-src 'self' data: https: http:;">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css"/>
       </head>
       <body>
           <div id="root"></div>
@@ -95,12 +96,7 @@ function activate(context) {
           const userProvidedPath = message.path;
           transformCode(userProvidedPath);
         }
-        else if (message === 'NexTrace.startServer'){
-          vscode.commands.executeCommand(message);
-        }
-        else if (message === 'NexTrace.openTable'){
-          vscode.commands.executeCommand(message);
-        }
+        else vscode.commands.executeCommand(message);
       });
     },
   };
@@ -113,12 +109,25 @@ function activate(context) {
   );
   context.subscriptions.push(disposable2);
 
+  let serverInstance
   //REGISTERS START SERVER COMMAND
   const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {
-    // Start your server here
-    require('./react-app/src/server'); // Replace with the correct path to your server file
+  // Start your server here
+  console.log('server is starting')
+  serverInstance = require('./react-app/src/server'); 
   });
   context.subscriptions.push(disposable);
+
+  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => {
+    // Stop your server here
+    console.log('server is STOPPING')
+    if (serverInstance) {
+      serverInstance.close(() => {
+        console.log('Server stopped.');
+      });
+    }
+  });
+  context.subscriptions.push(stopDisposable);
 
 
   console.log('Congratulations, your extension "NexTrace" is now active!');
@@ -128,9 +137,7 @@ async function transformCode(userProvidedPath) {
 
   try {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
-
     const editor = await vscode.window.showTextDocument(document);
-
     const fileContent = document.getText();
 
     const transformedContent = transformer({
