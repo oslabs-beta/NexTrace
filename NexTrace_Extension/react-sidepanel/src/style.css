@@ -7,14 +7,13 @@ body {
   flex-direction: column;
 }
 
-.startButton{
+.serverButton{
   display: inline-block;
   padding: 10px 20px;
   font-size: 14px;
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
-  background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -23,14 +22,19 @@ body {
   transition: background-color 0.3s, transform 0.2s;
 }
 
+.startButton {
+  background-color: #007bff;
+}
 .startButton:hover {
   background-color: #0056b3;
   transform: scale(1.05);
 }
-
 .startButton:active {
   background-color: #00418a;
   transform: scale(0.95);
+}
+.stopButton {
+  background-color: #ff3700;
 }
 
 .buttonOne{
