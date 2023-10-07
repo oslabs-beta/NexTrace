@@ -1,5 +1,7 @@
 const vscode = require('vscode');
 const path = require('path');
+const jscodeshift = require('jscodeshift');
+const { transformer } = require('./utils/astConstructor');
 
 
 /**
@@ -63,7 +65,7 @@ function activate(context) {
         // Enable JavaScript in the webview
         enableScripts: true,
       };
-  
+
       const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
       // Set the HTML content for the webview view
       webviewView.webview.html = `
@@ -78,43 +80,80 @@ function activate(context) {
           <div id="root"></div>
           <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
           <script>
-            const vscode = acquireVsCodeApi();
+          window.vscodeApi = acquireVsCodeApi();
           </script>
           <script src="${panelAppUri}"></script>
       </body>
       </html>
       `;
-  
+
       // Handle any messages or events from the webview view here
       webviewView.webview.onDidReceiveMessage((message) => {
         // Handle the message from the webview view
-        console.log(message);
-        vscode.commands.executeCommand(message);
+        if (message.command === 'transformCode') {
+          console.log('here is the message: ', message.path)
+          const userProvidedPath = message.path;
+          transformCode(userProvidedPath);
+        }
+        else if (message === 'NexTrace.startServer'){
+          vscode.commands.executeCommand(message);
+        }
+        else if (message === 'NexTrace.openTable'){
+          vscode.commands.executeCommand(message);
+        }
       });
     },
   };
 
-  
+
   //REGISTERS PRIMARY SIDE BAR PROVIDER
   const disposable2 = vscode.window.registerWebviewViewProvider(
     "nextrace-primary-sidebar.views",
     thisProvider
   );
   context.subscriptions.push(disposable2);
-	
+
   //REGISTERS START SERVER COMMAND
-	const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {
-		// Start your server here
-		require('./react-app/src/server'); // Replace with the correct path to your server file
-	  });
-	context.subscriptions.push(disposable);
+  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {
+    // Start your server here
+    require('./react-app/src/server'); // Replace with the correct path to your server file
+  });
+  context.subscriptions.push(disposable);
 
 
-	console.log('Congratulations, your extension "NexTrace" is now active!');
+  console.log('Congratulations, your extension "NexTrace" is now active!');
 }
-function deactivate() {}
+
+async function transformCode(userProvidedPath) {
+
+  try {
+    const document = await vscode.workspace.openTextDocument(userProvidedPath);
+
+    const editor = await vscode.window.showTextDocument(document);
+
+    const fileContent = document.getText();
+
+    const transformedContent = transformer({
+      source: fileContent
+    }, {
+      jscodeshift
+    });
+
+    const fullRange = new vscode.Range(document.positionAt(0),
+      document.positionAt(fileContent.length)
+    );
+
+    editor.edit(editBuilder => {
+      editBuilder.replace(fullRange, transformedContent);
+    });
+  } catch (err) {
+    vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
+  }
+}
+
+function deactivate() { }
 
 module.exports = {
-	activate,
-	deactivate
+  activate,
+  deactivate
 }
