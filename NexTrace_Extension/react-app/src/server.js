@@ -12,7 +12,6 @@ let requestArray = [];
 
 app.get('/', (req, res) => {
   res.send('Hello, world!');
-  console.log('in get / request')
 });
 
 
@@ -74,7 +73,7 @@ app.use('/otel', (req, res, next) => {
 app.get('/getData', (req,res) =>{
   return res.status(200).json(requestArray);
 })
-/
+
 
 
 
@@ -94,7 +93,15 @@ app.use((err, req, res, next) => {
 });
 
 
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
+let serverInstance;
+function server () {
+  serverInstance = app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
+  });
+};
 
+function closeServer () {
+  return serverInstance.close();
+}
+
+module.exports = { server, closeServer };

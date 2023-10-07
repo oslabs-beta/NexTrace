@@ -2,7 +2,8 @@ const vscode = require('vscode');
 const path = require('path');
 const jscodeshift = require('jscodeshift');
 const { transformer } = require('./utils/astConstructor');
-
+const { detransformer } = require('./utils/astDeconstructor');
+const { server, closeServer } = require('./react-app/src/server');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -22,15 +23,15 @@ function activate(context) {
           } // Webview options. More on these later.
         );
 
-    const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
-    const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
+        const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
+        const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
-    const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
-    const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath)); //.with({ scheme: 'vscode-webview-resource' })
-    
-    // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
+        const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
+        const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath)); //.with({ scheme: 'vscode-webview-resource' })
 
-    const webviewContent = `
+        // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
+
+        const webviewContent = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -47,11 +48,11 @@ function activate(context) {
       </html>
     `;
 
-    panel.webview.html = webviewContent;
-  })
-);
+        panel.webview.html = webviewContent;
+      })
+    );
   }
-  catch(err) {
+  catch (err) {
     console.log(err);
   }
 
@@ -90,10 +91,11 @@ function activate(context) {
       // Handle any messages or events from the webview view here
       webviewView.webview.onDidReceiveMessage((message) => {
         // Handle the message from the webview view
-        if (message.command === 'transformCode') {
+        let userProvidedPath;
+        if (message.command === 'transformCode' || message.command === 'detransformCode') {
           console.log('here is the message: ', message.path)
-          const userProvidedPath = message.path;
-          transformCode(userProvidedPath);
+          userProvidedPath = message.path;
+          transformCode(userProvidedPath, message.command);
         }
         else vscode.commands.executeCommand(message);
       });
@@ -108,23 +110,20 @@ function activate(context) {
   );
   context.subscriptions.push(disposable2);
 
-  let serverInstance
+
   //REGISTERS START SERVER COMMAND
   const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {
-  // Start your server here
-  console.log('server is starting')
-  serverInstance = require('./react-app/src/server'); 
+    // Start your server here
+    console.log('server is starting')
+    server();
+
   });
   context.subscriptions.push(disposable);
 
   const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => {
     // Stop your server here
     console.log('server is STOPPING')
-    if (serverInstance) {
-      serverInstance.close(() => {
-        console.log('Server stopped.');
-      });
-    }
+    closeServer();
   });
   context.subscriptions.push(stopDisposable);
 
@@ -132,18 +131,27 @@ function activate(context) {
   console.log('Congratulations, your extension "NexTrace" is now active!');
 }
 
-async function transformCode(userProvidedPath) {
+async function transformCode(userProvidedPath, command) {
 
   try {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
     const editor = await vscode.window.showTextDocument(document);
     const fileContent = document.getText();
-
-    const transformedContent = transformer({
-      source: fileContent
-    }, {
-      jscodeshift
-    });
+    let transformedContent;
+    if (command === 'transformCode') {
+      transformedContent = transformer({
+        source: fileContent
+      }, {
+        jscodeshift
+      });
+    }
+    else if (command === 'detransformCode') {
+      transformedContent = detransformer({
+        source: fileContent
+      }, {
+        jscodeshift
+      });
+    }
 
     const fullRange = new vscode.Range(document.positionAt(0),
       document.positionAt(fileContent.length)
