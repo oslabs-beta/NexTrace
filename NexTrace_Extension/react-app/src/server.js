@@ -96,12 +96,19 @@ app.use((err, req, res, next) => {
 let serverInstance;
 function server () {
   serverInstance = app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
+    console.log(`Server is listening on port: ${port}`);
   });
 };
 
 function closeServer () {
-  return serverInstance.close();
+  console.log(`Server is closing port: ${port}`);
+  serverInstance.close();
+
+    // // Set a timeout to forcefully close the server if it doesn't stop within a certain time (e.g., 5 seconds)
+    // setTimeout(() => {
+    //   console.log('Forcibly terminating the server.');
+    //   process.exit(1); // Terminate the Node.js process
+    // }, 5000); // 5000 milliseconds (5 seconds)
 }
 
 module.exports = { server, closeServer };

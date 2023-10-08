@@ -27,9 +27,7 @@ function activate(context) {
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
         const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
-        const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath)); //.with({ scheme: 'vscode-webview-resource' })
-
-        // <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:; script-src-elem 'unsafe-inline' 'self' https://*.vscode-cdn.net vscode-webview-resource:;">
+        const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
 
         const webviewContent = `
       <!DOCTYPE html>
@@ -60,14 +58,11 @@ function activate(context) {
   const panelAppPath = path.join(context.extensionPath, 'react-sidepanel', 'dist', 'bundle.js');
   const thisProvider = {
     resolveWebviewView: function (webviewView, context, token) {
-      // Customize the webview view here
+      const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
       webviewView.webview.options = {
-        // Enable JavaScript in the webview
         enableScripts: true,
       };
 
-      const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
-      // Set the HTML content for the webview view
       webviewView.webview.html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -91,11 +86,8 @@ function activate(context) {
       // Handle any messages or events from the webview view here
       webviewView.webview.onDidReceiveMessage((message) => {
         // Handle the message from the webview view
-        let userProvidedPath;
         if (message.command === 'transformCode' || message.command === 'detransformCode') {
-          console.log('here is the message: ', message.path)
-          userProvidedPath = message.path;
-          transformCode(userProvidedPath, message.command);
+          transformCode(message.path, message.command);
         }
         else vscode.commands.executeCommand(message);
       });
@@ -104,27 +96,15 @@ function activate(context) {
 
 
   //REGISTERS PRIMARY SIDE BAR PROVIDER
-  const disposable2 = vscode.window.registerWebviewViewProvider(
-    "nextrace-primary-sidebar.views",
-    thisProvider
-  );
+  const disposable2 = vscode.window.registerWebviewViewProvider("nextrace-primary-sidebar.views", thisProvider);
   context.subscriptions.push(disposable2);
 
-
   //REGISTERS START SERVER COMMAND
-  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {
-    // Start your server here
-    console.log('server is starting')
-    server();
-
-  });
+  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {server()});
   context.subscriptions.push(disposable);
 
-  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => {
-    // Stop your server here
-    console.log('server is STOPPING')
-    closeServer();
-  });
+  //REGISTERS STOP SERVER COMMAND
+  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => {closeServer()});
   context.subscriptions.push(stopDisposable);
 
 
@@ -132,7 +112,6 @@ function activate(context) {
 }
 
 async function transformCode(userProvidedPath, command) {
-
   try {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
     const editor = await vscode.window.showTextDocument(document);
@@ -165,7 +144,9 @@ async function transformCode(userProvidedPath, command) {
   }
 }
 
-function deactivate() { }
+function deactivate() { 
+  closeServer();
+}
 
 module.exports = {
   activate,
