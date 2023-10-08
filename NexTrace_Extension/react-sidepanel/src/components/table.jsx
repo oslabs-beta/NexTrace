@@ -1,39 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 
 
 export default function Table() {
-    const [originFileContent, setOriginalFileContent] = useState('');
+    const [fileName, setFileName] = useState('');
     const [filePath, setFilePath] = useState('');
     const [buttonState, setButtonState] = useState('Start')
     const vscode = window.vscodeApi;
 
     const handleClick = (cmd) => {     
         //Toggles button text to start / stop
-        if (cmd === 'startServer' || cmd === 'stopServer' && buttonState === 'Start') setButtonState('Stop')
-        else if (cmd === 'startServer' || cmd === 'stopServer') setButtonState('Start');
+        if (cmd === 'startServer' && buttonState === 'Start' && filePath !== '') setButtonState('Stop')
+        else if (cmd === 'stopServer' && buttonState === 'Stop' && filePath !== '') setButtonState('Start');
 
         // Send a message to your extension with the command
-        if(cmd === 'startServer') vscode.postMessage('NexTrace.startServer');
-        if(cmd === 'stopServer') vscode.postMessage('NexTrace.stopServer');
         if(cmd === 'openMetrics') vscode.postMessage('NexTrace.openTable');
+        if(cmd === 'startServer' && filePath !== '') vscode.postMessage('NexTrace.startServer');
+        if(cmd === 'stopServer' && filePath !== '') vscode.postMessage('NexTrace.stopServer');
         if(cmd === 'transformCode' && filePath !== '') vscode.postMessage({ command: 'transformCode', path: filePath });
       };
+    
 
-    function handleFile() {
-        console.log('im in handleFile')
-        const fileInput = document.getElementById('fileInput');
-        const file = fileInput.files[0];
+    const fileInputRef = useRef(null);
+    const handleFileButtonClick = () => {
+      fileInputRef.current.click();
+      fileInputRef.current.value = null;
+    };
+  
+    function handleFile(e) {
+      console.log('im in handleFile')
+        const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const fileContent = event.target.result;
-                setOriginalFileContent(fileContent);
+                setFileName(file.name);
                 setFilePath(file.path);
-            }
-            reader.readAsText(file);
         }
+
     }
+
+    function resetFile() {
+              setFileName('');
+              setFilePath('');
+  }
 
     return (
         <div className='panel'>
@@ -43,10 +50,15 @@ export default function Table() {
             buttonState === 'Start' ? handleClick('startServer') : handleClick('stopServer')
             buttonState === 'Start' ? handleClick('transformCode') : '';
             }}
-          >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<> <i className="fas fa-stop"></i>  Stop</>)}
+          >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<> <i className="fas fa-stop"></i> Stop</>)}
           </button>
-            <p>NexTrace running on port: 3695....</p>
-            <input type="file" id="fileInput" name="fileInput" onChange={handleFile}></input>
+            <p>{buttonState === 'Start' ? `Choose a root file to monitor.` : `NexTrace running on port: 3695.....`}</p>
+            <div>
+              <button type="button" onClick={handleFileButtonClick} disabled={buttonState === 'Stop'}>{fileName ? fileName : 'Choose File'}</button>
+              {fileName && <button type="button" onClick={resetFile} disabled={buttonState === 'Stop'}>X</button>}
+              <input type="file" id="fileInput" name="fileInput" onChange={handleFile} ref={fileInputRef} style={{ display: 'none' }}></input>
+            </div>
+          
             <button className='buttonOne'  onClick={e => {handleClick('openMetrics')}}></button>
             <button className='buttonOne'></button>
             <button className='buttonOne'></button>
