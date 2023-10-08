@@ -8,18 +8,18 @@ export default function Table() {
     const [buttonState, setButtonState] = useState('Start')
     const vscode = window.vscodeApi;
 
-    const handleClick = (cmd) => {     
+    const handleClick = (cmd) => {
         //Toggles button text to start / stop
         if (cmd === 'startServer' && buttonState === 'Start' && filePath !== '') setButtonState('Stop')
         else if (cmd === 'stopServer' && buttonState === 'Stop' && filePath !== '') setButtonState('Start');
 
         // Send a message to your extension with the command
-        if(cmd === 'openMetrics') vscode.postMessage('NexTrace.openTable');
-        if(cmd === 'startServer' && filePath !== '') vscode.postMessage('NexTrace.startServer');
-        if(cmd === 'stopServer' && filePath !== '') vscode.postMessage('NexTrace.stopServer');
-        if(cmd === 'transformCode' && filePath !== '') vscode.postMessage({ command: 'transformCode', path: filePath });
-      };
-    
+        if (cmd === 'startServer') vscode.postMessage('NexTrace.startServer');
+        if (cmd === 'stopServer') vscode.postMessage('NexTrace.stopServer');
+        if (cmd === 'openMetrics') vscode.postMessage('NexTrace.openTable');
+        if (cmd === 'transformCode' && filePath !== '') vscode.postMessage({ command: 'transformCode', path: filePath });
+        if (cmd === 'detransformCode' && filePath !== '') vscode.postMessage({ command: 'detransformCode', path: filePath });
+    };
 
     const fileInputRef = useRef(null);
     const handleFileButtonClick = () => {
@@ -48,7 +48,7 @@ export default function Table() {
             className={`serverButton ${buttonState === 'Start' ? 'startButton' : 'stopButton'}`}
             onClick={(e) => {
             buttonState === 'Start' ? handleClick('startServer') : handleClick('stopServer')
-            buttonState === 'Start' ? handleClick('transformCode') : '';
+            buttonState === 'Start' ? handleClick('transformCode') : handleClick('detransformCode');
             }}
           >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<> <i className="fas fa-stop"></i> Stop</>)}
           </button>
