@@ -65,16 +65,40 @@ app.use('/otel', (req, res, next) => {
       else{
         obj.rendering = '';
       }
-  }
-  requestArray.push(obj)
+
+      // obj.type === 'BaseServer.handleRequest' handles initial req but affects future client req
+
+      // Using for console logs 
+      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method)) {
+        console.log('Duplicate, SKIP');
+      } else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult') {
+        console.log('Don\'t want!, SKIP');
+      } else {
+        requestArray.push(obj);
+        console.log('Inserted new request');
+        console.log(requestArray);
+      }
+
+      // Refactored ^^
+      // if (!requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method) &&
+      //   !(obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult')) {
+      // requestArray.push(obj);
+      // }
+
+
+      
+    }
+  
+  // requestArray.push(obj)
   // console.log(requestArray);
-  return res.status(200).json('Span Received');
-})
+    return res.status(200).json('Span Received');
+  });
+ 
 
 app.get('/getData', (req,res) =>{
   return res.status(200).json(requestArray);
 })
-/
+
 
 
 

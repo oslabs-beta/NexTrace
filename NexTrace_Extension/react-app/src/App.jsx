@@ -37,32 +37,29 @@ function createNewData(name, status, method, type, duration, rendering) {
   export default function CustomizedTables() {
     const [awaitedData, setAwaitedData] = useState([]);
 
-    useEffect(() => {
-      const fetchData = () => {
-        setTimeout(() => {
-          fetch('http://localhost:3695/getData')
-            .then(response => {
-              if (!response.ok) {
-                throw new Error('Network error');
-              }
-              return response.json();
-            })
-            .then(data => {
-              const transformedData = data.map(arr =>
-                createNewData(arr.name, arr.status, arr.method, arr.type, arr.duration, arr.rendering)
-              );
-              setAwaitedData(transformedData);
-              console.log('Request Data:', data);
-              console.log('Transformed Data:', transformedData);
-            })
-            .catch(error => {
-              console.error('Error:', error);
-            });
-        }, 10000); 
-      };
+    const fetchData = () => {
+      fetch('http://localhost:3695/getData')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network error');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const transformedData = data.map(arr =>
+            createNewData(arr.name, arr.status, arr.method, arr.type, arr.duration, arr.rendering)
+          );
+          setAwaitedData(transformedData);
+          console.log('Request Data:', data);
+          console.log('Transformed Data:', transformedData);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    };
     
-      fetchData();
-    }, []);
+    setInterval(fetchData, 2000);
+    
     
   
     return (
