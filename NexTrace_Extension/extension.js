@@ -1,5 +1,5 @@
-const vscode = require('vscode');
 const path = require('path');
+const vscode = require('vscode');
 const jscodeshift = require('jscodeshift');
 const { transformer } = require('./utils/astConstructor');
 const { detransformer } = require('./utils/astDeconstructor');
@@ -11,18 +11,19 @@ const { server, closeServer } = require('./react-app/src/server');
 function activate(context) {
   //PRIMARY PANEL FOR HTTP REQUESTS W/ METRICS & GRAPHS
   try {
+    //METRICS DISPLAY PANEL
     context.subscriptions.push(
       vscode.commands.registerCommand('NexTrace.openTable', () => {
         const panel = vscode.window.createWebviewPanel(
-          'nextrace-display', // Identifies the type of the webview. Used internally
-          'NexTrace Display', // Title of the panel displayed to the user
+          'nextrace-metrics', // Identifies the type of the webview. Used internally
+          'Request Metrics', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))]
           } // Webview options. More on these later.
         );
-
+    
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
@@ -30,22 +31,62 @@ function activate(context) {
         const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
 
         const webviewContent = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">          
           <link rel="stylesheet" type="text/css" href="${cssAppUri}">
-      </head>
-      <body>
+        </head>
+        <body>
           <div id="root"></div>
+          <div id="route" data-route-path="/metrics"></div>
           <h1>Hello World!</h1>
           <script src="${reactAppUri}"></script>
-      </body>
-      </html>
-    `;
+        </body>
+        </html>
+        `;
+        panel.webview.html = webviewContent;
+      })
+    );
 
+    //CONSOLE DISPLAY PANEL
+    context.subscriptions.push(
+      vscode.commands.registerCommand('NexTrace.openConsole', (routePath) => {
+        const panel = vscode.window.createWebviewPanel(
+          'nextrace-console', // Identifies the type of the webview. Used internally
+          'Console Summary', // Title of the panel displayed to the user
+          vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+          {
+            enableScripts: true,
+            localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))]
+          } // Webview options. More on these later.
+        );
+    
+        const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
+        const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
+    
+        const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
+        const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
+
+        const webviewContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">                    
+          <link rel="stylesheet" type="text/css" href="${cssAppUri}">
+        </head>
+        <body>
+          <div id="root"></div>
+          <h1>Hello Console!</h1>
+          <div id="route" data-route-path="/console"></div>
+          <script src="${reactAppUri}"></script>
+        </body>
+        </html>
+        `;
         panel.webview.html = webviewContent;
       })
     );

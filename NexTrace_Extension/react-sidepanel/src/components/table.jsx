@@ -43,16 +43,16 @@ export default function Table() {
       }
         //Opens Other Panels for Display
         if (cmd === 'openMetrics') vscode.postMessage('NexTrace.openTable');
-        if (cmd === 'openConsole') vscode.postMessage('NexTrace.openTable');
-
+        if (cmd === 'openConsole') vscode.postMessage('NexTrace.openConsole');
     };
 
+    //Links Choose File Button functionality to hidden input element
     const fileInputRef = useRef(null);
     const handleFileButtonClick = () => {
       fileInputRef.current.click();
       fileInputRef.current.value = null;
     };
-  
+    //Sets Filename / Path state to selected file
     function handleFile(e) {
         const file = e.target.files[0];
         if (file) {
@@ -61,11 +61,11 @@ export default function Table() {
         }
 
     }
-
+    //Reset Filename / Path state to '' for X button
     function resetFile() {
               setFileName('');
               setFilePath('');
-  }
+    }
 
     return (
         <div className='panel'>
@@ -77,7 +77,9 @@ export default function Table() {
             }}
           >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<> <i className="fas fa-stop"></i> Stop</>)}
           </button>
+
             <p>{buttonState === 'Start' ? `Choose a root file to monitor.` : `NexTrace running on port: 3695.....`}</p>
+
             <div>
               <button type="button" onClick={handleFileButtonClick} disabled={buttonState === 'Stop'}>{fileName ? fileName : 'Choose File'}</button>
               {fileName && <button type="button" onClick={resetFile} disabled={buttonState === 'Stop'}>X</button>}
@@ -87,7 +89,6 @@ export default function Table() {
             <button className='buttonOne' onClick={e => {handleClick('openMetrics')}}></button>
             <button className='buttonOne' onClick={e => {handleClick('openConsole')}}></button>
             <button className='buttonOne'></button>
-
         </div>
     )
 }
