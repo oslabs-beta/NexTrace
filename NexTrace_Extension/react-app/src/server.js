@@ -69,7 +69,7 @@ app.use('/otel', (req, res, next) => {
       // obj.type === 'BaseServer.handleRequest' handles initial req but affects future client req
 
       // Using for console logs 
-      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method)) {
+      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
         console.log('Duplicate, SKIP');
       } else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult') {
         console.log('Don\'t want!, SKIP');
@@ -80,10 +80,16 @@ app.use('/otel', (req, res, next) => {
       }
 
       // Refactored ^^
-      // if (!requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method) &&
-      //   !(obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult')) {
-      // requestArray.push(obj);
+      // if (!requestArray.some(item =>
+      //   item.name === obj.name &&
+      //   item.type === obj.type &&
+      //   item.method === obj.method &&
+      //   item.rendering === obj.rendering &&
+      //   item.status === obj.status
+      // ) && obj.type !== 'AppRouteRouteHandlers.runHandler' && obj.type !== 'AppRender.getBodyResult') {
+      //   requestArray.push(obj);
       // }
+      
 
 
       
