@@ -47,7 +47,7 @@ function createNewData(name, status, method, type, duration, rendering) {
         })
         .then(data => {
           const transformedData = data.map(arr =>
-            createNewData(arr.name, arr.status, arr.method, arr.type, arr.duration, arr.rendering)
+            createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering)
           );
           setAwaitedData(transformedData);
           console.log('Request Data:', data);
@@ -71,7 +71,7 @@ function createNewData(name, status, method, type, duration, rendering) {
               <StyledTableCell align="right">Status</StyledTableCell>
               <StyledTableCell align="right">Method</StyledTableCell>
               <StyledTableCell align="right">Type</StyledTableCell>
-              <StyledTableCell align="right">Duration;(ms)</StyledTableCell>
+              <StyledTableCell align="right">Duration (ms)</StyledTableCell>
               <StyledTableCell align="right">Rendering</StyledTableCell>
             </TableRow>
           </TableHead>
