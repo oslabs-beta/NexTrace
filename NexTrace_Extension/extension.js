@@ -197,7 +197,7 @@ async function transformCode(userProvidedPath, command) {
 function deactivate() { 
 }
 
-module.exports = {
+module.exports = {  
   activate,
   deactivate
 }
