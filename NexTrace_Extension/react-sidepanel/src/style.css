@@ -70,8 +70,8 @@ body {
   display: inline-block;
   border:none;
   cursor:pointer;
-  margin-left: 0.2em;
-  font-size: 2em;
+  margin-left: 0.1em;
+  font-size: 1.6em;
   color:#ff3700;
   background-color: transparent;
   transition: background-color 0.3s, transform 0.2s;

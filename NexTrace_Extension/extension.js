@@ -124,7 +124,7 @@ function activate(context) {
       </head>
       <body>
         <div id="root"></div>
-        <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
+        <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" style="margin-top: 3em;"/>
         <script>
         window.vscodeApi = acquireVsCodeApi();
         </script>

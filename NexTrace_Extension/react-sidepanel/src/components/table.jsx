@@ -76,7 +76,7 @@ export default function Table() {
           >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<><i className="fas fa-stop"></i> Stop</>)}
           </button>
 
-          <p style={{textAlign:"center"}}>{buttonState === 'Start' ? fileName !== '' ? 'Selected File:' : `Select root file.....` : `NexTrace running on port: 3695.....`}</p>
+          <p style={{textAlign:"center", marginBottom:'0.15em'}}>{buttonState === 'Start' ? fileName !== '' ? 'Selected File:' : `Select root file.....` : `NexTrace running on port: 3695.....`}</p>
 
           <div className='chooseFile'>
             <button type="button" className='chooseButton' onClick={handleFileButtonClick} disabled={buttonState === 'Stop'}>{fileName ? fileName : 'Choose File'}</button>
