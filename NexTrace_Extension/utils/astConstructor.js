@@ -1,5 +1,6 @@
-export default function transformer(file, api) {
-    const j = api.jscodeshift;
+const transformer = (file, api) => {
+    const j = api.jscodeshift.withParser('tsx');
+
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
@@ -7,7 +8,7 @@ export default function transformer(file, api) {
     /*
 
     The following code generates this using jscodeshift:
-         
+         so
      const {
         trace: trace
         } = require("@opentelemetry/api");
@@ -100,7 +101,7 @@ export default function transformer(file, api) {
     The following code generates this using jscodeshift:
 
     const collectorOptions = {
-  url: 'http://localhost:9999/otel', 
+  url: 'http://localhost:3695/otel', 
 };
 
     */
@@ -115,7 +116,7 @@ export default function transformer(file, api) {
                         j.property(
                             'init',
                             j.identifier('url'),
-                            j.literal('http://localhost:9999/otel')
+                            j.literal('http://localhost:3695/otel')
                         )
                     ]
                 )
@@ -226,7 +227,7 @@ export default function transformer(file, api) {
 
     The following code generates this using jscodeshift:
     
-    fetch("http://localhost:9999", {
+    fetch("http://localhost:3695", {
         method: "POST",
 
         headers: {
@@ -244,7 +245,7 @@ export default function transformer(file, api) {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:9999'),
+                j.literal('http://localhost:3695'),
                 j.objectExpression([
                     j.property(
                         'init',
@@ -291,7 +292,7 @@ export default function transformer(file, api) {
     function captureAndSend(...args) {
         const content = args.map(arg => JSON.stringify(arg));
 
-        fetch("http://localhost:9999", {
+        fetch("http://localhost:3695", {
             method: "POST",
 
             headers: {
@@ -391,32 +392,34 @@ export default function transformer(file, api) {
         }
     }
 
-    // ast.find(j.CallExpression, {
-    //     callee: {
-    //         type: "MemberExpression",
-    //         object: { type: "Identifier", name: "console" },
-    //         property: { type: "Identifier", name: "log" },
-    //     }
-    // }).forEach(log => {
-    //     const logArguments = log.node.arguments;
-    //     //Create a new instance of invoking captureAndSend
-    //     const funcExpression = createCaptureAndSendInvocation(logArguments);
-    //     insertContentAfter(log, funcExpression);
-    // })
+    ast.find(j.CallExpression, {
+        callee: {
+            type: "MemberExpression",
+            object: { type: "Identifier", name: "console" },
+            property: { type: "Identifier", name: "log" },
+        }
+    }).forEach(log => {
+        const logArguments = log.node.arguments;
+        //Create a new instance of invoking captureAndSend
+        const funcExpression = createCaptureAndSendInvocation(logArguments);
+        insertContentAfter(log, funcExpression);
+    })
 
+    rootNode.body.unshift(dispatchFunctionStatement);
+    rootNode.body.unshift(providerRegisterStatement);
+    rootNode.body.unshift(setGlobalTracerStatement);
+    rootNode.body.unshift(addSpanProcessorStatement);
+    rootNode.body.unshift(exporterDeclarationStatement);
+    rootNode.body.unshift(providerDeclarationStatement);
     rootNode.body.unshift(collectorOptionsDeclaration);
-    // rootNode.body.unshift(providerRegisterStatement);
-    // rootNode.body.unshift(dispatchFunctionStatement);
-    // rootNode.body.unshift(addSpanProcessorStatement);
-    // rootNode.body.unshift(setGlobalTracerStatement);
-    // rootNode.body.unshift(exporterDeclarationStatement);
-    // rootNode.body.unshift(providerDeclarationStatement);
-    // rootNode.body.unshift(traceBaseRequireStatemt);
-    // rootNode.body.unshift(OTLPTraceExporterRequireStatement);
-    // rootNode.body.unshift(traceRequireStatement);
+    rootNode.body.unshift(traceBaseRequireStatemt);
+    rootNode.body.unshift(OTLPTraceExporterRequireStatement);
+    rootNode.body.unshift(traceRequireStatement);
 
     return ast.toSource();
 }
+
+module.exports = { transformer };
 
 
 /*
@@ -442,6 +445,7 @@ const {
  const provider = new BasicTracerProvider();
  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));  ---WAIT FOR THIS ONE
  trace.setGlobalTracerProvider(provider);
+
 
 */
 
