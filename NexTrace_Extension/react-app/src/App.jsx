@@ -7,6 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import WaterfallChart from './components/WaterfallChart'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -64,7 +65,9 @@ function createNewData(name, status, method, type, duration, rendering) {
     }, []);
     
   
-    return (
+    return (<>
+      <h1>Waterfall Chart</h1>
+      <WaterfallChart/>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
           <TableHead>
@@ -93,5 +96,5 @@ function createNewData(name, status, method, type, duration, rendering) {
           </TableBody>
         </Table>
       </TableContainer>
-    );
+    </>);
   }
