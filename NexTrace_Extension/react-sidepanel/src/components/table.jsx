@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 
 
-
 export default function Table() {
   //CHECK IF SERVER IS STARTED ALREADY - This is needed to save state of start&stop button/file information in case user clicks on other activity bar items
   // async function checkServerStatus() {
@@ -66,7 +65,6 @@ export default function Table() {
               setFileName('');
               setFilePath('');
     }
-
     return (
         <div className='panel'>
           <button
@@ -75,20 +73,24 @@ export default function Table() {
             buttonState === 'Start' ? handleClick('startServer') : handleClick('stopServer')
             buttonState === 'Start' ? handleClick('transformCode') : handleClick('detransformCode');
             }}
-          >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<> <i className="fas fa-stop"></i> Stop</>)}
+          >{buttonState === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<><i className="fas fa-stop"></i> Stop</>)}
           </button>
 
-            <p>{buttonState === 'Start' ? `Choose a root file to monitor.` : `NexTrace running on port: 3695.....`}</p>
+          <p style={{textAlign:"center"}}>{buttonState === 'Start' ? fileName !== '' ? 'Selected File:' : `Select root file.....` : `NexTrace running on port: 3695.....`}</p>
 
-            <div>
-              <button type="button" onClick={handleFileButtonClick} disabled={buttonState === 'Stop'}>{fileName ? fileName : 'Choose File'}</button>
-              {fileName && <button type="button" onClick={resetFile} disabled={buttonState === 'Stop'}>X</button>}
-              <input type="file" id="fileInput" name="fileInput" onChange={handleFile} ref={fileInputRef} style={{ display: 'none' }}></input>
-            </div>
+          <div className='chooseFile'>
+            <button type="button" className='chooseButton' onClick={handleFileButtonClick} disabled={buttonState === 'Stop'}>{fileName ? fileName : 'Choose File'}</button>
+            {/* <button type="button" className="chooseButton" onClick={handleFileButtonClick} disabled={buttonState === 'Stop'}>
+              <img className="chooseButtonImage" />
+              <span className="chooseButtonText">{fileName ? fileName : 'Choose File'}</span>
+            </button> */}
+            {fileName && <button type="button" className={buttonState === 'Stop' ? 'xButtonHide' : 'xButton'} onClick={resetFile} disabled={buttonState === 'Stop'}>X</button>}
+            <input type="file" id="fileInput" name="fileInput" onChange={handleFile} ref={fileInputRef} style={{ display: 'none' }}></input>
+          </div>
           
-            <button className='buttonOne' onClick={e => {handleClick('openMetrics')}}></button>
-            <button className='buttonOne' onClick={e => {handleClick('openConsole')}}></button>
-            <button className='buttonOne'></button>
+          <button className='buttonOne' onClick={e => {handleClick('openMetrics')}}></button>
+          <button className='buttonOne' onClick={e => {handleClick('openConsole')}}></button>
+          <button className='buttonOne'></button>
         </div>
     )
 }
