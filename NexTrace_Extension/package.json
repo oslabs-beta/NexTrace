@@ -1,0 +1,97 @@
+{
+  "name": "NexTrace",
+  "displayName": "NexTrace",
+  "description": "Waterfalls all network requests with click navigation of request origin for Next.js Applications.",
+  "version": "0.0.1",
+  "publisher": "Team-NexTrace",
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "NexTrace.startServer",
+        "title": "Start Server"
+      },
+      {
+        "command": "NexTrace.stopServer",
+        "title": "Stop Server"
+      },
+      {
+        "command": "NexTrace.openTable",
+        "title": "Open NexTrace Metrics"
+      },
+      {
+        "command": "NexTrace.openConsole",
+        "title": "Open NexTrace Console"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nextrace-activitybar",
+          "title": "NexTrace",
+          "icon": "$(squirrel)",
+          "command": "NexTrace.startServer",
+          "type": "webview"
+        }
+      ]
+    },
+    "views": {
+      "nextrace-activitybar": [
+        {
+          "id": "nextrace-primary-sidebar.views",
+          "name": "NexTrace",
+          "contextualTitle": "NexTrace",
+          "type": "webview"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "start": "nodemon /src/server.js",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js",
+    "build-react": "webpack --config ./react-app/webpack.config.js",
+    "build-sidepanel": "webpack --config ./react-sidepanel/webpack.config.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.15",
+    "@types/mocha": "^10.0.2",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.82.0",
+    "@vscode/test-electron": "^2.3.4",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.8.1",
+    "eslint": "^8.50.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "express": "^4.18.2",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "nodemon": "^3.0.1",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.12",
+    "cors": "^2.8.5",
+    "jscodeshift": "^0.15.0",
+    "react": "^18.2.0",
+    "typescript": "^5.2.2"
+  }
+}
