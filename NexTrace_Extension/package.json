@@ -35,7 +35,8 @@
           "id": "nextrace-activitybar",
           "title": "NexTrace",
           "icon": "$(squirrel)",
-          "command": "myExtension.openWebview"
+          "command": "NexTrace.startServer",
+          "type": "webview"
         }
       ]
     },
