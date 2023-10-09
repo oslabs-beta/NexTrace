@@ -22,9 +22,9 @@ export default function WaterfallChart(props) {
 
     // Parse the Data
     const data = [
-      {Country: 'United States', Value: 12394},
-      {Country: 'Russia', Value: 6148},
-      {Country: 'Germany', Value: 1234}
+      {name: 'Request 1', Value: 12394},
+      {name: 'Request 2', Value: 6148},
+      {name: 'Request 3', Value: 1234}
     ]
 
     // Add X axis
@@ -41,7 +41,7 @@ export default function WaterfallChart(props) {
     // Y axis
     const y = d3.scaleBand()
       .range([ 0, height ])
-      .domain(data.map(function(d) { return d.Country; }))
+      .domain(data.map(function(d) { return d.name; }))
       .padding(.1);
     svg.append("g")
       .call(d3.axisLeft(y))
@@ -52,13 +52,13 @@ export default function WaterfallChart(props) {
       .enter()
       .append("rect")
       .attr("x", x(0) )
-      .attr("y", function(d) { return y(d.Country); })
+      .attr("y", function(d) { return y(d.name); })
       .attr("width", function(d) { return x(d.Value); })
       .attr("height", y.bandwidth() )
       .attr("fill", "#69b3a2")
 
 
-      // .attr("x", function(d) { return x(d.Country); })
+      // .attr("x", function(d) { return x(d.name); })
       // .attr("y", function(d) { return y(d.Value); })
       // .attr("width", x.bandwidth())
       // .attr("height", function(d) { return height - y(d.Value); })
