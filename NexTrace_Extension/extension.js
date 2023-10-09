@@ -21,12 +21,12 @@ function activate(context) {
           {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-            sandbox: { 
+            sandbox: {
               allowScripts: true,
             }
           } // Webview options. More on these later.
         );
-    
+
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
@@ -64,15 +64,15 @@ function activate(context) {
           {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-            sandbox: { 
+            sandbox: {
               allowScripts: true,
             }
           } // Webview options. More on these later.
         );
-    
+
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
-    
+
         const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
         const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
 
@@ -110,7 +110,7 @@ function activate(context) {
       this.webviewView = webviewView; 
       webviewView.webview.options = {
         enableScripts: true,
-        sandbox: { 
+        sandbox: {
           allowScripts: true,
         }
       };
@@ -155,11 +155,11 @@ function activate(context) {
   context.subscriptions.push(disposable2);
 
   //REGISTERS START SERVER COMMAND
-  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {server()});
+  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => { server() });
   context.subscriptions.push(disposable);
 
   //REGISTERS STOP SERVER COMMAND
-  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => {closeServer()});
+  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
   context.subscriptions.push(stopDisposable);
 
   //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
@@ -217,7 +217,7 @@ async function transformCode(userProvidedPath, command) {
   }
 }
 
-function deactivate() { 
+function deactivate() {
 }
 
 module.exports = {
