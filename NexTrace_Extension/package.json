@@ -27,6 +27,10 @@
       {
         "command": "NexTrace.openTable",
         "title": "Open NexTrace Metrics"
+      },
+      {
+        "command": "NexTrace.openConsole",
+        "title": "Open NexTrace Console"
       }
     ],
     "viewsContainers": {
@@ -90,7 +94,6 @@
     "d3": "^7.8.5",
     "jscodeshift": "^0.15.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "typescript": "^5.2.2"
   }
 }
