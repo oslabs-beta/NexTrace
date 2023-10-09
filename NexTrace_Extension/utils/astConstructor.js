@@ -1,5 +1,6 @@
 const transformer = (file, api) => {
-    const j = api.jscodeshift;
+    const j = api.jscodeshift.withParser('tsx');
+
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
@@ -7,7 +8,7 @@ const transformer = (file, api) => {
     /*
 
     The following code generates this using jscodeshift:
-         
+         so
      const {
         trace: trace
         } = require("@opentelemetry/api");
@@ -391,29 +392,29 @@ const transformer = (file, api) => {
         }
     }
 
-    // ast.find(j.CallExpression, {
-    //     callee: {
-    //         type: "MemberExpression",
-    //         object: { type: "Identifier", name: "console" },
-    //         property: { type: "Identifier", name: "log" },
-    //     }
-    // }).forEach(log => {
-    //     const logArguments = log.node.arguments;
-    //     //Create a new instance of invoking captureAndSend
-    //     const funcExpression = createCaptureAndSendInvocation(logArguments);
-    //     insertContentAfter(log, funcExpression);
-    // })
+    ast.find(j.CallExpression, {
+        callee: {
+            type: "MemberExpression",
+            object: { type: "Identifier", name: "console" },
+            property: { type: "Identifier", name: "log" },
+        }
+    }).forEach(log => {
+        const logArguments = log.node.arguments;
+        //Create a new instance of invoking captureAndSend
+        const funcExpression = createCaptureAndSendInvocation(logArguments);
+        insertContentAfter(log, funcExpression);
+    })
 
+    rootNode.body.unshift(dispatchFunctionStatement);
+    rootNode.body.unshift(providerRegisterStatement);
+    rootNode.body.unshift(setGlobalTracerStatement);
+    rootNode.body.unshift(addSpanProcessorStatement);
+    rootNode.body.unshift(exporterDeclarationStatement);
+    rootNode.body.unshift(providerDeclarationStatement);
     rootNode.body.unshift(collectorOptionsDeclaration);
-    // rootNode.body.unshift(providerRegisterStatement);
-    // rootNode.body.unshift(dispatchFunctionStatement);
-    // rootNode.body.unshift(addSpanProcessorStatement);
-    // rootNode.body.unshift(setGlobalTracerStatement);
-    // rootNode.body.unshift(exporterDeclarationStatement);
-    // rootNode.body.unshift(providerDeclarationStatement);
-    // rootNode.body.unshift(traceBaseRequireStatemt);
-    // rootNode.body.unshift(OTLPTraceExporterRequireStatement);
-    // rootNode.body.unshift(traceRequireStatement);
+    rootNode.body.unshift(traceBaseRequireStatemt);
+    rootNode.body.unshift(OTLPTraceExporterRequireStatement);
+    rootNode.body.unshift(traceRequireStatement);
 
     return ast.toSource();
 }
