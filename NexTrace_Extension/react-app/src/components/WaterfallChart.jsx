@@ -23,15 +23,15 @@ export default function WaterfallChart(props) {
 
     // Parse the Data
     const data = [
-      {name: 'Request 1', Value: 12394, start: 2300},
-      {name: 'Request 2', Value: 6148, start: 4000},
-      {name: 'Request 3', Value: 1234, start: 5500},
-      {name: 'Request 4', Value: 124, start: 6600},
+      {name: 'Request 1', type: '', method: '', duration: 12394, status: '', rendering: '', start: 0},
+      {name: 'Request 2', type: 'client', method: '', duration: 6148, status: '', rendering: '', start: 4000},
+      {name: 'Request 3', type: 'server', method: '', duration: 1234, status: '', rendering: '', start: 5500},
+      {name: 'Request 4', type: '', method: '', duration: 124, status: '', rendering: '', start: 6600},
     ]
 
     // Add X axis
     const x = d3.scaleLinear()
-      .domain([0, Math.max(...data.map(el => el.Value)) + 1000])
+      .domain([0, Math.max(...data.map(el => el.duration)) + 1000])
       .range([0, Math.round(width * 0.7)]);
 
     svg.append("g")
@@ -56,9 +56,14 @@ export default function WaterfallChart(props) {
       .append("rect")
       .attr("x", function(d) { return x(d.start); })
       .attr("y", function(d) { return y(d.name); })
-      .attr("width", function(d) { return x(d.Value); })
+      .attr("width", function(d) { return x(d.duration); })
       .attr("height", y.bandwidth() )
-      .attr("fill", "#69b3a2")
+      .attr("fill", function(d) {
+        if (d.type === '') return '#69b3a2';
+        if (d.type === 'client') return '#6972b3';
+        if (d.type === 'server') return '#b36969';
+        else return '#b3ad69';
+      })
 
   }, []);
 
