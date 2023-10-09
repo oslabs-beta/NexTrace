@@ -6,15 +6,14 @@ body {
   display:flex;
   flex-direction: column;
 }
-
-.startButton{
+/* START AND STOP BUTTON CLASSES */
+.serverButton{
   display: inline-block;
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: 1.3em;
   font-weight: bold;
   text-align: center;
   text-transform: uppercase;
-  background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -22,29 +21,98 @@ body {
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
 }
-
+.startButton {
+  background-color: #007bff;
+}
 .startButton:hover {
   background-color: #0056b3;
   transform: scale(1.05);
 }
-
 .startButton:active {
   background-color: #00418a;
   transform: scale(0.95);
 }
-
+.stopButton {
+  background-color: #ff3700;
+}
+/* SELECT FILE AND X BUTTON CLASSES */
+.chooseFile{
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.chooseButton{
+  border-radius: 0.5em;
+  font-size: 1.1em;
+  padding: 0.2em;
+  width: 8em;
+}
+.chooseButton:not([disabled]){
+  background-color: #6B6B6B;
+  color: #fff;
+  border:none;
+  border-radius: 0.5em;
+  cursor:pointer;
+  font-size: 1.1em;
+  padding: 0.2em;
+  width: 8em;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+.chooseButton:not([disabled]):hover {
+  transform: scale(1.05);
+}
+.chooseButton:not([disabled]):active {
+  transform: scale(0.95);
+}
+.xButton{
+  display: inline-block;
+  border:none;
+  cursor:pointer;
+  margin-left: 0.1em;
+  font-size: 1.6em;
+  color:#ff3700;
+  background-color: transparent;
+  transition: background-color 0.3s, transform 0.2s;
+}
+.xButton:hover {
+  background-color: #ff3700a5;
+  transform: scale(1.05);
+}
+.xButton:active {
+  background-color: #ff370055;
+  transform: scale(0.95);
+}
+.xButtonHide{
+  display:hidden;
+  border:none;
+  margin-left: 0.2em;
+  font-size: 2em;
+  background-color: transparent;
+}
+/* SELECT FILE BUTTON WITH IMAGE CLASS */
+.chooseButtonText{
+  margin-right:0.3em;
+}
+.chooseButtonImage {
+  background-image: url('../assets/Selection_007.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 1em; 
+  height: 1em; 
+  border:transparent;
+}
+/* PANEL BUTTON CLASSES */
 .buttonOne{
   display: inline-block;
   border: none;
   border-radius: 5px;
   margin-top: 2em;
   cursor: pointer;
-  /* Set the background image and adjust its size and position */
   background-image: url('../assets/round-power-button-gold-logo-vector-43813764.jpg');
-  background-size: cover; /* or background-size: contain; depending on your preference */
-  background-position: center center; /* Center the image */
+  background-size: cover;
+  background-position: center center;
   background-repeat: no-repeat;
-  /* Optionally, you can add some padding to the button to make space for the logo */
   padding: 2em;
 }
-
