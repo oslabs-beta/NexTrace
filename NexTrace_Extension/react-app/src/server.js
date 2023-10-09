@@ -66,7 +66,7 @@ app.use('/otel', (req, res, next) => {
         obj.rendering = '';
       }
 
-      // obj.type === 'BaseServer.handleRequest' handles initial req but affects future client req
+
 
       // Using for console logs 
       if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
@@ -79,7 +79,7 @@ app.use('/otel', (req, res, next) => {
         console.log(requestArray);
       }
 
-      // Refactored ^^
+      // Refactored w/out console logs ^^
       // if (!requestArray.some(item =>
       //   item.name === obj.name &&
       //   item.type === obj.type &&
