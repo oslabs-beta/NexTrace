@@ -8,29 +8,32 @@ export default function WaterfallChart(props) {
     
     // set the dimensions and margins of the graph
     const margin = {top: 20, right: 30, bottom: 40, left: 90},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    height = 200 - margin.top - margin.bottom;
+
+    const width = document.getElementById('waterfall-chart').offsetWidth;
 
     // append the svg object to the body of the page
-    const svg = d3.select("#my_dataviz")
+    const svg = d3.select("#waterfall-chart")
       .append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", '90%')
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
         .attr("transform",
-              "translate(" + margin.left + "," + margin.top + ")");
+              "translate(" + margin.left + "," + margin.top + ")")
 
     // Parse the Data
     const data = [
-      {name: 'Request 1', Value: 12394},
-      {name: 'Request 2', Value: 6148},
-      {name: 'Request 3', Value: 1234}
+      {name: 'Request 1', Value: 12394, start: 2300},
+      {name: 'Request 2', Value: 6148, start: 4000},
+      {name: 'Request 3', Value: 1234, start: 5500},
+      {name: 'Request 4', Value: 124, start: 6600},
     ]
 
     // Add X axis
     const x = d3.scaleLinear()
-      .domain([0, 13000])
-      .range([ 0, width]);
+      .domain([0, Math.max(...data.map(el => el.Value)) + 1000])
+      .range([0, Math.round(width * 0.7)]);
+
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x))
@@ -51,18 +54,11 @@ export default function WaterfallChart(props) {
       .data(data)
       .enter()
       .append("rect")
-      .attr("x", x(0) )
+      .attr("x", function(d) { return x(d.start); })
       .attr("y", function(d) { return y(d.name); })
       .attr("width", function(d) { return x(d.Value); })
       .attr("height", y.bandwidth() )
       .attr("fill", "#69b3a2")
-
-
-      // .attr("x", function(d) { return x(d.name); })
-      // .attr("y", function(d) { return y(d.Value); })
-      // .attr("width", x.bandwidth())
-      // .attr("height", function(d) { return height - y(d.Value); })
-      // .attr("fill", "#69b3a2")
 
   }, []);
 
@@ -70,6 +66,6 @@ export default function WaterfallChart(props) {
 
       
   return (
-    <div id="my_dataviz"></div>
+    <div id="waterfall-chart"></div>
   );
 }
