@@ -39,7 +39,8 @@ export default function CustomizedTables() {
   
   useEffect(() => {
     socket.onopen = () => {
-      console.log('WebSocket connection opened with ws://localhost:3695.');
+      console.log('Metrics connection opened with ws://localhost:3695.');
+      socket.send(JSON.stringify({socketId: 'Metric'}))
     };
 
     socket.onmessage = (event) => {
