@@ -29,8 +29,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function createNewData(name, status, method, type, duration, rendering) {
-    return { name, status, method, type, duration, rendering };
+function createNewData(name, status, method, type, duration, rendering, start) {
+    return { name, status, method, type, duration, rendering, start };
   }
 
   export default function CustomizedTables() {
@@ -46,7 +46,7 @@ function createNewData(name, status, method, type, duration, rendering) {
         })
         .then(data => {
           const transformedData = data.map(arr =>
-            createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering)
+            createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering, arr.start)
           );
           setAwaitedData(transformedData);
           console.log('Request Data:', data);
