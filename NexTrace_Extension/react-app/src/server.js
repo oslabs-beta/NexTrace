@@ -112,6 +112,8 @@ wss.on('connection', (socket) => {
     } else {
       console.log('Received message from client:', data);
     }
+    if (data.socketId === 'Metric') sendToSocketBySocketId('Metric', requestArray);
+    else if (data.socketId === 'Console') sendToSocketBySocketId('Console', consoleLogArray);
   });
 
   socket.on('close', () => {
