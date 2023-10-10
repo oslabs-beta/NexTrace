@@ -67,13 +67,13 @@ app.post('/getLogs', (req,res,next) => {
     consoleLog = JSON.stringify(consoleLog)
   }
 
-  // if (consoleLogArray.some(item => JSON.stringify(item) === JSON.stringify(consoleLog))) {
-  //   console.log('SKIP DUPLICATE');
-  // } else {
+  if (consoleLogArray.some(item => JSON.stringify(item) === JSON.stringify(consoleLog))) {
+    console.log('SKIP DUPLICATE');
+  } else {
     consoleLogArray.push(consoleLog);
     sendToSocketBySocketId('Console', consoleLogArray);
     return res.status(200).send('Received');
-  // }
+  }
 });
 
 app.get('/sendLogs', (req,res,next) =>{
@@ -112,6 +112,8 @@ wss.on('connection', (socket) => {
     } else {
       console.log('Received message from client:', data);
     }
+    if (data.socketId === 'Metric') sendToSocketBySocketId('Metric', requestArray);
+    else if (data.socketId === 'Console') sendToSocketBySocketId('Console', consoleLogArray);
   });
 
   socket.on('close', () => {
