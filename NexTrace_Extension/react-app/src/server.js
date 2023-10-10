@@ -119,7 +119,6 @@ function sendToSocketBySocketId(socketId, message) {
   }
 }
 
-const messageToSend = { content: 'Hello, client!' };
 //SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
 let serverInstance;
 function server () {
