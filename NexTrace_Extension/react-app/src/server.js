@@ -1,5 +1,6 @@
-const express = require('express');
 const { request } = require('http');
+const express = require('express');
+const WebSocket = require('ws');
 const cors = require('cors');
 const app = express();
 const port = 3695;
@@ -7,13 +8,11 @@ const port = 3695;
 app.use(express.json());
 app.use(cors());
 
-
 let requestArray = [];
 let consoleLogArray = [];
+const wss = new WebSocket.Server({ noServer: true });
 
-app.get('/', (req, res) => {
-  res.send('Hello, world!');
-});
+app.get('/', (req, res) => res.send('Hello, world!'));
 
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
@@ -21,65 +20,42 @@ app.use('/otel', (req, res, next) => {
   const obj = {name: '', type: '', method: '', duration: 0, status: '', rendering : ''}
 
   if (span) {
+    //STORING NAME OF SPAN
     const name = span.name;
     obj.name = name;
-    
-    //TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
+    //STORING TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
     for (let i = 0; i < span.attributes.length; i++){
       if(span.attributes[i].key === 'next.span_type') {const type = span.attributes[i].value.stringValue; 
-        // console.log('Type', type); 
         obj.type = type;
       }
       if(span.attributes[i].key === 'http.method') {const method = span.attributes[i].value.stringValue; 
-        // console.log('Method', method); 
         obj.method = method;
       }
       if(span.attributes[i].key === 'http.status_code') {const status = span.attributes[i].value.intValue; 
-        // console.log('Status', status); 
         obj.status = status;
       }
     }
-    
-    //DURATION IN MS DONE
+    //STORING DURATION OF SPAN
     const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
-    // console.log('Duration:', duration, 'ms');
     obj.duration = Math.floor(duration);
 
-      if (span.kind === 3){
-        obj.rendering = 'server';
-      }
-      else if (span.kind === 2){
-        obj.rendering = 'client';
-      }
-      else{
-        obj.rendering = '';
-      }
+    
+      if (span.kind === 3) obj.rendering = 'server';
+      else if (span.kind === 2) obj.rendering = 'client';
+      else obj.rendering = '';
 
-      // Using for console logs 
-      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
-        console.log('Duplicate, SKIP');
-      } else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult') {
-        console.log('Don\'t want!, SKIP');
+      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)){
+        requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)] = obj;
+      }
+      else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/') {
       } else {
         requestArray.push(obj);
         console.log('Inserted new request');
         console.log(requestArray);
       }
 
-      // Refactored w/out console logs ^^
-      // if (!requestArray.some(item =>
-      //   item.name === obj.name &&
-      //   item.type === obj.type &&
-      //   item.method === obj.method &&
-      //   item.rendering === obj.rendering &&
-      //   item.status === obj.status
-      // ) && obj.type !== 'AppRouteRouteHandlers.runHandler' && obj.type !== 'AppRender.getBodyResult') {
-      //   requestArray.push(obj);
-      // }
-      
+      broadcastRequestArray(wss, requestArray);
     }
-  
-    //ping our Metrics component with new requestArray.
     return res.status(200).json('Span Received');
   });
 
@@ -94,9 +70,6 @@ app.post('/getLogs', (req,res,next) => {
 app.get('/getData', (req,res) =>{
   return res.status(200).json(requestArray);
 })
-
-
-
 
 /*Catch unkown Routes*/
 app.use((req, res) => res.status(404).send('This is not the page you\'re looking for...'));
@@ -113,17 +86,40 @@ app.use((err, req, res, next) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
+//WEBSOCKET CONNECTION & FUNCTION TO BROADCAST REQUEST ARRAY TO METRICS PANEL
+wss.on('connection', (socket) => {
+  socket.on('message', (message) => {
+    console.log('Received message from client:', message);
+  });
+});
 
+function broadcastRequestArray(wss, requestArray) {
+  const message = JSON.stringify(requestArray);
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
 
+//SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
 let serverInstance;
 function server () {
   serverInstance = app.listen(port, () => {
     console.log(`Server is listening on port: ${port}`);
   });
+
+  serverInstance.on('upgrade', (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, (socket) => {
+      wss.emit('connection', socket, request);
+    });
+  });
 };
+
 function closeServer () {
   console.log(`Server is closing port: ${port}`);
   serverInstance.close();
 }
+
 
 module.exports = { server, closeServer };
