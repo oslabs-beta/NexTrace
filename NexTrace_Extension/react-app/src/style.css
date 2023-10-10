@@ -1,8 +1,6 @@
 body {
-  background-color: rgb(60, 60, 60);
+  background-color: rgba(161, 159, 154, 0.631);
 }
-
-
 
 #waterfall-chart {
   background-color: rgb(30, 30, 30);
@@ -16,4 +14,9 @@ body {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   z-index: 2;
   position: relative;
+  
+}
+
+.MuiPaper-root{
+  margin-top: 20px;
 }

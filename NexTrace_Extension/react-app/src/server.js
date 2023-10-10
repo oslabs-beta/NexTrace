@@ -39,41 +39,40 @@ app.use('/otel', (req, res, next) => {
     const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     obj.duration = Math.floor(duration);
     obj.start = Math.floor(span.startTimeUnixNano / 1000000);
+    //STORES SERVER SIDE / CLIENT SIDE RENDERING DATA
+    if (span.kind === 3) obj.rendering = 'server';
+    else if (span.kind === 2) obj.rendering = 'client';
+    else obj.rendering = '';
 
-    
-      if (span.kind === 3) obj.rendering = 'server';
-      else if (span.kind === 2) obj.rendering = 'client';
-      else obj.rendering = '';
+    //CHECKS FOR DUPLICATES AND UPDATES / PUSHES NEW REQUESTS
+    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status && item.start === obj.start)){
+      requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status  && item.start === obj.start)] = obj;
+    }
+    else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/') {
+    } else {
+      requestArray.push(obj);
+      console.log('Inserted new request', requestArray);
+    }
 
-      // Using for console logs 
-      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status && item.start === obj.start)) {
-      } else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult') {
-      } else {
-        requestArray.push(obj);
-        console.log('Inserted new request');
-        console.log(requestArray);
-      }
-
-      // Refactored w/out console logs ^^
-      // if (!requestArray.some(item =>
-      //   item.name === obj.name &&
-      //   item.type === obj.type &&
-      //   item.method === obj.method &&
-      //   item.rendering === obj.rendering &&
-      //   item.status === obj.status
-      // ) && obj.type !== 'AppRouteRouteHandlers.runHandler' && obj.type !== 'AppRender.getBodyResult') {
-      //   requestArray.push(obj);
-      // }
       broadcastRequestArray(wss, requestArray);
     }
     return res.status(200).json('Span Received');
   });
 
 
-// app.get('/getLogs', (req,res,next) => {
-//   const consoleLog = req.body; 
-//   consoleLogArray.push(consoleLog);
-// })
+app.post('/getLogs', (req,res,next) => {
+  const consoleLog = JSON.parse(req.body.log);
+  consoleLogArray.push(consoleLog);
+  console.log('Log Array', consoleLogArray);
+  //Send to console react component only
+  
+  return res.status(200).send('Received');
+})
+
+app.get('/sendLogs', (req,res,next) =>{
+  return res.status(200).json(consoleLogArray)
+})
+
 
 app.get('/getData', (req,res) =>{
   return res.status(200).json(requestArray);
