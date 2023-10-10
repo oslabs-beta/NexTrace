@@ -58,14 +58,23 @@ app.use('/otel', (req, res, next) => {
 
 
 app.post('/getLogs', (req,res,next) => {
-  const consoleLog = JSON.parse(req.body.log);
-// if (consoleLogArray.some(item => JSON.stringify(item) === JSON.stringify(consoleLog))) {
-//   console.log('SKIP DUPLICATE');
-// }
-  consoleLogArray.push(consoleLog);
-  sendToSocketBySocketId('Console', consoleLogArray);
-  return res.status(200).send('Received');
-})
+  let consoleLog =req.body;
+
+  if (typeof consoleLog === 'string'){
+    consoleLog = JSON.parse(consoleLog)
+  }
+  else if (typeof consoleLog === 'object'){
+    consoleLog = JSON.stringify(consoleLog)
+  }
+
+  // if (consoleLogArray.some(item => JSON.stringify(item) === JSON.stringify(consoleLog))) {
+  //   console.log('SKIP DUPLICATE');
+  // } else {
+    consoleLogArray.push(consoleLog);
+    sendToSocketBySocketId('Console', consoleLogArray);
+    return res.status(200).send('Received');
+  // }
+});
 
 app.get('/sendLogs', (req,res,next) =>{
   return res.status(200).json(consoleLogArray)
