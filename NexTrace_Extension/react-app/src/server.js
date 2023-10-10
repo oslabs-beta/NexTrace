@@ -60,11 +60,18 @@ app.use('/otel', (req, res, next) => {
 
 
 app.post('/getLogs', (req,res,next) => {
-  const consoleLog = req.body; 
+  const consoleLog = JSON.parse(req.body.log);
   consoleLogArray.push(consoleLog);
+  // does not handle for duplicates
+  // how handle string or object 
   console.log('Log Array', consoleLogArray);
-  return res.status(200).json(consoleLogArray);
+  return res.status(200).send('Received');
 })
+
+app.get('/sendLogs', (req,res,next) =>{
+  return res.status(200).json(consoleLogArray)
+})
+
 
 app.get('/getData', (req,res) =>{
   return res.status(200).json(requestArray);
