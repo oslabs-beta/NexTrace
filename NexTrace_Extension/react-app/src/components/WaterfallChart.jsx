@@ -8,8 +8,9 @@ export default function WaterfallChart(props) {
   useEffect(() => {
     d3.select('svg').remove();
 
-    console.log('THE DATAAAAAAAAAAAAA: ', data);
+    // console.log('THE DATAAAAAAAAAAAAA: ', data);
   
+    // created adjusted dataset for relative start times
     const minStart = Math.min(...data.map(el => el.start));
     const adjData = [];
     data.forEach(obj => {
@@ -17,18 +18,17 @@ export default function WaterfallChart(props) {
       newObj.adjStart = obj.start - minStart;
       adjData.push(newObj);
     })
-  
+
+    // sort adjusted dataset by adjusted start time
     adjData.sort((a, b) => {
       if (a.adjStart > b.adjStart) return 1;
       else return -1;
     })
-  
-    console.log('Adjusted Data', adjData);
+    // console.log('Adjusted Data', adjData);
 
     // set the dimensions and margins of the graph
     const margin = {top: 20, right: 30, bottom: 40, left: 90},
     height = 200 - margin.top - margin.bottom;
-
     const width = document.getElementById('waterfall-chart').offsetWidth;
 
     // append the svg object to the body of the page
@@ -39,17 +39,6 @@ export default function WaterfallChart(props) {
       .append('g')
         .attr('transform',
               'translate(' + margin.left + ',' + margin.top + ')')
-
-    // Parse the test data
-    // const testData = [
-    //   {name: 'Request 1', type: 'client', method: '', duration: 3162, status: '', rendering: '', start: 0},
-    //   {name: 'Request 2', type: 'server', method: '', duration: 6148, status: '', rendering: '', start: 2000},
-    //   {name: 'Request 3', type: '', method: '', duration: 1234, status: '', rendering: '', start: 3000},
-    //   {name: 'Request 4', type: 'server', method: '', duration: 2154, status: '', rendering: '', start: 5000},
-    //   {name: 'Request 5', type: 'client', method: '', duration: 854, status: '', rendering: '', start: 6000},
-    // ]
-
-    
 
     // X axis
     const x = d3.scaleLinear()
