@@ -27,4 +27,3 @@ export default function App() {
 
   return <Table name={tableData.name} path={tableData.path} button={tableData.button} setTableData={setTableData}/>;
 }
-
