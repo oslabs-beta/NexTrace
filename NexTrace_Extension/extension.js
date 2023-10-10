@@ -21,12 +21,12 @@ function activate(context) {
           {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-            sandbox: { 
+            sandbox: {
               allowScripts: true,
             }
           } // Webview options. More on these later.
         );
-    
+
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
@@ -64,15 +64,15 @@ function activate(context) {
           {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-            sandbox: { 
+            sandbox: {
               allowScripts: true,
             }
           } // Webview options. More on these later.
         );
-    
+
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
-    
+
         const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
         const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
 
@@ -101,14 +101,16 @@ function activate(context) {
     console.log(err);
   }
 
-  //PRIMARY SIDE BAR HTML 
+  //PRIMARY SIDE BAR HTML
   const panelAppPath = path.join(context.extensionPath, 'react-sidepanel', 'dist', 'bundle.js');
   const thisProvider = {
+    webviewView: null,
     resolveWebviewView: function (webviewView, context, token) {
       const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
+      this.webviewView = webviewView; 
       webviewView.webview.options = {
         enableScripts: true,
-        sandbox: { 
+        sandbox: {
           allowScripts: true,
         }
       };
@@ -139,6 +141,9 @@ function activate(context) {
         if (message.command === 'transformCode' || message.command === 'detransformCode') {
           transformCode(message.path, message.command);
         }
+        else if (message.command === 'NexTrace.saveState'){
+          vscode.commands.executeCommand(message.command, message)
+        }
         else vscode.commands.executeCommand(message);
       });
     },
@@ -150,12 +155,30 @@ function activate(context) {
   context.subscriptions.push(disposable2);
 
   //REGISTERS START SERVER COMMAND
-  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => {server()});
+  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => { server() });
   context.subscriptions.push(disposable);
 
   //REGISTERS STOP SERVER COMMAND
-  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => {closeServer()});
+  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
   context.subscriptions.push(stopDisposable);
+
+  //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
+  const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
+    const { path, name, button } = stateData;
+    const state = { path, name, button}
+    context.globalState.update('sidePanelState', state)
+  });
+  context.subscriptions.push(stateSaveDisposable);
+
+  //REGISTERS STATE GET COMMAND FOR SIDE PANEL BUTTONS
+  const stateGetDisposable = vscode.commands.registerCommand('NexTrace.getState', () => {
+    const savedState = context.globalState.get('sidePanelState');
+    thisProvider.webviewView.webview.postMessage({
+      command: 'NexTrace.getStateResponse',
+      data: savedState,
+    });
+  });
+  context.subscriptions.push(stateGetDisposable);
 
 
   console.log('Congratulations, your extension "NexTrace" is now active!');
@@ -194,7 +217,7 @@ async function transformCode(userProvidedPath, command) {
   }
 }
 
-function deactivate() { 
+function deactivate() {
 }
 
 module.exports = {

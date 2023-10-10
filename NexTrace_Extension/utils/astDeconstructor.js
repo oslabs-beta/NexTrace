@@ -1,5 +1,5 @@
 const detransformer = (file, api) => {
-    const j = api.jscodeshift;
+    const j = api.jscodeshift.withParser('tsx');
     const ast = j(file.source);
 
     /*
@@ -160,21 +160,10 @@ const detransformer = (file, api) => {
         id: { type: "Identifier", name: "collectorOptions" },
         init: {
             type: "ObjectExpression",
-            properties: [{
-                type: "Property",
-                key: {
-                    type: "Identifier",
-                    name: "url"
-                },
-                value: {
-                    type: "Literal",
-                    value: "http://localhost:3695/otel"
-                }
-            }]
         }
     }).forEach(path => {
         j(path).remove();
-    })
+    });
 
     /*
 
@@ -191,7 +180,6 @@ const detransformer = (file, api) => {
         id: {
             type: "ObjectPattern",
             properties: [{
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "BasicTracerProvider"
@@ -202,7 +190,6 @@ const detransformer = (file, api) => {
                 }
             },
             {
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "SimpleSpanProcessor"
@@ -218,6 +205,9 @@ const detransformer = (file, api) => {
         j(path).remove();
     });
 
+
+
+
     /*
 
     The code below erases this line:
@@ -232,7 +222,6 @@ const detransformer = (file, api) => {
         id: {
             type: "ObjectPattern",
             properties: [{
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "OTLPTraceExporter"
@@ -261,7 +250,6 @@ const detransformer = (file, api) => {
         id: {
             type: "ObjectPattern",
             properties: [{
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "trace"
