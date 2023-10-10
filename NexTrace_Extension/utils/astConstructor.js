@@ -245,7 +245,7 @@ const transformer = (file, api) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695'),
+                j.literal('http://localhost:3695/getLogs'),
                 j.objectExpression([
                     j.property(
                         'init',
