@@ -62,9 +62,12 @@ app.use('/otel', (req, res, next) => {
 
 app.post('/getLogs', (req,res,next) => {
   const consoleLog = JSON.parse(req.body.log);
+
+if (consoleLogArray.some(item => JSON.stringify(item) === JSON.stringify(consoleLog))) {
+  console.log('SKIP DUPLICATE');
+} else {
   consoleLogArray.push(consoleLog);
-  // does not handle for duplicates
-  // how handle string or object 
+}
   console.log('Log Array', consoleLogArray);
   return res.status(200).send('Received');
 })
