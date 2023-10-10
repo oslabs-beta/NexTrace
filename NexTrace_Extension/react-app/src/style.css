@@ -9,8 +9,8 @@ body {
   border: 2px;
   padding: 10px;
   border-radius: 5px;
-  /* border-style: solid; */
-  /* border-color: black; */
+  border-style: solid;
+  border-color: black;
   margin-top: 6px;
   margin-bottom: 6px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;

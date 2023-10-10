@@ -29,8 +29,8 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function createNewData(name, status, method, type, duration, rendering) {
-    return { name, status, method, type, duration, rendering };
+function createNewData(name, status, method, type, duration, rendering, start) {
+    return { name, status, method, type, duration, rendering, start };
 }
 
 export default function CustomizedTables() {
@@ -45,7 +45,7 @@ export default function CustomizedTables() {
     socket.onmessage = (event) => {
       const receivedData = JSON.parse(event.data);
       const transformedData = receivedData.map(arr =>
-        createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering)
+        createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering, arr.start)
       );
       setAwaitedData(transformedData);
     };
@@ -57,7 +57,7 @@ export default function CustomizedTables() {
   }, []);
 
   return (<>
-    <WaterfallChart/>
+    <WaterfallChart data={awaitedData}/>
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>

@@ -38,7 +38,7 @@ app.use('/otel', (req, res, next) => {
     //STORING DURATION OF SPAN
     const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     obj.duration = Math.floor(duration);
-    obj.start = Math.floor(span.startTimeUnixNano);
+    obj.start = Math.floor(span.startTimeUnixNano / 1000000);
 
     
       if (span.kind === 3) obj.rendering = 'server';
@@ -46,7 +46,7 @@ app.use('/otel', (req, res, next) => {
       else obj.rendering = '';
 
       // Using for console logs 
-      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
+      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status && item.start === obj.start)) {
       } else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult') {
       } else {
         requestArray.push(obj);
