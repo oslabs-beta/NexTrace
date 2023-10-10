@@ -101,11 +101,13 @@ function activate(context) {
     console.log(err);
   }
 
-  //PRIMARY SIDE BAR HTML 
+  //PRIMARY SIDE BAR HTML
   const panelAppPath = path.join(context.extensionPath, 'react-sidepanel', 'dist', 'bundle.js');
   const thisProvider = {
+    webviewView: null,
     resolveWebviewView: function (webviewView, context, token) {
       const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
+      this.webviewView = webviewView; 
       webviewView.webview.options = {
         enableScripts: true,
         sandbox: {
@@ -139,6 +141,9 @@ function activate(context) {
         if (message.command === 'transformCode' || message.command === 'detransformCode') {
           transformCode(message.path, message.command);
         }
+        else if (message.command === 'NexTrace.saveState'){
+          vscode.commands.executeCommand(message.command, message)
+        }
         else vscode.commands.executeCommand(message);
       });
     },
@@ -156,6 +161,24 @@ function activate(context) {
   //REGISTERS STOP SERVER COMMAND
   const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
   context.subscriptions.push(stopDisposable);
+
+  //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
+  const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
+    const { path, name, button } = stateData;
+    const state = { path, name, button}
+    context.globalState.update('sidePanelState', state)
+  });
+  context.subscriptions.push(stateSaveDisposable);
+
+  //REGISTERS STATE GET COMMAND FOR SIDE PANEL BUTTONS
+  const stateGetDisposable = vscode.commands.registerCommand('NexTrace.getState', () => {
+    const savedState = context.globalState.get('sidePanelState');
+    thisProvider.webviewView.webview.postMessage({
+      command: 'NexTrace.getStateResponse',
+      data: savedState,
+    });
+  });
+  context.subscriptions.push(stateGetDisposable);
 
 
   console.log('Congratulations, your extension "NexTrace" is now active!');

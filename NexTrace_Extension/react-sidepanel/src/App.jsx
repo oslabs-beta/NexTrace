@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Table from './components/table';
 
 export default function App() {
-
   const [tableData, setTableData] = useState({ name: '', path: '', button: 'Start' });
   const vscode = window.vscodeApi;
 
@@ -27,6 +26,4 @@ export default function App() {
 
 
   return <Table name={tableData.name} path={tableData.path} button={tableData.button} setTableData={setTableData}/>;
-
 }
-
