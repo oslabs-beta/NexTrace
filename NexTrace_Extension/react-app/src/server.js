@@ -52,8 +52,8 @@ app.use('/otel', (req, res, next) => {
       requestArray.push(obj);
       console.log('Inserted new request', requestArray);
     }
-
-      broadcastRequestArray(wss, requestArray);
+      sendToSocketBySocketId('Metric', requestArray);
+      // broadcastRequestArray(wss, requestArray);
     }
     return res.status(200).json('Span Received');
   });
@@ -64,7 +64,7 @@ app.post('/getLogs', (req,res,next) => {
   consoleLogArray.push(consoleLog);
   console.log('Log Array', consoleLogArray);
   //Send to console react component only
-  
+  sendToSocketBySocketId('Console', messageToSend);
   return res.status(200).send('Received');
 })
 
@@ -93,21 +93,48 @@ app.use((err, req, res, next) => {
 });
 
 //WEBSOCKET CONNECTION & FUNCTION TO BROADCAST REQUEST ARRAY TO METRICS PANEL
+const connectedClients = new Map();
+
 wss.on('connection', (socket) => {
   socket.on('message', (message) => {
-    console.log('Received message from client:', message);
+    const data = JSON.parse(message);
+
+    if (data.socketId) {
+      connectedClients.set(data.socketId, socket);
+      console.log(`WebSocket connection established for socketId: ${data.socketId}`);
+    } else {
+      console.log('Received message from client:', data);
+    }
+  });
+
+  socket.on('close', () => {
+    connectedClients.forEach((client, socketId) => {
+      if (client === socket) {
+        connectedClients.delete(socketId);
+        console.log(`WebSocket connection closed for socketId: ${socketId}`);
+      }
+    });
   });
 });
 
-function broadcastRequestArray(wss, requestArray) {
-  const message = JSON.stringify(requestArray);
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
-    }
-  });
+function sendToSocketBySocketId(socketId, message) {
+  const socket = connectedClients.get(socketId);
+  if (socket) {
+    socket.send(JSON.stringify(message));
+  }
 }
 
+// function broadcastRequestArray(wss, requestArray) {
+//   const message = JSON.stringify(requestArray);
+//   wss.clients.forEach((client) => {
+//     console.log(client);
+//     if (client.readyState === WebSocket.OPEN) {
+//       client.send(message);
+//     }
+//   });
+// }
+
+const messageToSend = { content: 'Hello, client!' };
 //SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
 let serverInstance;
 function server () {
