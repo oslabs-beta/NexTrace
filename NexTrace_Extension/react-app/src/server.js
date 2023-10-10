@@ -50,10 +50,8 @@ app.use('/otel', (req, res, next) => {
     else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/') {
     } else {
       requestArray.push(obj);
-      console.log('Inserted new request', requestArray);
     }
       sendToSocketBySocketId('Metric', requestArray);
-      // broadcastRequestArray(wss, requestArray);
     }
     return res.status(200).json('Span Received');
   });
@@ -62,9 +60,7 @@ app.use('/otel', (req, res, next) => {
 app.post('/getLogs', (req,res,next) => {
   const consoleLog = JSON.parse(req.body.log);
   consoleLogArray.push(consoleLog);
-  console.log('Log Array', consoleLogArray);
-  //Send to console react component only
-  sendToSocketBySocketId('Console', messageToSend);
+  sendToSocketBySocketId('Console', consoleLogArray);
   return res.status(200).send('Received');
 })
 
@@ -92,9 +88,8 @@ app.use((err, req, res, next) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
-//WEBSOCKET CONNECTION & FUNCTION TO BROADCAST REQUEST ARRAY TO METRICS PANEL
+//WEBSOCKET CONNECTION & FUNCTION TO SEND DATA TO RESPECTIVE PANEL
 const connectedClients = new Map();
-
 wss.on('connection', (socket) => {
   socket.on('message', (message) => {
     const data = JSON.parse(message);
@@ -123,16 +118,6 @@ function sendToSocketBySocketId(socketId, message) {
     socket.send(JSON.stringify(message));
   }
 }
-
-// function broadcastRequestArray(wss, requestArray) {
-//   const message = JSON.stringify(requestArray);
-//   wss.clients.forEach((client) => {
-//     console.log(client);
-//     if (client.readyState === WebSocket.OPEN) {
-//       client.send(message);
-//     }
-//   });
-// }
 
 const messageToSend = { content: 'Hello, client!' };
 //SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
