@@ -35,7 +35,7 @@ function createNewData(name, status, method, type, duration, rendering) {
 
   export default function CustomizedTables() {
     const [awaitedData, setAwaitedData] = useState([]);
-
+    //import request array here from server side
     const fetchData = () => {
       fetch('http://localhost:3695/getData')
         .then(response => {

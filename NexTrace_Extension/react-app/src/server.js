@@ -9,28 +9,20 @@ app.use(cors());
 
 
 let requestArray = [];
+let consoleLogArray = [];
 
 app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
 
-
-
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
-  // console.log('THE SPAN TRACE', res.locals.trace.resourceSpans[0].scopeSpans[0].spans[0]);
-  // console.log('Kind #', res.locals.trace.resourceSpans[0].scopeSpans[0].spans[0]['kind']);
   const span = req.body.resourceSpans[0].scopeSpans[0].spans[0]; 
-  // console.log('SPAN', span)
   const obj = {name: '', type: '', method: '', duration: 0, status: '', rendering : ''}
 
   if (span) {
-    //ENDPOINT - NAME
     const name = span.name;
-    // console.log('Name:', name)
     obj.name = name;
-
-    // console.log('SPAN', span)
     
     //TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
     for (let i = 0; i < span.attributes.length; i++){
@@ -46,7 +38,6 @@ app.use('/otel', (req, res, next) => {
         // console.log('Status', status); 
         obj.status = status;
       }
-  
     }
     
     //DURATION IN MS DONE
@@ -54,7 +45,6 @@ app.use('/otel', (req, res, next) => {
     // console.log('Duration:', duration, 'ms');
     obj.duration = Math.floor(duration);
 
-    
       if (span.kind === 3){
         obj.rendering = 'server';
       }
@@ -64,8 +54,6 @@ app.use('/otel', (req, res, next) => {
       else{
         obj.rendering = '';
       }
-
-
 
       // Using for console logs 
       if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
@@ -89,15 +77,17 @@ app.use('/otel', (req, res, next) => {
       //   requestArray.push(obj);
       // }
       
-
-
-      
     }
   
-  // requestArray.push(obj)
-  // console.log(requestArray);
+    //ping our Metrics component with new requestArray.
     return res.status(200).json('Span Received');
   });
+
+
+// app.get('/getLogs', (req,res,next) => {
+//   const consoleLog = req.body; 
+//   consoleLogArray.push(consoleLog);
+// })
  
 
 app.get('/getData', (req,res) =>{
@@ -123,22 +113,16 @@ app.use((err, req, res, next) => {
 });
 
 
+
 let serverInstance;
 function server () {
   serverInstance = app.listen(port, () => {
     console.log(`Server is listening on port: ${port}`);
   });
 };
-
 function closeServer () {
   console.log(`Server is closing port: ${port}`);
   serverInstance.close();
-
-    // // Set a timeout to forcefully close the server if it doesn't stop within a certain time (e.g., 5 seconds)
-    // setTimeout(() => {
-    //   console.log('Forcibly terminating the server.');
-    //   process.exit(1); // Terminate the Node.js process
-    // }, 5000); // 5000 milliseconds (5 seconds)
 }
 
 module.exports = { server, closeServer };
