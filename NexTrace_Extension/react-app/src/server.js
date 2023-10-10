@@ -59,10 +59,12 @@ app.use('/otel', (req, res, next) => {
   });
 
 
-// app.get('/getLogs', (req,res,next) => {
-//   const consoleLog = req.body; 
-//   consoleLogArray.push(consoleLog);
-// })
+app.post('/getLogs', (req,res,next) => {
+  const consoleLog = req.body; 
+  consoleLogArray.push(consoleLog);
+  console.log('Log Array', consoleLogArray);
+  return res.status(200).json(consoleLogArray);
+})
 
 app.get('/getData', (req,res) =>{
   return res.status(200).json(requestArray);

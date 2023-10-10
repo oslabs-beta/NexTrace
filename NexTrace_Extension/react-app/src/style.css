@@ -1,3 +1,7 @@
 body {
-  background-color: rgba(255, 187, 0, 0.631);
+  background-color: rgba(161, 159, 154, 0.631);
+}
+
+.MuiPaper-root{
+  margin-top: 20px;
 }

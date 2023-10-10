@@ -25,7 +25,7 @@ function activate(context) {
             sandbox: {
               allowScripts: true,
             }
-          } // Webview options. More on these later.
+          } 
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
@@ -68,7 +68,7 @@ function activate(context) {
             sandbox: {
               allowScripts: true,
             }
-          } // Webview options. More on these later.
+          } 
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
