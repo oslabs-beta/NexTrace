@@ -62,9 +62,9 @@ app.use('/otel', (req, res, next) => {
 app.post('/getLogs', (req,res,next) => {
   const consoleLog = JSON.parse(req.body.log);
   consoleLogArray.push(consoleLog);
-  // does not handle for duplicates
-  // how handle string or object 
   console.log('Log Array', consoleLogArray);
+  //Send to console react component only
+  
   return res.status(200).send('Received');
 })
 
