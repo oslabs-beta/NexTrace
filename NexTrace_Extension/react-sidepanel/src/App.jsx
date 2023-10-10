@@ -13,7 +13,9 @@ export default function App() {
       if (message.command === 'NexTrace.getStateResponse') {
         // Access the saved state from the message and update the state variable
         const savedState = message.data;
-        setTableData(savedState);
+        if (savedState){
+          setTableData(savedState);
+        }
       }
     };
 

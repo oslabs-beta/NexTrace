@@ -29,67 +29,62 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function createNewData(name, status, method, type, duration, rendering, start) {
-    return { name, status, method, type, duration, rendering, start };
-  }
+function createNewData(name, status, method, type, duration, rendering) {
+    return { name, status, method, type, duration, rendering };
+}
 
-  export default function CustomizedTables() {
-    const [awaitedData, setAwaitedData] = useState([]);
-
-    const fetchData = () => {
-      fetch('http://localhost:3695/getData')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network error');
-          }
-          return response.json();
-        })
-        .then(data => {
-          const transformedData = data.map(arr =>
-            createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering, arr.start)
-          );
-          setAwaitedData(transformedData);
-          console.log('Request Data:', data);
-          console.log('Transformed Data:', transformedData);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-    };
-    
-    setInterval(fetchData, 2000);
-    
-    
+export default function CustomizedTables() {
+  const [awaitedData, setAwaitedData] = useState([]);
+  const socket = new WebSocket('ws://localhost:3695');
   
-    return (<>
-      <WaterfallChart/>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="customized table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Endpoint</StyledTableCell>
-              <StyledTableCell align="right">Status</StyledTableCell>
-              <StyledTableCell align="right">Method</StyledTableCell>
-              <StyledTableCell align="right">Type</StyledTableCell>
-              <StyledTableCell align="right">Duration (ms)</StyledTableCell>
-              <StyledTableCell align="right">Rendering</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {awaitedData.map((row) => (
-              <StyledTableRow key={row.name}>
-                <StyledTableCell component="th" scope="row">
-                  {row.name}
-                </StyledTableCell>
-                <StyledTableCell align="right">{row.status}</StyledTableCell>
-                <StyledTableCell align="right">{row.method}</StyledTableCell>
-                <StyledTableCell align="right">{row.type}</StyledTableCell>
-                <StyledTableCell align="right">{row.duration}</StyledTableCell>
-                <StyledTableCell align="right">{row.rendering}</StyledTableCell>
-              </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>);
-  }
+  useEffect(() => {
+    socket.onopen = () => {
+      console.log('WebSocket connection opened with ws://localhost:3695.');
+    };
+
+    socket.onmessage = (event) => {
+      const receivedData = JSON.parse(event.data);
+      const transformedData = receivedData.map(arr =>
+        createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering)
+      );
+      setAwaitedData(transformedData);
+    };
+
+    socket.onclose = (event) => {console.log('WebSocket connection closed:', event.code, event.reason)};
+    socket.onerror = (error) => {
+      console.error('WebSocket error from Metrics component:', error.message);
+    };
+  }, []);
+
+  return (<>
+    <WaterfallChart/>
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell>Endpoint</StyledTableCell>
+            <StyledTableCell align="right">Status</StyledTableCell>
+            <StyledTableCell align="right">Method</StyledTableCell>
+            <StyledTableCell align="right">Type</StyledTableCell>
+            <StyledTableCell align="right">Duration (ms)</StyledTableCell>
+            <StyledTableCell align="right">Rendering</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {awaitedData.map((row) => (
+            <StyledTableRow key={row.name}>
+              <StyledTableCell component="th" scope="row">
+                {row.name}
+              </StyledTableCell>
+              <StyledTableCell align="right">{row.status}</StyledTableCell>
+              <StyledTableCell align="right">{row.method}</StyledTableCell>
+              <StyledTableCell align="right">{row.type}</StyledTableCell>
+              <StyledTableCell align="right">{row.duration}</StyledTableCell>
+              <StyledTableCell align="right">{row.rendering}</StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </>);
+}
