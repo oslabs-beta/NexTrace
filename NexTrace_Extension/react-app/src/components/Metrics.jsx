@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import { styled } from '@mui/material/styles';
+import TableRow from '@mui/material/TableRow';
+import TableBody from '@mui/material/TableBody';
+import TableHead from '@mui/material/TableHead';
+import TableContainer from '@mui/material/TableContainer';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
+    fontSize: 20
   },
   [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
+    fontSize: 20,
   },
 }));
 
@@ -43,9 +44,10 @@ export default function CustomizedTables() {
 
     socket.onmessage = (event) => {
       const receivedData = JSON.parse(event.data);
-      const transformedData = receivedData.map(arr =>
+      const transformedData = receivedData.map(arr => 
         createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering)
       );
+
       setAwaitedData(transformedData);
     };
 
