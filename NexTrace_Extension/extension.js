@@ -19,6 +19,7 @@ function activate(context) {
           'Request Metrics', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
+            retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
             sandbox: {
@@ -45,7 +46,6 @@ function activate(context) {
         <body>
           <div id="root"></div>
           <div id="route" data-route-path="/metrics"></div>
-          <h1>Hello World!</h1>
           <script src="${reactAppUri}"></script>
         </body>
         </html>
@@ -62,6 +62,7 @@ function activate(context) {
           'Console Summary', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
+            retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
             sandbox: {
