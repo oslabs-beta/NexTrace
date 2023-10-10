@@ -20,10 +20,10 @@ app.use('/otel', (req, res, next) => {
   const obj = {name: '', type: '', method: '', duration: 0, status: '', rendering : ''}
 
   if (span) {
+    //STORING NAME OF SPAN
     const name = span.name;
     obj.name = name;
-    
-    //TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
+    //STORING TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
     for (let i = 0; i < span.attributes.length; i++){
       if(span.attributes[i].key === 'next.span_type') {const type = span.attributes[i].value.stringValue; 
         obj.type = type;
@@ -35,12 +35,11 @@ app.use('/otel', (req, res, next) => {
         obj.status = status;
       }
     }
-    
-    //DURATION IN MS DONE
+    //STORING DURATION OF SPAN
     const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
-    // console.log('Duration:', duration, 'ms');
     obj.duration = Math.floor(duration);
 
+    
       if (span.kind === 3) obj.rendering = 'server';
       else if (span.kind === 2) obj.rendering = 'client';
       else obj.rendering = '';
