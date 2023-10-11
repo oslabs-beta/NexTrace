@@ -38,6 +38,7 @@ app.use('/otel', (req, res, next) => {
     //STORING DURATION OF SPAN
     const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     obj.duration = Math.floor(duration);
+    obj.start = Math.floor(span.startTimeUnixNano / 1000000);
     //STORES SERVER SIDE / CLIENT SIDE RENDERING DATA
     if (span.kind === 3) obj.rendering = 'server';
     else if (span.kind === 2) obj.rendering = 'client';
@@ -58,7 +59,7 @@ app.use('/otel', (req, res, next) => {
 
 
 app.post('/getLogs', (req,res,next) => {
-  let consoleLog =req.body.log;
+  let consoleLog = req.body.log;
 
   if (typeof consoleLog === 'string'){
     consoleLog = JSON.parse(consoleLog)
@@ -138,8 +139,9 @@ let serverInstance;
 function server () {
   serverInstance = app.listen(port, () => {
     console.log(`Server is listening on port: ${port}`);
+    requestArray = [];
+    consoleLogArray = [];
   });
-
   serverInstance.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (socket) => {
       wss.emit('connection', socket, request);

@@ -187,6 +187,8 @@ function activate(context) {
 
 async function transformCode(userProvidedPath, command) {
   try {
+    // const test = vscode.workspace.openTextDocument('/home/kedjek/Desktop/Codesmith/NexTrace/next-dummy-app/app/page2.tsx');
+    // vscode.window.showTextDocument(test);
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
     const editor = await vscode.window.showTextDocument(document);
     const fileContent = document.getText();
@@ -221,7 +223,7 @@ async function transformCode(userProvidedPath, command) {
 function deactivate() {
 }
 
-module.exports = {
+module.exports = {  
   activate,
   deactivate
 }
