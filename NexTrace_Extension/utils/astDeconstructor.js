@@ -206,8 +206,6 @@ const detransformer = (file, api) => {
     });
 
 
-
-
     /*
 
     The code below erases this line:

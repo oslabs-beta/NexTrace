@@ -1,9 +1,12 @@
 const path = require('path');
+const fs = require('fs');
 const vscode = require('vscode');
 const jscodeshift = require('jscodeshift');
 const { transformer } = require('./utils/astConstructor');
 const { detransformer } = require('./utils/astDeconstructor');
 const { server, closeServer } = require('./react-app/src/server');
+const { addLogs } = require('./utils/addLogs');
+const { removeLogs } = require('./utils/removeLogs');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -139,6 +142,12 @@ function activate(context) {
         if (message.command === 'transformCode' || message.command === 'detransformCode') {
           transformCode(message.path, message.command);
         }
+        else if (message.command === 'gatherFilePaths') {
+          handleLogs(message.path, message.command);
+        }
+        else if (message.command === 'removeLogs') {
+          handleLogs(message.path, message.command);
+        }
         else vscode.commands.executeCommand(message);
       });
     },
@@ -161,10 +170,26 @@ function activate(context) {
   console.log('Congratulations, your extension "NexTrace" is now active!');
 }
 
-async function transformCode(userProvidedPath, command) {
+function handleLogs(files, command) {
+  const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
+  files.forEach((path, i) => {
+    const fileType = path.slice(-4);
+    if (path && (allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1)))) {
+      if (command === 'gatherFilePaths') {
+        transformCode(path, command, i);
+      }
+      else if (command === 'removeLogs') {
+        console.log('we are headed to transform code!');
+        transformCode(path, command, i);
+      }
+    }
+  });
+}
+
+async function transformCode(userProvidedPath, command, index) {
   try {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
-    const editor = await vscode.window.showTextDocument(document);
+    // const editor = await vscode.window.showTextDocument(document);
     const fileContent = document.getText();
     let transformedContent;
     if (command === 'transformCode') {
@@ -181,14 +206,32 @@ async function transformCode(userProvidedPath, command) {
         jscodeshift
       });
     }
+    else if (command === 'gatherFilePaths') {
+      console.log('adding stuff to ', userProvidedPath);
+      transformedContent = addLogs({
+        source: fileContent
+      }, {
+        jscodeshift
+      }, userProvidedPath, index);
+    }
+    else if (command === 'removeLogs') {
+      console.log('we are headed to removeLogs file!', userProvidedPath);
+      transformedContent = removeLogs({
+        source: fileContent
+      }, {
+        jscodeshift
+      }, userProvidedPath, index);
+    }
 
     const fullRange = new vscode.Range(document.positionAt(0),
       document.positionAt(fileContent.length)
     );
-
-    editor.edit(editBuilder => {
-      editBuilder.replace(fullRange, transformedContent);
-    });
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(document.uri, fullRange, transformedContent);
+    await vscode.workspace.applyEdit(edit);
+    // editor.edit(editBuilder => {
+    //   editBuilder.replace(fullRange, transformedContent);
+    // });
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }

@@ -392,20 +392,20 @@ const transformer = (file, api) => {
         }
     }
 
-    ast.find(j.CallExpression, {
-        callee: {
-            type: "MemberExpression",
-            object: { type: "Identifier", name: "console" },
-            property: { type: "Identifier", name: "log" },
-        }
-    }).forEach(log => {
-        const logArguments = log.node.arguments;
-        //Create a new instance of invoking captureAndSend
-        const funcExpression = createCaptureAndSendInvocation(logArguments);
-        insertContentAfter(log, funcExpression);
-    })
+    // ast.find(j.CallExpression, {
+    //     callee: {
+    //         type: "MemberExpression",
+    //         object: { type: "Identifier", name: "console" },
+    //         property: { type: "Identifier", name: "log" },
+    //     }
+    // }).forEach(log => {
+    //     const logArguments = log.node.arguments;
+    //     //Create a new instance of invoking captureAndSend
+    //     const funcExpression = createCaptureAndSendInvocation(logArguments);
+    //     insertContentAfter(log, funcExpression);
+    // })
 
-    rootNode.body.unshift(dispatchFunctionStatement);
+    // rootNode.body.unshift(dispatchFunctionStatement);
     rootNode.body.unshift(providerRegisterStatement);
     rootNode.body.unshift(setGlobalTracerStatement);
     rootNode.body.unshift(addSpanProcessorStatement);
