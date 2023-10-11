@@ -61,7 +61,6 @@ app.use('/otel', (req, res, next) => {
 app.post('/getLogs', (req,res,next) => {
   let consoleLog = JSON.parse(req.body.log);
 
-
   if (typeof consoleLog === 'string'){
     consoleLog = consoleLog
   }
