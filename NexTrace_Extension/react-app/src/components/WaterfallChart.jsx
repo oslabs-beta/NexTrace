@@ -5,6 +5,34 @@ export default function WaterfallChart(props) {
 
   const { data } = props;
 
+  // tooltip
+  // const tooltip = d3.select("#waterfall-chart")
+  //   .append("div")
+  //   .style("opacity", 0)
+  //   .attr("class", "tooltip")
+  //   .style("background-color", "white")
+  //   .style("border", "solid")
+  //   .style("border-width", "1px")
+  //   .style("border-radius", "5px")
+  //   .style("padding", "10px")
+  
+    // // Three function that change the tooltip when user hover / move / leave a cell
+    // const mouseover = function(d) {
+    //   tooltip
+    //       .html('it\'s literally 1984')
+    //       .style("opacity", 1)
+    // }
+    // const mousemove = function(d) {
+    //   tooltip
+    //     .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+    //     .style("top", (d3.mouse(this)[1]) + "px")
+    // }
+    // const mouseleave = function(d) {
+    //   tooltip
+    //     .style("opacity", 0)
+    // }
+
+
   useEffect(() => {
     d3.select('svg').remove();
 
@@ -16,6 +44,7 @@ export default function WaterfallChart(props) {
     data.forEach(obj => {
       const newObj = Object.assign({}, obj);
       newObj.adjStart = obj.start - minStart;
+      newObj.adjName = obj.name + ' ' + obj.method;
       adjData.push(newObj);
     })
 
@@ -55,20 +84,11 @@ export default function WaterfallChart(props) {
     // Y axis
     const y = d3.scaleBand()
       .range([ 0, height ])
-      .domain(adjData.map(function(d) { return d.name; }))
+      .domain(adjData.map(function(d) { return d.adjName; }))
       .padding(.1);
 
     svg.append('g')
       .call(d3.axisLeft(y))
-
-    // // Tooltip
-    // const tooltip = d3.select('body')
-    //   .append('div')
-    //   .style('position', 'absolute')
-    //   .style('z-index', '10')
-    //   .style('visibility', 'hidden')
-    //   .style('background', '#000')
-    //   .text("a simple tooltip");
 
     // Bars
     svg.selectAll('myRect')
@@ -76,7 +96,7 @@ export default function WaterfallChart(props) {
       .enter()
       .append('rect')
       .attr('x', function(d) { return x(d.adjStart); })
-      .attr('y', function(d) { return y(d.name); })
+      .attr('y', function(d) { return y(d.adjName); })
       .attr('width', function(d) { return x(d.duration); })
       .attr('height', y.bandwidth() )
       .attr('fill', function(d) {
@@ -86,9 +106,9 @@ export default function WaterfallChart(props) {
         else return '#b3ad69';
       })
       .attr('rx', 5)
-      // .on("mouseover", function(){return tooltip.style("visibility", "visible");})
-      // .on("mousemove", function(){return tooltip.style("top", (event.pageY-800)+"px").style("left",(event.pageX-800)+"px");})
-      // .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+      // .on("mouseover", mouseover)
+      // .on("mousemove", mousemove)
+      // .on("mouseleave", mouseleave)
 
   }, [data]);
 
