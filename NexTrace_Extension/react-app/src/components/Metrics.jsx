@@ -49,8 +49,7 @@ export default function CustomizedTables() {
       const transformedData = receivedData.map(arr =>
         createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering, arr.start)
       );
-
-      setAwaitedData(transformedData);
+      if (awaitedData !== transformedData) setAwaitedData(transformedData);
     };
 
     socket.onclose = (event) => {console.log('WebSocket connection closed:', event.code, event.reason)};
