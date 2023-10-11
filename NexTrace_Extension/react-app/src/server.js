@@ -51,23 +51,31 @@ app.use('/otel', (req, res, next) => {
     else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/') {
     } else {
       requestArray.push(obj);
-      console.log('Inserted new request', requestArray);
     }
       sendToSocketBySocketId('Metric', requestArray);
-      // broadcastRequestArray(wss, requestArray);
     }
     return res.status(200).json('Span Received');
   });
 
 
 app.post('/getLogs', (req,res,next) => {
-  const consoleLog = JSON.parse(req.body.log);
-  consoleLogArray.push(consoleLog);
-  console.log('Log Array', consoleLogArray);
-  //Send to console react component only
-  sendToSocketBySocketId('Console', messageToSend);
-  return res.status(200).send('Received');
-})
+  let consoleLog =req.body;
+
+  if (typeof consoleLog === 'string'){
+    consoleLog = JSON.parse(consoleLog)
+  }
+  else if (typeof consoleLog === 'object'){
+    consoleLog = JSON.stringify(consoleLog)
+  }
+
+  if (consoleLogArray.some(item => JSON.stringify(item) === JSON.stringify(consoleLog))) {
+    console.log('SKIP DUPLICATE');
+  } else {
+    consoleLogArray.push(consoleLog);
+    sendToSocketBySocketId('Console', consoleLogArray);
+    return res.status(200).send('Received');
+  }
+});
 
 app.get('/sendLogs', (req,res,next) =>{
   return res.status(200).json(consoleLogArray)
@@ -93,9 +101,8 @@ app.use((err, req, res, next) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
-//WEBSOCKET CONNECTION & FUNCTION TO BROADCAST REQUEST ARRAY TO METRICS PANEL
+//WEBSOCKET CONNECTION & FUNCTION TO SEND DATA TO RESPECTIVE PANEL
 const connectedClients = new Map();
-
 wss.on('connection', (socket) => {
   socket.on('message', (message) => {
     const data = JSON.parse(message);
@@ -106,6 +113,8 @@ wss.on('connection', (socket) => {
     } else {
       console.log('Received message from client:', data);
     }
+    if (data.socketId === 'Metric') sendToSocketBySocketId('Metric', requestArray);
+    else if (data.socketId === 'Console') sendToSocketBySocketId('Console', consoleLogArray);
   });
 
   socket.on('close', () => {
@@ -125,17 +134,6 @@ function sendToSocketBySocketId(socketId, message) {
   }
 }
 
-// function broadcastRequestArray(wss, requestArray) {
-//   const message = JSON.stringify(requestArray);
-//   wss.clients.forEach((client) => {
-//     console.log(client);
-//     if (client.readyState === WebSocket.OPEN) {
-//       client.send(message);
-//     }
-//   });
-// }
-
-const messageToSend = { content: 'Hello, client!' };
 //SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
 let serverInstance;
 function server () {
