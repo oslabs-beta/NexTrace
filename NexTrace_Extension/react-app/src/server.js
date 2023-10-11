@@ -59,7 +59,7 @@ app.use('/otel', (req, res, next) => {
 
 
 app.post('/getLogs', (req,res,next) => {
-  let consoleLog =req.body;
+  let consoleLog = req.body.log;
 
   if (typeof consoleLog === 'string'){
     consoleLog = JSON.parse(consoleLog)
@@ -139,8 +139,9 @@ let serverInstance;
 function server () {
   serverInstance = app.listen(port, () => {
     console.log(`Server is listening on port: ${port}`);
+    requestArray = [];
+    consoleLogArray = [];
   });
-
   serverInstance.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (socket) => {
       wss.emit('connection', socket, request);
