@@ -45,8 +45,8 @@ app.use('/otel', (req, res, next) => {
     else obj.rendering = '';
 
     //CHECKS FOR DUPLICATES AND UPDATES / PUSHES NEW REQUESTS
-    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status && item.start === obj.start)){
-      requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status  && item.start === obj.start)] = obj;
+    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)){
+      requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)] = obj;
     }
     else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/') {
     } else {
