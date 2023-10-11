@@ -50,6 +50,7 @@ export default function CustomizedTables() {
         createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering, arr.start)
       );
 
+      // if (transformedData !== previous transformedData) return;
       setAwaitedData(transformedData);
     };
 
