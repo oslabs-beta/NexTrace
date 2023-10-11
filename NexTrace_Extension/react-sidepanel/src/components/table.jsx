@@ -38,7 +38,7 @@ export default function Table() {
       if (cmd === 'startServer') vscode.postMessage('NexTrace.startServer');
       if (cmd === 'stopServer') vscode.postMessage('NexTrace.stopServer');
       if (cmd === 'transformCode') vscode.postMessage({ command: 'transformCode', path: filePath });
-      if (cmd === 'gatherFilePaths') vscode.postMessage({ command: 'gatherFilePaths', path: rootDir });
+      if (cmd === 'gatherFilePaths') vscode.postMessage({ command: 'gatherFilePaths', path: rootDir, rootPath: filePath });
       if (cmd === 'detransformCode') vscode.postMessage({ command: 'detransformCode', path: filePath });
       if (cmd === 'removeLogs') vscode.postMessage({ command: 'removeLogs', path: rootDir });
     }
@@ -108,6 +108,7 @@ export default function Table() {
       <button className='buttonOne' onClick={e => { handleClick('openConsole') }}></button>
       <button className='buttonOne'></button>
       <input type="file" webkitdirectory="" id="rootDir" name="rootDir" onChange={handleFile} ></input>
+      <button type="button" onClick={() => {handleClick('removeLogs'); handleClick('detransformCode')}}>Clean Files</button>
     </div>
   )
 }

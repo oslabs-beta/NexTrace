@@ -143,7 +143,7 @@ function activate(context) {
           transformCode(message.path, message.command);
         }
         else if (message.command === 'gatherFilePaths') {
-          handleLogs(message.path, message.command);
+          handleLogs(message.path, message.command, message.rootPath);
         }
         else if (message.command === 'removeLogs') {
           handleLogs(message.path, message.command);
@@ -170,16 +170,16 @@ function activate(context) {
   console.log('Congratulations, your extension "NexTrace" is now active!');
 }
 
-function handleLogs(files, command) {
+function handleLogs(files, command, rootPath) {
   const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
   files.forEach((path, i) => {
     const fileType = path.slice(-4);
     if (path && (allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1)))) {
-      if (command === 'gatherFilePaths') {
+      if (command === 'gatherFilePaths' && path !== rootPath) {
+        console.log('transforming file: ', path);
         transformCode(path, command, i);
       }
       else if (command === 'removeLogs') {
-        console.log('we are headed to transform code!');
         transformCode(path, command, i);
       }
     }
@@ -197,17 +197,17 @@ async function transformCode(userProvidedPath, command, index) {
         source: fileContent
       }, {
         jscodeshift
-      });
+      }, userProvidedPath);
     }
     else if (command === 'detransformCode') {
+      console.log('we are in the detransform');
       transformedContent = detransformer({
         source: fileContent
       }, {
         jscodeshift
-      });
+      }, userProvidedPath);
     }
     else if (command === 'gatherFilePaths') {
-      console.log('adding stuff to ', userProvidedPath);
       transformedContent = addLogs({
         source: fileContent
       }, {
@@ -215,7 +215,6 @@ async function transformCode(userProvidedPath, command, index) {
       }, userProvidedPath, index);
     }
     else if (command === 'removeLogs') {
-      console.log('we are headed to removeLogs file!', userProvidedPath);
       transformedContent = removeLogs({
         source: fileContent
       }, {

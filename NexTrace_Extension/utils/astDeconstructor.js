@@ -1,4 +1,4 @@
-const detransformer = (file, api) => {
+const detransformer = (file, api, path) => {
     const j = api.jscodeshift.withParser('tsx');
     const ast = j(file.source);
 
@@ -13,7 +13,7 @@ const detransformer = (file, api) => {
     ast.find(j.CallExpression, {
         callee: {
             type: "Identifier",
-            name: "captureAndSend"
+            name: "captureAndSendNT"
         }
     }).forEach(path => {
         j(path).remove();
@@ -62,7 +62,7 @@ const detransformer = (file, api) => {
     ast.find(j.FunctionDeclaration, {
         id: {
             type: "Identifier",
-            name: "captureAndSend"
+            name: "captureAndSendNT"
         }
     }).forEach(path => {
         j(path).remove();

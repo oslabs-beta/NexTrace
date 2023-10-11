@@ -1,4 +1,4 @@
-const transformer = (file, api) => {
+const transformer = (file, api, path) => {
     const j = api.jscodeshift.withParser('tsx');
 
     const ast = j(file.source);
@@ -275,6 +275,11 @@ const transformer = (file, api) => {
                                     'init',
                                     j.identifier('log'),
                                     j.identifier('content')
+                                ),
+                                j.property(
+                                    'init',
+                                    j.identifier('path'),
+                                    j.literal(`${path}`)
                                 )
                             ])
                         ]
@@ -308,7 +313,7 @@ const transformer = (file, api) => {
     */
 
     const dispatchFunctionStatement = j.functionDeclaration(
-        j.identifier('captureAndSend'),
+        j.identifier('captureAndSendNT'),
         [j.restElement(j.identifier('args'))],
         j.blockStatement([
             j.variableDeclaration(
@@ -373,7 +378,7 @@ const transformer = (file, api) => {
     function createCaptureAndSendInvocation(args) {
         return j.expressionStatement(
             j.callExpression(
-                j.identifier('captureAndSend'),
+                j.identifier('captureAndSendNT'),
                 args
             )
         )
@@ -392,20 +397,20 @@ const transformer = (file, api) => {
         }
     }
 
-    // ast.find(j.CallExpression, {
-    //     callee: {
-    //         type: "MemberExpression",
-    //         object: { type: "Identifier", name: "console" },
-    //         property: { type: "Identifier", name: "log" },
-    //     }
-    // }).forEach(log => {
-    //     const logArguments = log.node.arguments;
-    //     //Create a new instance of invoking captureAndSend
-    //     const funcExpression = createCaptureAndSendInvocation(logArguments);
-    //     insertContentAfter(log, funcExpression);
-    // })
+    ast.find(j.CallExpression, {
+        callee: {
+            type: "MemberExpression",
+            object: { type: "Identifier", name: "console" },
+            property: { type: "Identifier", name: "log" },
+        }
+    }).forEach(log => {
+        const logArguments = log.node.arguments;
+        //Create a new instance of invoking captureAndSend
+        const funcExpression = createCaptureAndSendInvocation(logArguments);
+        insertContentAfter(log, funcExpression);
+    })
 
-    // rootNode.body.unshift(dispatchFunctionStatement);
+    rootNode.body.unshift(dispatchFunctionStatement);
     rootNode.body.unshift(providerRegisterStatement);
     rootNode.body.unshift(setGlobalTracerStatement);
     rootNode.body.unshift(addSpanProcessorStatement);
