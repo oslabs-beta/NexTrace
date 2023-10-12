@@ -22,12 +22,13 @@ function activate(context) {
           'Request Metrics', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
+            retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
             sandbox: {
               allowScripts: true,
             }
-          } // Webview options. More on these later.
+          } 
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
@@ -42,13 +43,12 @@ function activate(context) {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
           <link rel="stylesheet" type="text/css" href="${cssAppUri}">
         </head>
         <body>
           <div id="root"></div>
           <div id="route" data-route-path="/metrics"></div>
-          <h1>Hello World!</h1>
           <script src="${reactAppUri}"></script>
         </body>
         </html>
@@ -65,12 +65,13 @@ function activate(context) {
           'Console Summary', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
+            retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
             sandbox: {
               allowScripts: true,
             }
-          } // Webview options. More on these later.
+          } 
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
@@ -85,7 +86,7 @@ function activate(context) {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">          
           <link rel="stylesheet" type="text/css" href="${cssAppUri}">
         </head>
         <body>
@@ -104,11 +105,13 @@ function activate(context) {
     console.log(err);
   }
 
-  //PRIMARY SIDE BAR HTML 
+  //PRIMARY SIDE BAR HTML
   const panelAppPath = path.join(context.extensionPath, 'react-sidepanel', 'dist', 'bundle.js');
   const thisProvider = {
+    webviewView: null,
     resolveWebviewView: function (webviewView, context, token) {
       const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
+      this.webviewView = webviewView; 
       webviewView.webview.options = {
         enableScripts: true,
         sandbox: {
@@ -142,6 +145,9 @@ function activate(context) {
         if (message.command === 'transformCode' || message.command === 'detransformCode') {
           transformCode(message.path, message.command);
         }
+        else if (message.command === 'NexTrace.saveState'){
+          vscode.commands.executeCommand(message.command, message)
+        }
         else if (message.command === 'gatherFilePaths') {
           handleLogs(message.path, message.command, message.rootPath);
         }
@@ -166,6 +172,24 @@ function activate(context) {
   const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
   context.subscriptions.push(stopDisposable);
 
+  //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
+  const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
+    const { path, name, button } = stateData;
+    const state = { path, name, button}
+    context.globalState.update('sidePanelState', state)
+  });
+  context.subscriptions.push(stateSaveDisposable);
+
+  //REGISTERS STATE GET COMMAND FOR SIDE PANEL BUTTONS
+  const stateGetDisposable = vscode.commands.registerCommand('NexTrace.getState', () => {
+    const savedState = context.globalState.get('sidePanelState');
+    thisProvider.webviewView.webview.postMessage({
+      command: 'NexTrace.getStateResponse',
+      data: savedState,
+    });
+  });
+  context.subscriptions.push(stateGetDisposable);
+
 
   console.log('Congratulations, your extension "NexTrace" is now active!');
 }
@@ -188,6 +212,8 @@ function handleLogs(files, command, rootPath) {
 
 async function transformCode(userProvidedPath, command, index) {
   try {
+    // const test = vscode.workspace.openTextDocument('/home/kedjek/Desktop/Codesmith/NexTrace/next-dummy-app/app/page2.tsx');
+    // vscode.window.showTextDocument(test);
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
     // const editor = await vscode.window.showTextDocument(document);
     const fileContent = document.getText();
@@ -239,7 +265,7 @@ async function transformCode(userProvidedPath, command, index) {
 function deactivate() {
 }
 
-module.exports = {
+module.exports = {  
   activate,
   deactivate
 }
