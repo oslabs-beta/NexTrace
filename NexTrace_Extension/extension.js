@@ -266,10 +266,15 @@ async function transformCode(userProvidedPath, command, index) {
       }, userProvidedPath, index);
     }
 
-    const contentBuffer = Buffer.from(transformedContent, 'utf8');
-    const fs = vscode.workspace.fs;
-    await fs.writeFile(document.uri, contentBuffer);
-    vscode.commands.executeCommand('workbench.action.files.refresh');
+    const fullRange = new vscode.Range(document.positionAt(0),
+      document.positionAt(fileContent.length)
+    );
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(document.uri, fullRange, transformedContent);
+    await vscode.workspace.applyEdit(edit);
+    editor.edit(editBuilder => {
+      editBuilder.replace(fullRange, transformedContent);
+    });
 
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
