@@ -266,25 +266,16 @@ async function transformCode(userProvidedPath, command, index) {
       }, userProvidedPath, index);
     }
 
-    applyEditWithoutOpeningFile(document.uri, transformedContent);
+    const contentBuffer = Buffer.from(transformedContent, 'utf8');
+    const fs = vscode.workspace.fs;
+    await fs.writeFile(document.uri, contentBuffer);
+    vscode.commands.executeCommand('workbench.action.files.refresh');
 
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }
 }
 
-async function applyEditWithoutOpeningFile(documentUri, transformedContent) {
-  const contentBuffer = Buffer.from(transformedContent, 'utf8');
-
-  const fs = vscode.workspace.fs;
-
-  try {
-    await fs.writeFile(documentUri, contentBuffer);
-    vscode.commands.executeCommand('workbench.action.files.refresh');
-  } catch (error) {
-    vscode.window.showErrorMessage(`Failed to save file: ${error.message}`);
-  }
-}
 
 function deactivate() {
 }
