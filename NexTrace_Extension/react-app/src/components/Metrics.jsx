@@ -14,10 +14,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
-    fontSize: 20
+    fontSize: 18
   },
   [`&.${tableCellClasses.body}`]: {
-    fontSize: 20,
+    fontSize: 16,
   },
 }));
 
@@ -63,10 +63,10 @@ export default function CustomizedTables() {
   return (<>
     <WaterfallChart data={awaitedData}/>
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+      <Table sx={{ minWidth: 450 }} aria-label="customized table">
         <TableHead>
           <TableRow>
-            <StyledTableCell>Endpoint</StyledTableCell>
+            <StyledTableCell sx={{ width: 275 }}>Endpoint</StyledTableCell>
             <StyledTableCell align="right">Status</StyledTableCell>
             <StyledTableCell align="right">Method</StyledTableCell>
             <StyledTableCell align="right">Type</StyledTableCell>
@@ -76,7 +76,7 @@ export default function CustomizedTables() {
         </TableHead>
         <TableBody>
           {awaitedData.map((row) => (
-            <StyledTableRow key={row.name}>
+            <StyledTableRow sx={{ width: 275 }} key={row.name}>
               <StyledTableCell component="th" scope="row">
                 {row.name}
               </StyledTableCell>

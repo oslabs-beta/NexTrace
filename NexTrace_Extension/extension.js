@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs');
 const vscode = require('vscode');
 const jscodeshift = require('jscodeshift');
 const { transformer } = require('./utils/astConstructor');
@@ -49,6 +48,9 @@ function activate(context) {
         <body>
           <div id="root"></div>
           <div id="route" data-route-path="/metrics"></div>
+          <script>
+          window.vscodeApi = acquireVsCodeApi();
+          </script>
           <script src="${reactAppUri}"></script>
         </body>
         </html>
@@ -93,11 +95,20 @@ function activate(context) {
           <div id="root"></div>
           <h1>Console REACT COMPONENT!!!!</h1>
           <div id="route" data-route-path="/console"></div>
+          <script>
+          window.vscodeApi = acquireVsCodeApi();
+          </script>
           <script src="${reactAppUri}"></script>
         </body>
         </html>
         `;
-        panel.webview.html = webviewContent;
+        panel.webview.html = webviewContent;        
+        panel.webview.onDidReceiveMessage((message) => {
+          if (message.command === 'NexTrace.fileNav') {
+            console.log('received NexTrace.fileNav command')
+            vscode.commands.executeCommand(message.command, message.path)
+          }
+         });
       })
     );
   }
@@ -172,10 +183,19 @@ function activate(context) {
   const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
   context.subscriptions.push(stopDisposable);
 
+   //REGISTERS FILE NAVIGATION COMMAND
+   const disposable3 = vscode.commands.registerCommand("NexTrace.fileNav", (filePath) => { 
+    console.log('IM TRYING TO NAVIGATE TO MY FILEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
+    console.log('file path: ', filePath);
+    const test = vscode.workspace.openTextDocument(filePath);
+    vscode.window.showTextDocument(test);
+  });
+   context.subscriptions.push(disposable3);
+
   //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
   const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
-    const { path, name, button } = stateData;
-    const state = { path, name, button}
+    const { path, name, rootDir, button } = stateData;
+    const state = { path, name, rootDir, button }
     context.globalState.update('sidePanelState', state)
   });
   context.subscriptions.push(stateSaveDisposable);
@@ -196,26 +216,26 @@ function activate(context) {
 
 function handleLogs(files, command, rootPath) {
   const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
+  console.log('command: ', command, 'files: ', files);
   files.forEach((path, i) => {
-    const fileType = path.slice(-4);
-    if (path && (allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1)))) {
-      if (command === 'gatherFilePaths' && path !== rootPath) {
-        console.log('transforming file: ', path);
-        transformCode(path, command, i);
-      }
-      else if (command === 'removeLogs') {
-        transformCode(path, command, i);
+    if (path) {
+      const fileType = path.slice(-4);
+      if (path && (allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1)))) {
+        if (command === 'gatherFilePaths' && path !== rootPath) {
+          transformCode(path, command, i);
+        }
+        else if (command === 'removeLogs') {
+          transformCode(path, command, i);
+        }
       }
     }
+
   });
 }
 
 async function transformCode(userProvidedPath, command, index) {
   try {
-    // const test = vscode.workspace.openTextDocument('/home/kedjek/Desktop/Codesmith/NexTrace/next-dummy-app/app/page2.tsx');
-    // vscode.window.showTextDocument(test);
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
-    // const editor = await vscode.window.showTextDocument(document);
     const fileContent = document.getText();
     let transformedContent;
     if (command === 'transformCode') {
@@ -226,7 +246,6 @@ async function transformCode(userProvidedPath, command, index) {
       }, userProvidedPath);
     }
     else if (command === 'detransformCode') {
-      console.log('we are in the detransform');
       transformedContent = detransformer({
         source: fileContent
       }, {
