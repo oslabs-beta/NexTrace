@@ -93,7 +93,6 @@ function activate(context) {
         </head>
         <body>
           <div id="root"></div>
-          <h1>Console REACT COMPONENT!!!!</h1>
           <div id="route" data-route-path="/console"></div>
           <script>
           window.vscodeApi = acquireVsCodeApi();
