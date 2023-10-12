@@ -274,17 +274,12 @@ async function transformCode(userProvidedPath, command, index) {
 }
 
 async function applyEditWithoutOpeningFile(documentUri, transformedContent) {
-  // Encode the transformed content to a buffer.
   const contentBuffer = Buffer.from(transformedContent, 'utf8');
 
-  // Get the file system (fs) API.
   const fs = vscode.workspace.fs;
 
   try {
-    // Write the edited content to the file.
     await fs.writeFile(documentUri, contentBuffer);
-
-    // Optionally, you can trigger a refresh to reflect the changes in the UI.
     vscode.commands.executeCommand('workbench.action.files.refresh');
   } catch (error) {
     vscode.window.showErrorMessage(`Failed to save file: ${error.message}`);
