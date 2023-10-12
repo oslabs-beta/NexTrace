@@ -1,4 +1,4 @@
-const transformer = (file, api) => {
+const transformer = (file, api, path) => {
     const j = api.jscodeshift.withParser('tsx');
 
     const ast = j(file.source);
@@ -245,7 +245,7 @@ const transformer = (file, api) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695'),
+                j.literal('http://localhost:3695/getLogs'),
                 j.objectExpression([
                     j.property(
                         'init',
@@ -275,6 +275,11 @@ const transformer = (file, api) => {
                                     'init',
                                     j.identifier('log'),
                                     j.identifier('content')
+                                ),
+                                j.property(
+                                    'init',
+                                    j.identifier('path'),
+                                    j.literal(`${path}`)
                                 )
                             ])
                         ]
@@ -308,7 +313,7 @@ const transformer = (file, api) => {
     */
 
     const dispatchFunctionStatement = j.functionDeclaration(
-        j.identifier('captureAndSend'),
+        j.identifier('captureAndSendNT'),
         [j.restElement(j.identifier('args'))],
         j.blockStatement([
             j.variableDeclaration(
@@ -373,7 +378,7 @@ const transformer = (file, api) => {
     function createCaptureAndSendInvocation(args) {
         return j.expressionStatement(
             j.callExpression(
-                j.identifier('captureAndSend'),
+                j.identifier('captureAndSendNT'),
                 args
             )
         )

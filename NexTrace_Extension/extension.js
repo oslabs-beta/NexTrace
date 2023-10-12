@@ -4,6 +4,8 @@ const jscodeshift = require('jscodeshift');
 const { transformer } = require('./utils/astConstructor');
 const { detransformer } = require('./utils/astDeconstructor');
 const { server, closeServer } = require('./react-app/src/server');
+const { addLogs } = require('./utils/addLogs');
+const { removeLogs } = require('./utils/removeLogs');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -19,12 +21,13 @@ function activate(context) {
           'Request Metrics', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
+            retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
             sandbox: {
               allowScripts: true,
             }
-          } // Webview options. More on these later.
+          } 
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
@@ -39,13 +42,15 @@ function activate(context) {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
           <link rel="stylesheet" type="text/css" href="${cssAppUri}">
         </head>
         <body>
           <div id="root"></div>
           <div id="route" data-route-path="/metrics"></div>
-          <h1>Hello World!</h1>
+          <script>
+          window.vscodeApi = acquireVsCodeApi();
+          </script>
           <script src="${reactAppUri}"></script>
         </body>
         </html>
@@ -62,12 +67,13 @@ function activate(context) {
           'Console Summary', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
+            retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
             sandbox: {
               allowScripts: true,
             }
-          } // Webview options. More on these later.
+          } 
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
@@ -82,18 +88,27 @@ function activate(context) {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">          
           <link rel="stylesheet" type="text/css" href="${cssAppUri}">
         </head>
         <body>
           <div id="root"></div>
           <h1>Console REACT COMPONENT!!!!</h1>
           <div id="route" data-route-path="/console"></div>
+          <script>
+          window.vscodeApi = acquireVsCodeApi();
+          </script>
           <script src="${reactAppUri}"></script>
         </body>
         </html>
         `;
-        panel.webview.html = webviewContent;
+        panel.webview.html = webviewContent;        
+        panel.webview.onDidReceiveMessage((message) => {
+          if (message.command === 'NexTrace.fileNav') {
+            console.log('received NexTrace.fileNav command')
+            vscode.commands.executeCommand(message.command, message.path)
+          }
+         });
       })
     );
   }
@@ -144,6 +159,12 @@ function activate(context) {
         else if (message.command === 'NexTrace.saveState'){
           vscode.commands.executeCommand(message.command, message)
         }
+        else if (message.command === 'gatherFilePaths') {
+          handleLogs(message.path, message.command, message.rootPath);
+        }
+        else if (message.command === 'removeLogs') {
+          handleLogs(message.path, message.command);
+        }
         else vscode.commands.executeCommand(message);
       });
     },
@@ -162,10 +183,19 @@ function activate(context) {
   const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
   context.subscriptions.push(stopDisposable);
 
+   //REGISTERS FILE NAVIGATION COMMAND
+   const disposable3 = vscode.commands.registerCommand("NexTrace.fileNav", (filePath) => { 
+    console.log('IM TRYING TO NAVIGATE TO MY FILEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
+    console.log('file path: ', filePath);
+    const test = vscode.workspace.openTextDocument(filePath);
+    vscode.window.showTextDocument(test);
+  });
+   context.subscriptions.push(disposable3);
+
   //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
   const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
-    const { path, name, button } = stateData;
-    const state = { path, name, button}
+    const { path, name, rootDir, button } = stateData;
+    const state = { path, name, rootDir, button }
     context.globalState.update('sidePanelState', state)
   });
   context.subscriptions.push(stateSaveDisposable);
@@ -184,10 +214,28 @@ function activate(context) {
   console.log('Congratulations, your extension "NexTrace" is now active!');
 }
 
-async function transformCode(userProvidedPath, command) {
+function handleLogs(files, command, rootPath) {
+  const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
+  console.log('command: ', command, 'files: ', files);
+  files.forEach((path, i) => {
+    if (path) {
+      const fileType = path.slice(-4);
+      if (path && (allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1)))) {
+        if (command === 'gatherFilePaths' && path !== rootPath) {
+          transformCode(path, command, i);
+        }
+        else if (command === 'removeLogs') {
+          transformCode(path, command, i);
+        }
+      }
+    }
+
+  });
+}
+
+async function transformCode(userProvidedPath, command, index) {
   try {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
-    const editor = await vscode.window.showTextDocument(document);
     const fileContent = document.getText();
     let transformedContent;
     if (command === 'transformCode') {
@@ -195,23 +243,39 @@ async function transformCode(userProvidedPath, command) {
         source: fileContent
       }, {
         jscodeshift
-      });
+      }, userProvidedPath);
     }
     else if (command === 'detransformCode') {
       transformedContent = detransformer({
         source: fileContent
       }, {
         jscodeshift
-      });
+      }, userProvidedPath);
+    }
+    else if (command === 'gatherFilePaths') {
+      transformedContent = addLogs({
+        source: fileContent
+      }, {
+        jscodeshift
+      }, userProvidedPath, index);
+    }
+    else if (command === 'removeLogs') {
+      transformedContent = removeLogs({
+        source: fileContent
+      }, {
+        jscodeshift
+      }, userProvidedPath, index);
     }
 
     const fullRange = new vscode.Range(document.positionAt(0),
       document.positionAt(fileContent.length)
     );
-
-    editor.edit(editBuilder => {
-      editBuilder.replace(fullRange, transformedContent);
-    });
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(document.uri, fullRange, transformedContent);
+    await vscode.workspace.applyEdit(edit);
+    // editor.edit(editBuilder => {
+    //   editBuilder.replace(fullRange, transformedContent);
+    // });
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }
@@ -220,7 +284,7 @@ async function transformCode(userProvidedPath, command) {
 function deactivate() {
 }
 
-module.exports = {
+module.exports = {  
   activate,
   deactivate
 }
