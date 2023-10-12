@@ -88,8 +88,8 @@ export default function Table({name, path, rootDir, button, setTableData}) {
           <button className='buttonOne'></button>
           
           <div className='chooseFile'>
-            <button type="button" className='chooseButton' onClick={handleRootButtonClick} disabled={button === 'Stop'}>{rootDir.length ? 'Root Selected' : 'Choose Root'}</button>
-            {rootDir.length && <button type="button" className={button === 'Stop' ? 'xButtonHide' : 'xButton'} onClick={resetRoot} disabled={button === 'Stop'}>X</button>}
+            <button type="button" className='chooseButton' onClick={handleRootButtonClick} disabled={button === 'Stop'}>{rootDir ? 'Root Selected' : 'Choose Root'}</button>
+            {rootDir && <button type="button" className={button === 'Stop' ? 'xButtonHide' : 'xButton'} onClick={resetRoot} disabled={button === 'Stop'}>X</button>}
             <input type="file" webkitdirectory="" id="rootDir" name="rootDir" onChange={handleFile} ref={fileInputRef2} style={{ display: 'none' }}></input>
           </div>
 
