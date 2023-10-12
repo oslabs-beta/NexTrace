@@ -92,7 +92,7 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
       <button className='buttonTwo' onClick={e => { handleClick('openConsole') }}>Logs</button>
 
 
-      <button className="chooseButton" id="cleanFiles" type="checkbox" onClick={() => { handleClick('removeLogs'); handleClick('detransformCode') }} disabled={button === 'Stop'}>Clean Files</button>
+      <button className="chooseButton" id="cleanFiles" type="button" onClick={() => { handleClick('removeLogs'); handleClick('detransformCode') }} disabled={button === 'Stop'}>Clean Files</button>
     </div>
   )
 }
