@@ -266,17 +266,28 @@ async function transformCode(userProvidedPath, command, index) {
       }, userProvidedPath, index);
     }
 
-    const fullRange = new vscode.Range(document.positionAt(0),
-      document.positionAt(fileContent.length)
-    );
-    const edit = new vscode.WorkspaceEdit();
-    edit.replace(document.uri, fullRange, transformedContent);
-    // await vscode.workspace.applyEdit(edit);
-    // editor.edit(editBuilder => {
-    //   editBuilder.replace(fullRange, transformedContent);
-    // });
+    applyEditWithoutOpeningFile(document.uri, transformedContent);
+
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
+  }
+}
+
+async function applyEditWithoutOpeningFile(documentUri, transformedContent) {
+  // Encode the transformed content to a buffer.
+  const contentBuffer = Buffer.from(transformedContent, 'utf8');
+
+  // Get the file system (fs) API.
+  const fs = vscode.workspace.fs;
+
+  try {
+    // Write the edited content to the file.
+    await fs.writeFile(documentUri, contentBuffer);
+
+    // Optionally, you can trigger a refresh to reflect the changes in the UI.
+    vscode.commands.executeCommand('workbench.action.files.refresh');
+  } catch (error) {
+    vscode.window.showErrorMessage(`Failed to save file: ${error.message}`);
   }
 }
 
