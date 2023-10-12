@@ -56,11 +56,11 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
   //Reset Filename / Path state to '' for X button
   function resetFile() {
     setTableData({ name: '', path: '', rootDir: rootDir, button: button });
-    vscode.postMessage({ command: 'NexTrace.saveState', path: '', name: '', rootDir: [], button: button });
+    vscode.postMessage({ command: 'NexTrace.saveState', name: '', path: '', rootDir: rootDir, button: button });
   }
   function resetRoot() {
     setTableData({ name: name, path: path, rootDir: [], button: button });
-    vscode.postMessage({ command: 'NexTrace.saveState', path: '', name: '', rootDir: [], button: button });
+    vscode.postMessage({ command: 'NexTrace.saveState', name: name, path: path, rootDir: [], button: button });
   }
   return (
     <div className='panel'>
