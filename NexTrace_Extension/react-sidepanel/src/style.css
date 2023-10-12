@@ -50,7 +50,7 @@ body {
 }
 
 .chooseButton {
-  border-radius: 0.5em;
+  border-radius: 0.6px;
   font-size: 1.1em;
   padding: 0.2em;
   width: 8em;
