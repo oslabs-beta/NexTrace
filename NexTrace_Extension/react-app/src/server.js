@@ -60,6 +60,7 @@ app.use('/otel', (req, res, next) => {
 
 app.post('/getLogs', (req,res,next) => {
   let consoleLog = JSON.parse(req.body.log);
+  const path = req.body.path;
 
   if (typeof consoleLog === 'string'){
     consoleLog = consoleLog
@@ -68,29 +69,21 @@ app.post('/getLogs', (req,res,next) => {
     consoleLog = JSON.stringify(consoleLog)
   }
 
-  if (consoleLogArray.some(item => JSON.stringify(item) === JSON.stringify(consoleLog))) {
-    console.log('SKIP DUPLICATE');
+  if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
   } else {
-    consoleLogArray.push(consoleLog);
+    consoleLogArray.push({ consoleLog, path });
     sendToSocketBySocketId('Console', consoleLogArray);
     return res.status(200).send('Received');
   }
 });
 
-app.get('/sendLogs', (req,res,next) =>{
-  return res.status(200).json(consoleLogArray)
-})
-
-
-app.get('/getData', (req,res) =>{
-  return res.status(200).json(requestArray);
-})
 
 /*Catch unkown Routes*/
 app.use((req, res) => res.status(404).send('This is not the page you\'re looking for...'));
 
 /*Catch unkown Middleware errors*/
 app.use((err, req, res, next) => {
+  console.log('error here: ', err);
   const defaultErr = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,

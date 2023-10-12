@@ -52,7 +52,7 @@ const addLogs = (file, api, path, i) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695'),
+                j.literal('http://localhost:3695/getLogs'),
                 j.objectExpression([
                     j.property(
                         'init',

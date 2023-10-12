@@ -15,7 +15,7 @@ export default function Table({name, path, rootDir, button, setTableData}) {
       if (cmd === 'transformCode') vscode.postMessage({ command: 'transformCode', path: path });
       if (cmd === 'gatherFilePaths') vscode.postMessage({ command: 'gatherFilePaths', path: rootDir, rootPath: path });
       if (cmd === 'detransformCode') vscode.postMessage({ command: 'detransformCode', path: path });
-      if (cmd === 'saveState') vscode.postMessage({ command: 'NexTrace.saveState', path: path, name: name, button: button === 'Start' ? 'Stop' : 'Start'});
+      if (cmd === 'saveState') vscode.postMessage({ command: 'NexTrace.saveState', path, name, rootDir, button: button === 'Start' ? 'Stop' : 'Start'});
       if (cmd === 'removeLogs') vscode.postMessage({ command: 'removeLogs', path: rootDir });
     }
     //Opens Other Panels for Display
@@ -28,6 +28,11 @@ export default function Table({name, path, rootDir, button, setTableData}) {
   const handleFileButtonClick = () => {
     fileInputRef.current.click();
     fileInputRef.current.value = null;
+  };
+  const fileInputRef2 = useRef(null);
+  const handleRootButtonClick = () => {
+    fileInputRef2.current.click();
+    fileInputRef2.current.value = null;
   };
   //Sets Filename / Path state to selected file
   function handleFile(e) {
@@ -50,7 +55,11 @@ export default function Table({name, path, rootDir, button, setTableData}) {
 
   //Reset Filename / Path state to '' for X button
   function resetFile() {
-    setTableData({ name: '', path: '', rootDir: [], button: button }); 
+    setTableData({ name: '', path: '', rootDir: rootDir, button: button }); 
+    vscode.postMessage({ command: 'NexTrace.saveState', path: '', name: '', rootDir: [], button: button });
+  }
+  function resetRoot() {
+    setTableData({ name: name, path: path, rootDir: [], button: button }); 
     vscode.postMessage({ command: 'NexTrace.saveState', path: '', name: '', rootDir: [], button: button });
   }
   return (
@@ -61,7 +70,7 @@ export default function Table({name, path, rootDir, button, setTableData}) {
           button === 'Start' ? handleClick('startServer') : handleClick('stopServer')
           button === 'Start' ? handleClick('transformCode') : handleClick('detransformCode');
           button === 'Start' ? handleClick('gatherFilePaths') : handleClick('removeLogs');
-
+          handleClick('saveState');
         }}
       >{button === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<><i className="fas fa-stop"></i> Stop</>)}
       </button>
@@ -70,10 +79,6 @@ export default function Table({name, path, rootDir, button, setTableData}) {
 
           <div className='chooseFile'>
             <button type="button" className='chooseButton' onClick={handleFileButtonClick} disabled={button === 'Stop'}>{name ? name : 'Choose File'}</button>
-            {/* <button type="button" className="chooseButton" onClick={handleFileButtonClick} disabled={button === 'Stop'}>
-              <img className="chooseButtonImage" />
-              <span className="chooseButtonText">{name ? name : 'Choose File'}</span>
-            </button> */}
             {name && <button type="button" className={button === 'Stop' ? 'xButtonHide' : 'xButton'} onClick={resetFile} disabled={button === 'Stop'}>X</button>}
             <input type="file" id="fileInput" name="fileInput" onChange={handleFile} ref={fileInputRef} style={{ display: 'none' }}></input>
           </div>
@@ -81,8 +86,14 @@ export default function Table({name, path, rootDir, button, setTableData}) {
           <button className='buttonOne' onClick={e => {handleClick('openMetrics')}}></button>
           <button className='buttonOne' onClick={e => {handleClick('openConsole')}}></button>
           <button className='buttonOne'></button>
-          <input type="file" webkitdirectory="" id="rootDir" name="rootDir" onChange={handleFile} ></input>
-          <button type="button" onClick={() => {handleClick('removeLogs'); handleClick('detransformCode')}}>Clean Files</button>
+          
+          <div className='chooseFile'>
+            <button type="button" className='chooseButton' onClick={handleRootButtonClick} disabled={button === 'Stop'}>{rootDir.length ? 'Root Selected' : 'Choose Root'}</button>
+            {rootDir.length && <button type="button" className={button === 'Stop' ? 'xButtonHide' : 'xButton'} onClick={resetRoot} disabled={button === 'Stop'}>X</button>}
+            <input type="file" webkitdirectory="" id="rootDir" name="rootDir" onChange={handleFile} ref={fileInputRef2} style={{ display: 'none' }}></input>
+          </div>
+
+          <button type="button" onClick={() => {handleClick('removeLogs'); handleClick('detransformCode')}} disabled={button === 'Stop'}>Clean Files</button>
         </div>
     )
 }
