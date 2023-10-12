@@ -271,7 +271,7 @@ async function transformCode(userProvidedPath, command, index) {
     );
     const edit = new vscode.WorkspaceEdit();
     edit.replace(document.uri, fullRange, transformedContent);
-    await vscode.workspace.applyEdit(edit);
+    // await vscode.workspace.applyEdit(edit);
     // editor.edit(editBuilder => {
     //   editBuilder.replace(fullRange, transformedContent);
     // });
