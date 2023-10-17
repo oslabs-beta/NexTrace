@@ -2,41 +2,11 @@ import React, { useEffect, useState } from 'react';
 import * as d3 from 'd3'
 
 export default function WaterfallChart(props) {
-
   const { data } = props;
-
-  // tooltip
-  // const tooltip = d3.select("#waterfall-chart")
-  //   .append("div")
-  //   .style("opacity", 0)
-  //   .attr("class", "tooltip")
-  //   .style("background-color", "white")
-  //   .style("border", "solid")
-  //   .style("border-width", "1px")
-  //   .style("border-radius", "5px")
-  //   .style("padding", "10px")
-  
-    // // Three function that change the tooltip when user hover / move / leave a cell
-    // const mouseover = function(d) {
-    //   tooltip
-    //       .html('it\'s literally 1984')
-    //       .style("opacity", 1)
-    // }
-    // const mousemove = function(d) {
-    //   tooltip
-    //     .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-    //     .style("top", (d3.mouse(this)[1]) + "px")
-    // }
-    // const mouseleave = function(d) {
-    //   tooltip
-    //     .style("opacity", 0)
-    // }
-
 
   useEffect(() => {
     d3.select('svg').remove();
-
-    // console.log('THE DATAAAAAAAAAAAAA: ', data);
+    d3.select('#the-only-tooltip').remove();
   
     // created adjusted dataset for relative start times
     const minStart = Math.min(...data.map(el => el.start));
@@ -89,27 +59,64 @@ export default function WaterfallChart(props) {
 
     svg.append('g')
       .call(d3.axisLeft(y))
+    
+    const tooltip = d3.select("#waterfall-chart")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .attr('id', 'the-only-tooltip')
+      .style("background-color", "white")
+      .style("border", "solid")
+      .style("border-width", "1px")
+      .style("border-radius", "5px")
+      .style('color', 'black')
+      .style("top","-300px")
+      .style("padding", "10px");
+
+    // Three function that change the tooltip when user hover / move / leave a cell
+    const mouseover = function(event, d) {
+      const barData = d3.select(this)._groups[0][0].__data__;
+      let tooltipString = '';
+      for (const key in barData) {
+        if (key === 'start' || key === 'adjName') continue;
+        tooltipString += `${key}: ${barData[key]} <br>`;
+      }
+
+      tooltip
+          .html(tooltipString)
+          .style("left",(event.x)-450+"px")
+          .style("top",(event.y)-100+"px")
+          .style("opacity", 1)
+    }
+    const mousemove = function(event, d) {
+      tooltip.style("transform", "translateY(-100%)")
+        .style("left",(event.x)+10+"px")
+        .style("top",(event.y)-210+"px")
+    }
+    const mouseleave = function(event, d) {
+      tooltip
+        .style("opacity", 0)
+        .style("top","-300px")
+    }
 
     // Bars
     svg.selectAll('myRect')
       .data(adjData)
       .enter()
       .append('rect')
-      .attr('x', function(d) { return x(d.adjStart); })
-      .attr('y', function(d) { return y(d.adjName); })
-      .attr('width', function(d) { return x(d.duration); })
-      .attr('height', y.bandwidth() )
-      .attr('fill', function(d) {
-        if (d.rendering === '') return '#69b3a2';
-        if (d.rendering === 'client') return '#6972b3';
-        if (d.rendering === 'server') return '#b36969';
-        else return '#b3ad69';
-      })
-      .attr('rx', 5)
-      // .on("mouseover", mouseover)
-      // .on("mousemove", mousemove)
-      // .on("mouseleave", mouseleave)
-
+        .attr('x', function(d) { return x(d.adjStart); })
+        .attr('y', function(d) { return y(d.adjName); })
+        .attr('width', function(d) { return x(d.duration); })
+        .attr('height', y.bandwidth() )
+        .attr('fill', function(d) {
+          if (d.rendering === '') return '#69b3a2';
+          if (d.rendering === 'client') return '#6972b3';
+          if (d.rendering === 'server') return '#b36969';
+          else return '#b3ad69';
+        })
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
   }, [data]);
 
       
