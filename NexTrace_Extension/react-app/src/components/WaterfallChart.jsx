@@ -63,6 +63,7 @@ export default function WaterfallChart(props) {
     const tooltip = d3.select("#waterfall-chart")
       .append("div")
       .style("opacity", 0)
+      .style('display', 'none')
       .attr("class", "tooltip")
       .attr('id', 'the-only-tooltip')
       .style("background-color", "white")
@@ -85,18 +86,23 @@ export default function WaterfallChart(props) {
       tooltip
           .html(tooltipString)
           .style("left",(event.x)-450+"px")
-          .style("top",(event.y)-100+"px")
+          .style('position', 'absolute')
+          // .style("top",(event.y)-170+"px")
+          .style("top",(event.y)+400+"px")
           .style("opacity", 1)
+          .style('display', 'inline-block')
     }
     const mousemove = function(event, d) {
       tooltip.style("transform", "translateY(-100%)")
         .style("left",(event.x)+10+"px")
-        .style("top",(event.y)-210+"px")
+        .style("top",(event.y)+55+"px")
     }
     const mouseleave = function(event, d) {
       tooltip
         .style("opacity", 0)
         .style("top","-300px")
+        .style('display', 'none')
+        .html('')
     }
 
     // Bars
