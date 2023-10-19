@@ -60,7 +60,22 @@ export default function WaterfallChart(props) {
       .call(d3.axisLeft(y))
       .selectAll('text')
         .style('display', 'none');
+
+    function make_x_gridlines() {		
+      return d3.axisBottom(x)
+        .ticks(8)
+    };
+
+    svg.append("g")			
+      .attr("class", "grid")
+      .attr("transform", "translate(0," + height + ")")
+      .attr("stroke-opacity", 0.1)
+      .call(make_x_gridlines()
+        .tickSize(-height)
+        .tickFormat('')
+      );
     
+    // tooltip
     const tooltip = d3.select("#waterfall-chart")
       .append("div")
       .style("opacity", 0)
@@ -126,12 +141,13 @@ export default function WaterfallChart(props) {
     
     // x axis title
     svg.append('text')
-        .attr('x', (width / 2) - 10)
+        .attr('x', (width / 2) - 16)
         .attr('y', height + 34)
         .attr('text-anchor', 'end')
         .attr('class', 'x-axis-title')
         .style('fill', 'lightgrey')
-        .text('duration (ms)')
+        .style('font-size', '80%')
+        .text('Duration (ms)')
   }, [data]);
 
       

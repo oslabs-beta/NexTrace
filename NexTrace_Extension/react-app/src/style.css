@@ -1,5 +1,5 @@
 body {
-  background-color: rgba(155, 154, 150, 0.631);
+  background-color: rgba(48, 48, 48, 0.631);
 }
 
 #waterfall-chart {
@@ -15,6 +15,7 @@ body {
   z-index: 2;
   position: relative;
   overflow: hidden;
+  overflow: scroll;
 }
 
 .MuiPaper-root{
