@@ -1,9 +1,17 @@
 const addLogs = (file, api, path, i) => {
     const j = api.jscodeshift.withParser('tsx');
-
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
+
+    //Checks if code already have boilerplate written, if true then returns back to source
+    const check = ast.find(j.FunctionDeclaration, {
+        id: {
+            type: "Identifier",
+            name: name => /^captureAndSend\d+$/.test(name)
+        }
+    })
+    if(check.__paths.length > 0) return ast.toSource();
 
     /*
 
@@ -18,7 +26,7 @@ const addLogs = (file, api, path, i) => {
                 args
             )
         )
-    };
+    }
 
     //Helper function to append found content with new content. 'statementPath' refers to an individual node path, such as in the ast.find().
     function insertContentAfter(statementPath, newContent) {

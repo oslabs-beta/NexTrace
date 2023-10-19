@@ -57,9 +57,7 @@ export default function ConsoleComponent() {
       };
   
       socket.onmessage = (event) => {
-        console.log('IM BACK IN CONSOLE COMPONENT!!!')
         const receivedData = JSON.parse(event.data);
-        console.log('received data of console',receivedData);
         setLogs(receivedData.map(item => createData(item.consoleLog, item.path)));
 
       };

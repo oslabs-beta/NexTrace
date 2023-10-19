@@ -10,6 +10,7 @@ app.use(cors());
 
 let requestArray = [];
 let consoleLogArray = [];
+
 const wss = new WebSocket.Server({ noServer: true });
 
 app.get('/', (req, res) => res.send('Hello, world!'));
@@ -102,9 +103,7 @@ wss.on('connection', (socket) => {
 
     if (data.socketId) {
       connectedClients.set(data.socketId, socket);
-      console.log(`WebSocket connection established for socketId: ${data.socketId}`);
     } else {
-      console.log('Received message from client:', data);
     }
     if (data.socketId === 'Metric') sendToSocketBySocketId('Metric', requestArray);
     else if (data.socketId === 'Console') sendToSocketBySocketId('Console', consoleLogArray);
@@ -114,7 +113,6 @@ wss.on('connection', (socket) => {
     connectedClients.forEach((client, socketId) => {
       if (client === socket) {
         connectedClients.delete(socketId);
-        console.log(`WebSocket connection closed for socketId: ${socketId}`);
       }
     });
   });

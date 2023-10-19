@@ -72,7 +72,7 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
           button === 'Start' ? handleClick('gatherFilePaths') : handleClick('removeLogs');
           handleClick('saveState');
         }}
-      >{button === 'Start' ? (<><i className="fas fa-play"></i> Start</>) : (<><i className="fas fa-stop"></i> Stop</>)}
+      >{button === 'Start' ? (<>Start</>) : (<>Stop</>)}
       </button>
 
       <p style={{ textAlign: "center", marginBottom: '0.15em' }}>{button === 'Start' ? name !== '' ? 'Selected File:' : `Select root file.....` : `NexTrace running on port: 3695.....`}</p>
