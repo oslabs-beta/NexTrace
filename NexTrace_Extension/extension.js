@@ -191,9 +191,7 @@ function activate(context) {
   
     console.log('Congratulations, your extension "NexTrace" is now active!');
   }
-  catch (err) {
-    console.log(err);
-  }
+  catch (err) {console.log(err)}
 }
 
 function handleLogs(files, command, rootPath) {

@@ -60,7 +60,7 @@ const addLogs = (file, api, path, i) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695/getLogs'),
+                j.literal(`http://localhost:3695/getLogs?nocache=${Date.now()}`),
                 j.objectExpression([
                     j.property(
                         'init',
