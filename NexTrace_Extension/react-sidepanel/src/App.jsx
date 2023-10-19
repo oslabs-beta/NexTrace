@@ -4,7 +4,7 @@ import Table from './components/table';
 export default function App() {
   const [tableData, setTableData] = useState({ name: '', path: '', rootDir: [], button: 'Start' });
   const vscode = window.vscodeApi;
-
+  
   useEffect(() => {
     vscode.postMessage('NexTrace.getState');
 

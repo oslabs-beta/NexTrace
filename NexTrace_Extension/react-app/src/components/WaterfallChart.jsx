@@ -4,56 +4,27 @@ import * as d3 from 'd3'
 export default function WaterfallChart(props) {
 
   const { data } = props;
-
-  // tooltip
-  // const tooltip = d3.select("#waterfall-chart")
-  //   .append("div")
-  //   .style("opacity", 0)
-  //   .attr("class", "tooltip")
-  //   .style("background-color", "white")
-  //   .style("border", "solid")
-  //   .style("border-width", "1px")
-  //   .style("border-radius", "5px")
-  //   .style("padding", "10px")
+      // created adjusted dataset for relative start times
+      const minStart = Math.min(...data.map(el => el.start));
+      const adjData = [];
+      data.forEach(obj => {
+        const newObj = Object.assign({}, obj);
+        newObj.adjStart = obj.start - minStart;
+        newObj.adjName = obj.name + ' ' + obj.method;
+        adjData.push(newObj);
+      })
   
-    // // Three function that change the tooltip when user hover / move / leave a cell
-    // const mouseover = function(d) {
-    //   tooltip
-    //       .html('it\'s literally 1984')
-    //       .style("opacity", 1)
-    // }
-    // const mousemove = function(d) {
-    //   tooltip
-    //     .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-    //     .style("top", (d3.mouse(this)[1]) + "px")
-    // }
-    // const mouseleave = function(d) {
-    //   tooltip
-    //     .style("opacity", 0)
-    // }
-
+      // sort adjusted dataset by adjusted start time
+      adjData.sort((a, b) => {
+        if (a.adjStart > b.adjStart) return 1;
+        else return -1;
+      })
+  const [timer, setTimer] = useState(100);      
+  function xTimer (count) {setTimer(count + 100)}
 
   useEffect(() => {
     d3.select('svg').remove();
-
-    // console.log('THE DATAAAAAAAAAAAAA: ', data);
-  
-    // created adjusted dataset for relative start times
-    const minStart = Math.min(...data.map(el => el.start));
-    const adjData = [];
-    data.forEach(obj => {
-      const newObj = Object.assign({}, obj);
-      newObj.adjStart = obj.start - minStart;
-      newObj.adjName = obj.name + ' ' + obj.method;
-      adjData.push(newObj);
-    })
-
-    // sort adjusted dataset by adjusted start time
-    adjData.sort((a, b) => {
-      if (a.adjStart > b.adjStart) return 1;
-      else return -1;
-    })
-    // console.log('Adjusted Data', adjData);
+    //check if data exists, if does then do rest, else use animation to show something else instead
 
     // set the dimensions and margins of the graph
     const margin = {top: 20, right: 30, bottom: 40, left: 90},
@@ -71,22 +42,22 @@ export default function WaterfallChart(props) {
 
     // X axis
     const x = d3.scaleLinear()
-      .domain([0, Math.max(...adjData.map(el => el.duration + el.adjStart)) + 1000])
+      .domain([0, Math.max(...adjData.map(el => el.duration + el.adjStart)) + timer])
       .range([0, Math.round(width * 0.7)]);
-
-    svg.append('g')
+      
+      svg.append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x))
       .selectAll('text')
-        .attr('transform', 'translate(-10,0)rotate(-45)')
-        .style('text-anchor', 'end');
-
+      .attr('transform', 'translate(-10,0)rotate(-45)')
+      .style('text-anchor', 'end');
+      
     // Y axis
     const y = d3.scaleBand()
       .range([ 0, height ])
       .domain(adjData.map(function(d) { return d.adjName; }))
       .padding(.1);
-
+      
     svg.append('g')
       .call(d3.axisLeft(y))
 
@@ -106,13 +77,11 @@ export default function WaterfallChart(props) {
         else return '#b3ad69';
       })
       .attr('rx', 5)
-      // .on("mouseover", mouseover)
-      // .on("mousemove", mousemove)
-      // .on("mouseleave", mouseleave)
-
-  }, [data]);
-
       
+      setTimeout(xTimer(timer),1000);
+  }, [data, timer]);
+  
+// Call the update function every second
   return (
     <div id="waterfall-chart"></div>
   );

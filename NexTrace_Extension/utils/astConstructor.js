@@ -1,9 +1,18 @@
 const transformer = (file, api, path) => {
     const j = api.jscodeshift.withParser('tsx');
-
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
+
+    //Checks if code already have boilerplate written, if true then returns back to source
+    const check = ast.find(j.VariableDeclarator, {
+        id: { type: "Identifier", name: "collectorOptions" },
+        init: {
+            type: "ObjectExpression",
+        }
+    });
+    if (check.__paths.length > 0) return ast.toSource();
+
 
     /*
 
@@ -420,8 +429,9 @@ const transformer = (file, api, path) => {
     rootNode.body.unshift(traceBaseRequireStatemt);
     rootNode.body.unshift(OTLPTraceExporterRequireStatement);
     rootNode.body.unshift(traceRequireStatement);
-
+    
     return ast.toSource();
+    
 }
 
 module.exports = { transformer };

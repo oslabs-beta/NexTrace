@@ -1,11 +1,11 @@
 const path = require('path');
 const vscode = require('vscode');
 const jscodeshift = require('jscodeshift');
+const { addLogs } = require('./utils/addLogs');
+const { removeLogs } = require('./utils/removeLogs');
 const { transformer } = require('./utils/astConstructor');
 const { detransformer } = require('./utils/astDeconstructor');
 const { server, closeServer } = require('./react-app/src/server');
-const { addLogs } = require('./utils/addLogs');
-const { removeLogs } = require('./utils/removeLogs');
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -24,9 +24,6 @@ function activate(context) {
             retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-            sandbox: {
-              allowScripts: true,
-            }
           } 
         );
 
@@ -70,17 +67,11 @@ function activate(context) {
             retainContextWhenHidden: true, 
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-            sandbox: {
-              allowScripts: true,
-            }
           } 
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
-
-        const cssAppPath = path.join(context.extensionPath, 'react-app', 'src', 'style.css');
-        const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
 
         const webviewContent = `
         <!DOCTYPE html>
@@ -89,7 +80,6 @@ function activate(context) {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">          
-          <link rel="stylesheet" type="text/css" href="${cssAppUri}">
         </head>
         <body>
           <div id="root"></div>
@@ -110,125 +100,111 @@ function activate(context) {
          });
       })
     );
+
+
+    //PRIMARY SIDE BAR HTML
+    const panelAppPath = path.join(context.extensionPath, 'react-sidepanel', 'dist', 'bundle.js');
+    const thisProvider = {
+      webviewView: null,
+      resolveWebviewView: function (webviewView, context, token) {
+        const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
+        this.webviewView = webviewView; 
+        webviewView.webview.options = {
+          enableScripts: true,
+        };
+  
+        webviewView.webview.html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https: http: vscode-webview-resource: 'unsafe-inline'; img-src 'self' data: https: http:;">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css"/>
+        </head>
+        <body>
+          <div id="root"></div>
+          <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" style="margin-top: 3em;"/>
+          <script>
+          window.vscodeApi = acquireVsCodeApi();
+          </script>
+          <script src="${panelAppUri}"></script>
+        </body>
+        </html>
+        `;
+  
+        // Handle any messages or events from the webview view here
+        webviewView.webview.onDidReceiveMessage((message) => {
+          // Handle the message from the webview view
+          if (message.command === 'transformCode' || message.command === 'detransformCode') {
+            transformCode(message.path, message.command);
+          }
+          else if (message.command === 'NexTrace.saveState'){
+            vscode.commands.executeCommand(message.command, message)
+          }
+          else if (message.command === 'gatherFilePaths') {
+            handleLogs(message.path, message.command, message.rootPath);
+          }
+          else if (message.command === 'removeLogs') {
+            handleLogs(message.path, message.command);
+          }
+          else vscode.commands.executeCommand(message);
+        });
+      },
+    };
+    //REGISTERS PRIMARY SIDE BAR PROVIDER
+    const disposable2 = vscode.window.registerWebviewViewProvider("nextrace-primary-sidebar.views", thisProvider);
+    context.subscriptions.push(disposable2);
+  
+    //REGISTERS START SERVER COMMAND
+    const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => { server() });
+    context.subscriptions.push(disposable);
+  
+    //REGISTERS STOP SERVER COMMAND
+    const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
+    context.subscriptions.push(stopDisposable);
+  
+     //REGISTERS FILE NAVIGATION COMMAND
+     const disposable3 = vscode.commands.registerCommand("NexTrace.fileNav", (filePath) => { 
+      const test = vscode.workspace.openTextDocument(filePath);
+      vscode.window.showTextDocument(test);
+    });
+     context.subscriptions.push(disposable3);
+  
+    //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
+    const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
+      const { path, name, rootDir, button } = stateData;
+      const state = { path, name, rootDir, button }
+      context.globalState.update('sidePanelState', state)
+    });
+    context.subscriptions.push(stateSaveDisposable);
+  
+    //REGISTERS STATE GET COMMAND FOR SIDE PANEL BUTTONS
+    const stateGetDisposable = vscode.commands.registerCommand('NexTrace.getState', () => {
+      const savedState = context.globalState.get('sidePanelState');
+      thisProvider.webviewView.webview.postMessage({
+        command: 'NexTrace.getStateResponse',
+        data: savedState,
+      });
+    });
+    context.subscriptions.push(stateGetDisposable);
+  
+    console.log('Congratulations, your extension "NexTrace" is now active!');
   }
   catch (err) {
     console.log(err);
   }
-
-  //PRIMARY SIDE BAR HTML
-  const panelAppPath = path.join(context.extensionPath, 'react-sidepanel', 'dist', 'bundle.js');
-  const thisProvider = {
-    webviewView: null,
-    resolveWebviewView: function (webviewView, context, token) {
-      const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
-      this.webviewView = webviewView; 
-      webviewView.webview.options = {
-        enableScripts: true,
-        sandbox: {
-          allowScripts: true,
-        }
-      };
-
-      webviewView.webview.html = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https: http: vscode-webview-resource: 'unsafe-inline'; img-src 'self' data: https: http:;">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css"/>
-      </head>
-      <body>
-        <div id="root"></div>
-        <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" style="margin-top: 3em;"/>
-        <script>
-        window.vscodeApi = acquireVsCodeApi();
-        </script>
-        <script src="${panelAppUri}"></script>
-      </body>
-      </html>
-      `;
-
-      // Handle any messages or events from the webview view here
-      webviewView.webview.onDidReceiveMessage((message) => {
-        // Handle the message from the webview view
-        if (message.command === 'transformCode' || message.command === 'detransformCode') {
-          transformCode(message.path, message.command);
-        }
-        else if (message.command === 'NexTrace.saveState'){
-          vscode.commands.executeCommand(message.command, message)
-        }
-        else if (message.command === 'gatherFilePaths') {
-          handleLogs(message.path, message.command, message.rootPath);
-        }
-        else if (message.command === 'removeLogs') {
-          handleLogs(message.path, message.command);
-        }
-        else vscode.commands.executeCommand(message);
-      });
-    },
-  };
-
-
-  //REGISTERS PRIMARY SIDE BAR PROVIDER
-  const disposable2 = vscode.window.registerWebviewViewProvider("nextrace-primary-sidebar.views", thisProvider);
-  context.subscriptions.push(disposable2);
-
-  //REGISTERS START SERVER COMMAND
-  const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => { server() });
-  context.subscriptions.push(disposable);
-
-  //REGISTERS STOP SERVER COMMAND
-  const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
-  context.subscriptions.push(stopDisposable);
-
-   //REGISTERS FILE NAVIGATION COMMAND
-   const disposable3 = vscode.commands.registerCommand("NexTrace.fileNav", (filePath) => { 
-    console.log('IM TRYING TO NAVIGATE TO MY FILEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
-    console.log('file path: ', filePath);
-    const test = vscode.workspace.openTextDocument(filePath);
-    vscode.window.showTextDocument(test);
-  });
-   context.subscriptions.push(disposable3);
-
-  //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
-  const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
-    const { path, name, rootDir, button } = stateData;
-    const state = { path, name, rootDir, button }
-    context.globalState.update('sidePanelState', state)
-  });
-  context.subscriptions.push(stateSaveDisposable);
-
-  //REGISTERS STATE GET COMMAND FOR SIDE PANEL BUTTONS
-  const stateGetDisposable = vscode.commands.registerCommand('NexTrace.getState', () => {
-    const savedState = context.globalState.get('sidePanelState');
-    thisProvider.webviewView.webview.postMessage({
-      command: 'NexTrace.getStateResponse',
-      data: savedState,
-    });
-  });
-  context.subscriptions.push(stateGetDisposable);
-
-
-  console.log('Congratulations, your extension "NexTrace" is now active!');
 }
 
 function handleLogs(files, command, rootPath) {
   const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
-  console.log('command: ', command, 'files: ', files);
   files.forEach((path, i) => {
     if (path) {
       const fileType = path.slice(-4);
-      if (path && (allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1)))) {
-        if (command === 'gatherFilePaths' && path !== rootPath) {
-          transformCode(path, command, i);
-        }
-        else if (command === 'removeLogs') {
-          transformCode(path, command, i);
-        }
+      if ((allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1))) && path !== rootPath) {
+        transformCode(path, command, i);
       }
     }
-
   });
 }
 
@@ -266,15 +242,16 @@ async function transformCode(userProvidedPath, command, index) {
       }, userProvidedPath, index);
     }
 
-    const contentBuffer = Buffer.from(transformedContent, 'utf8');
-    const fs = vscode.workspace.fs;
-    await fs.writeFile(document.uri, contentBuffer);
-
+    const fullRange = new vscode.Range(document.positionAt(0),
+      document.positionAt(fileContent.length)
+    );
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(document.uri, fullRange, transformedContent);
+    await vscode.workspace.applyEdit(edit);
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }
 }
-
 
 function deactivate() {
 }
