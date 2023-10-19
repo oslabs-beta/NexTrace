@@ -16,27 +16,30 @@ app.get('/', (req, res) => res.send('Hello, world!'));
 
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
-  const span = req.body.resourceSpans[0].scopeSpans[0].spans[0]; 
-  const obj = {name: '', type: '', method: '', duration: 0, status: '', rendering : ''}
+  const span = req.body.resourceSpans[0].scopeSpans[0].spans[0];
+  const obj = { name: '', type: '', method: '', duration: 0, status: '', rendering: '' }
 
   if (span) {
     //STORING NAME OF SPAN
     const name = span.name;
     obj.name = name;
     //STORING TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
-    for (let i = 0; i < span.attributes.length; i++){
-      if(span.attributes[i].key === 'next.span_type') {const type = span.attributes[i].value.stringValue; 
+    for (let i = 0; i < span.attributes.length; i++) {
+      if (span.attributes[i].key === 'next.span_type') {
+        const type = span.attributes[i].value.stringValue;
         obj.type = type;
       }
-      if(span.attributes[i].key === 'http.method') {const method = span.attributes[i].value.stringValue; 
+      if (span.attributes[i].key === 'http.method') {
+        const method = span.attributes[i].value.stringValue;
         obj.method = method;
       }
-      if(span.attributes[i].key === 'http.status_code') {const status = span.attributes[i].value.intValue; 
+      if (span.attributes[i].key === 'http.status_code') {
+        const status = span.attributes[i].value.intValue;
         obj.status = status;
       }
     }
     //STORING DURATION OF SPAN
-    const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
+    const duration = (span.endTimeUnixNano - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     obj.duration = Math.floor(duration);
     obj.start = Math.floor(span.startTimeUnixNano / 1000000);
     //STORES SERVER SIDE / CLIENT SIDE RENDERING DATA
@@ -45,36 +48,37 @@ app.use('/otel', (req, res, next) => {
     else obj.rendering = '';
 
     //CHECKS FOR DUPLICATES AND UPDATES / PUSHES NEW REQUESTS
-    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)){
+    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
       requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)] = obj;
     }
     else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
     } else {
       requestArray.push(obj);
     }
-      sendToSocketBySocketId('Metric', requestArray);
-    }
-    return res.status(200).json('Span Received');
-  });
+    sendToSocketBySocketId('Metric', requestArray);
+  }
+  return res.status(200).json('Span Received');
+});
 
 
-app.post('/getLogs', (req,res,next) => {
+app.post('/getLogs', (req, res, next) => {
   let consoleLog = JSON.parse(req.body.log);
+  console.log('the log: ', consoleLog);
   const path = req.body.path;
 
-  if (typeof consoleLog === 'string'){
+  if (typeof consoleLog === 'string') {
     consoleLog = consoleLog
   }
-  else if (typeof consoleLog === 'object'){
+  else if (typeof consoleLog === 'object') {
     consoleLog = JSON.stringify(consoleLog)
   }
 
-  if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
-  } else {
-    consoleLogArray.push({ consoleLog, path });
-    sendToSocketBySocketId('Console', consoleLogArray);
-    return res.status(200).send('Received');
-  }
+  // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
+  // } else {
+  consoleLogArray.push({ consoleLog, path });
+  sendToSocketBySocketId('Console', consoleLogArray);
+  return res.status(200).send('Received');
+  // }
 });
 
 
@@ -129,7 +133,7 @@ function sendToSocketBySocketId(socketId, message) {
 
 //SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
 let serverInstance;
-function server () {
+function server() {
   serverInstance = app.listen(port, () => {
     console.log(`Server is listening on port: ${port}`);
     requestArray = [];
@@ -142,7 +146,7 @@ function server () {
   });
 };
 
-function closeServer () {
+function closeServer() {
   console.log(`Server is closing port: ${port}`);
   serverInstance.close();
 }

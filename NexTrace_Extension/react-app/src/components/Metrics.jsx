@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TableContainer from '@mui/material/TableContainer';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import WaterfallChart from './WaterfallChart'
+import PieChartComponent from './PieChart';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -16,7 +17,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     color: theme.palette.common.white,
     fontSize: 22,
     fontFamily: 'Merriweather',
-    
+
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 16,
@@ -34,17 +35,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function createNewData(name, status, method, type, duration, rendering, start) {
-    return { name, status, method, type, duration, rendering, start };
+  return { name, status, method, type, duration, rendering, start };
 }
 
 export default function CustomizedTables() {
   const [awaitedData, setAwaitedData] = useState([]);
   const socket = new WebSocket('ws://localhost:3695');
-  
+
   useEffect(() => {
     socket.onopen = () => {
       console.log('Metrics connection opened with ws://localhost:3695.');
-      socket.send(JSON.stringify({socketId: 'Metric'}))
+      socket.send(JSON.stringify({ socketId: 'Metric' }))
     };
 
     socket.onmessage = (event) => {
@@ -55,14 +56,15 @@ export default function CustomizedTables() {
       setAwaitedData(transformedData);
     };
 
-    socket.onclose = (event) => {console.log('WebSocket connection closed:', event.code, event.reason)};
+    socket.onclose = (event) => { console.log('WebSocket connection closed:', event.code, event.reason) };
     socket.onerror = (error) => {
       console.error('WebSocket error from Metrics component:', error.message);
     };
   }, []);
 
   return (<>
-    <WaterfallChart data={awaitedData}/>
+    <PieChartComponent />
+    <WaterfallChart data={awaitedData} />
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 450 }} aria-label="customized table">
         <TableHead>

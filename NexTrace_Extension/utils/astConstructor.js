@@ -227,7 +227,7 @@ const transformer = (file, api, path) => {
 
     The following code generates this using jscodeshift:
     
-    fetch("http://localhost:3695", {
+    fetch("http://localhost:3695/getLogs?nocache=<DATE-HERE>", {
         method: "POST",
 
         headers: {
@@ -245,7 +245,7 @@ const transformer = (file, api, path) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695/getLogs'),
+                j.literal(`http://localhost:3695/getLogs?nocache=${Date.now()}`),
                 j.objectExpression([
                     j.property(
                         'init',

@@ -184,8 +184,6 @@ function activate(context) {
 
    //REGISTERS FILE NAVIGATION COMMAND
    const disposable3 = vscode.commands.registerCommand("NexTrace.fileNav", (filePath) => { 
-    console.log('IM TRYING TO NAVIGATE TO MY FILEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
-    console.log('file path: ', filePath);
     const test = vscode.workspace.openTextDocument(filePath);
     vscode.window.showTextDocument(test);
   });
