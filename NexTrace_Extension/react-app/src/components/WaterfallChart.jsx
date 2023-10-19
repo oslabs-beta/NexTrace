@@ -28,9 +28,11 @@ export default function WaterfallChart(props) {
     const margin = {top: 20, right: 30, bottom: 40, left: 20},
     height = 200 - margin.top - margin.bottom;
     const width = document.getElementById('waterfall-chart').offsetWidth;
+    console.log(width);
 
     // append the svg object to the body of the page
     const svg = d3.select('#waterfall-chart')
+      .style('overflow-x', 'scroll')
       .append('svg')
         .attr('width', '100%')
         .attr('height', height + margin.top + margin.bottom)
@@ -39,16 +41,23 @@ export default function WaterfallChart(props) {
               'translate(' + margin.left + ',' + margin.top + ')')
 
     // X axis
+    const maxTime = Math.max(...adjData.map(el => el.duration + el.adjStart))
     const x = d3.scaleLinear()
-      .domain([0, Math.max(...adjData.map(el => el.duration + el.adjStart)) + 1000])
-      .range([0, Math.round(width * 0.9)]);
+      .domain([0, maxTime])
+      // .range([0, Math.round(width * 0.9)])
+      .range([0, 2000])
 
-    svg.append('g')
+    if (data.length) {
+      svg.append('g')
       .attr('transform', 'translate(0,' + height + ')')
-      .call(d3.axisBottom(x))
+      .call(d3.axisBottom(x)
+        // .ticks(0, Math.ceil(maxTime / 500) * 500, Math.ceil(maxTime / 500))
+        .ticks(Math.ceil(maxTime / 500))
+      )
       .selectAll('text')
         .attr('transform', 'translate(-10,0)')
         .style('text-anchor', 'start')
+    }
 
     // Y axis
     const y = d3.scaleBand()
@@ -61,15 +70,16 @@ export default function WaterfallChart(props) {
       .selectAll('text')
         .style('display', 'none');
 
+    // vertical gridlines
     function make_x_gridlines() {		
       return d3.axisBottom(x)
+        // .ticks(Math.ceil(maxTime / 500))
         .ticks(8)
     };
-
-    svg.append("g")			
-      .attr("class", "grid")
-      .attr("transform", "translate(0," + height + ")")
-      .attr("stroke-opacity", 0.1)
+    svg.append('g')			
+      .attr('class', 'grid')
+      .attr('transform', 'translate(0,' + height + ')')
+      .attr('stroke-opacity', 0.2)
       .call(make_x_gridlines()
         .tickSize(-height)
         .tickFormat('')
