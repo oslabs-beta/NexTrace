@@ -23,17 +23,16 @@ export default function WaterfallChart(props) {
       if (a.adjStart > b.adjStart) return 1;
       else return -1;
     })
-    // console.log('Adjusted Data', adjData);
 
     // set the dimensions and margins of the graph
-    const margin = {top: 20, right: 30, bottom: 40, left: 90},
+    const margin = {top: 20, right: 30, bottom: 40, left: 20},
     height = 200 - margin.top - margin.bottom;
     const width = document.getElementById('waterfall-chart').offsetWidth;
 
     // append the svg object to the body of the page
     const svg = d3.select('#waterfall-chart')
       .append('svg')
-        .attr('width', '90%')
+        .attr('width', '100%')
         .attr('height', height + margin.top + margin.bottom)
       .append('g')
         .attr('transform',
@@ -42,14 +41,14 @@ export default function WaterfallChart(props) {
     // X axis
     const x = d3.scaleLinear()
       .domain([0, Math.max(...adjData.map(el => el.duration + el.adjStart)) + 1000])
-      .range([0, Math.round(width * 0.7)]);
+      .range([0, Math.round(width * 0.9)]);
 
     svg.append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x))
       .selectAll('text')
-        .attr('transform', 'translate(-10,0)rotate(-45)')
-        .style('text-anchor', 'end');
+        .attr('transform', 'translate(-10,0)')
+        .style('text-anchor', 'start')
 
     // Y axis
     const y = d3.scaleBand()
@@ -59,6 +58,8 @@ export default function WaterfallChart(props) {
 
     svg.append('g')
       .call(d3.axisLeft(y))
+      .selectAll('text')
+        .style('display', 'none');
     
     const tooltip = d3.select("#waterfall-chart")
       .append("div")
@@ -87,7 +88,6 @@ export default function WaterfallChart(props) {
           .html(tooltipString)
           .style("left",(event.x)-450+"px")
           .style('position', 'absolute')
-          // .style("top",(event.y)-170+"px")
           .style("top",(event.y)+400+"px")
           .style("opacity", 1)
           .style('display', 'inline-block')
@@ -123,6 +123,15 @@ export default function WaterfallChart(props) {
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave)
+    
+    // x axis title
+    svg.append('text')
+        .attr('x', (width / 2) - 10)
+        .attr('y', height + 34)
+        .attr('text-anchor', 'end')
+        .attr('class', 'x-axis-title')
+        .style('fill', 'lightgrey')
+        .text('duration (ms)')
   }, [data]);
 
       

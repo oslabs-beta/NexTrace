@@ -58,3 +58,7 @@ body {
   visibility: visible;
   opacity: 1;
 }
+
+.x-axis-title {
+  color: whitesmoke;
+}
