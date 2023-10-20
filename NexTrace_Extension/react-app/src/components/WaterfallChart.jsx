@@ -153,8 +153,9 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
           .style('display', 'inline-block')
     }
     const mousemove = function(event, d) {
+      const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
       tooltip.style("transform", "translateY(-100%)")
-        .style("left",(event.x)+10+"px")
+        .style("left",(event.x)+10+scrollPos+"px")
         .style("top",(event.y)+55+"px")
     }
     const mouseleave = function(event, d) {
