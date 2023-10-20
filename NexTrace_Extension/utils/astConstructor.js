@@ -1,9 +1,18 @@
 const transformer = (file, api, path) => {
     const j = api.jscodeshift.withParser('tsx');
-
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
+
+    //Checks if code already have boilerplate written, if true then returns back to source
+    const check = ast.find(j.VariableDeclarator, {
+        id: { type: "Identifier", name: "collectorOptions" },
+        init: {
+            type: "ObjectExpression",
+        }
+    });
+    if (check.__paths.length > 0) return ast.toSource();
+
 
     /*
 
@@ -227,7 +236,7 @@ const transformer = (file, api, path) => {
 
     The following code generates this using jscodeshift:
     
-    fetch("http://localhost:3695", {
+    fetch("http://localhost:3695/getLogs?nocache=<DATE-HERE>", {
         method: "POST",
 
         headers: {
@@ -245,7 +254,7 @@ const transformer = (file, api, path) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695/getLogs'),
+                j.literal(`http://localhost:3695/getLogs?nocache=${Date.now()}`),
                 j.objectExpression([
                     j.property(
                         'init',
@@ -420,8 +429,9 @@ const transformer = (file, api, path) => {
     rootNode.body.unshift(traceBaseRequireStatemt);
     rootNode.body.unshift(OTLPTraceExporterRequireStatement);
     rootNode.body.unshift(traceRequireStatement);
-
+    
     return ast.toSource();
+    
 }
 
 module.exports = { transformer };

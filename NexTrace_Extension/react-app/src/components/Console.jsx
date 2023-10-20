@@ -14,12 +14,14 @@ import Button from '@mui/material/Button';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.common.black,
-      fontSize: 18,
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+      fontSize: 22,
+      fontFamily: 'Merriweather',
     },
     [`&.${tableCellClasses.body}`]: {
       fontSize: 16,
+      fontFamily: 'Merriweather',
     },
   }));
   
@@ -29,8 +31,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
     // hide last border
     '&:last-child td, &:last-child th': {
-      // border : 0 before
-      border: 1,
+      border: 0,    
     },
   }));
   
@@ -56,12 +57,9 @@ export default function ConsoleComponent() {
       };
   
       socket.onmessage = (event) => {
-        console.log('IM BACK IN CONSOLE COMPONENT!!!')
         const receivedData = JSON.parse(event.data);
-        console.log('received data of console',receivedData);
         setLogs(receivedData.map(item => createData(item.consoleLog, item.path)));
 
-        console.log('LOGS', logs);
       };
   
       socket.onclose = (event) => {console.log('WebSocket connection closed:', event.code, event.reason)};
@@ -72,26 +70,21 @@ export default function ConsoleComponent() {
 
     return (
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 500 }} aria-label="customized table">
+          <Table sx={{ width: "100%", tableLayout: "fixed" }} aria-label="customized table">
             <TableHead>
               <TableRow>
-                <StyledTableCell>Console Logs</StyledTableCell>
-                {/* <StyledTableCell>File</StyledTableCell> */}
-                <StyledTableCell sx={{ width: 160 }}>Link</StyledTableCell>
+                <StyledTableCell sx={{ width: '90%' }}>Console Logs</StyledTableCell>
+                <StyledTableCell sx={{ width: '10%' }}>Link</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {logs.map((row, i) => (
-                <StyledTableRow key={row.name}>
-                  <StyledTableCell component="th" scope="row">
+                <StyledTableRow key={row.name} >
+                  <StyledTableCell component="th" scope="row" style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
                     {row.name}
                   </StyledTableCell>
-                  {/* <StyledTableCell id={i}>
-                    {row.path.split('/').pop()}
-                  </StyledTableCell> */}
                   <StyledTableCell>
-                    {/* <button id={i} onClick={e => jumpToFile(row.path)}>Go to File</button> */}
-                    <Button variant="contained" id={i} onClick={e => jumpToFile(row.path)}>Go to {row.path.split('/').pop()}</Button>
+                    <Button size="medium" variant="contained" id={i} onClick={e => jumpToFile(row.path)}>Go to {row.path.split('/').pop()}</Button>
                   </StyledTableCell>
                 </StyledTableRow>
               ))}
