@@ -49,10 +49,10 @@ app.use('/otel', (req, res, next) => {
     else obj.rendering = '';
 
     //CHECKS FOR DUPLICATES AND UPDATES / PUSHES NEW REQUESTS
-    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
-      requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)] = obj;
-    }
-    else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
+    // if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
+    //   requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)] = obj;
+    // }
+    if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
     } else {
       requestArray.push(obj);
     }
@@ -74,12 +74,9 @@ app.post('/getLogs', (req, res, next) => {
     consoleLog = JSON.stringify(consoleLog)
   }
 
-  // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
-  // } else {
   consoleLogArray.push({ consoleLog, path });
   sendToSocketBySocketId('Console', consoleLogArray);
   return res.status(200).send('Received');
-  // }
 });
 
 

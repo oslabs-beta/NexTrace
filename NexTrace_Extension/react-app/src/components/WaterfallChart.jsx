@@ -18,23 +18,28 @@ export default function WaterfallChart(props) {
         if (a.adjStart > b.adjStart) return 1;
         else return -1;
       })
-  // const [timer, setTimer] = useState(1);      
-  // function xTimer (count) {setTimer(count + 1)}
+
+  // Calculate the maximum data value
+const maxDataValue = Math.max(...adjData.map(el => el.duration + el.adjStart)) + 1000;
+
+// Calculate the tick interval (e.g., 500)  
+const tickInterval = 500;
+
+// Calculate the number of ticks based on the interval
+const numTicks = Math.ceil(maxDataValue / tickInterval);
 
   useEffect(() => {
     d3.select('svg').remove();
     d3.select('#the-only-tooltip').remove();
-    //check if data exists, if does then do rest, else use animation to show something else instead
-
+   
     // set the dimensions and margins of the graph
-    const margin = { top: 20, right: 30, bottom: 40, left: 90 },
+    const margin = { top: 20, right: 0, bottom: 40, left: 90 },
       height = 200 - margin.top - margin.bottom;
-    const width = document.getElementById('waterfall-chart').offsetWidth;
 
     // append the svg object to the body of the page
     const svg = d3.select('#waterfall-chart')
       .append('svg')
-      .attr('width', '90%')
+      .attr('width', `${19 * numTicks}%`)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform',
@@ -42,16 +47,21 @@ export default function WaterfallChart(props) {
 
     // X axis
     const x = d3.scaleLinear()
-      .domain([0, Math.max(...adjData.map(el => el.duration + el.adjStart)) + 1000])
-      .range([0, Math.round(width * 0.7)]);
-      
-      svg.append('g')
+      .domain([0, maxDataValue])
+      .range([0, maxDataValue * 0.3]);
+  
+    const xAxis = d3.axisBottom(x)
+      .ticks(5 * numTicks)
+      .tickFormat(d => `${d}`);
+
+  
+    svg.append('g')
       .attr('transform', 'translate(0,' + height + ')')
-      .call(d3.axisBottom(x))
+      .call(xAxis)
       .selectAll('text')
       .attr('transform', 'translate(-10,0)rotate(-45)')
       .style('text-anchor', 'end');
-      
+
     // Y axis
     const y = d3.scaleBand()
       .range([0, height])
@@ -60,7 +70,7 @@ export default function WaterfallChart(props) {
       
     svg.append('g')
       .call(d3.axisLeft(y))
-    
+      
     const tooltip = d3.select("#waterfall-chart")
       .append("div")
       .style("opacity", 0)
@@ -88,7 +98,6 @@ export default function WaterfallChart(props) {
           .html(tooltipString)
           .style("left",(event.x)-450+"px")
           .style('position', 'absolute')
-          // .style("top",(event.y)-170+"px")
           .style("top",(event.y)+400+"px")
           .style("opacity", 1)
           .style('display', 'inline-block')
@@ -124,11 +133,11 @@ export default function WaterfallChart(props) {
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave)
-        // setInterval(xTimer(timer),1000);
+
   }, [data]);
   
 // Call the update function every second
   return (
-    <div id="waterfall-chart"></div>
+    <div id="waterfall-chart" style={{ width: '100%', overflowX: 'scroll' }}></div>
   );
 }
