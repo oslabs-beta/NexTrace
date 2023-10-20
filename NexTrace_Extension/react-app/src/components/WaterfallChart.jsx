@@ -4,6 +4,20 @@ import * as d3 from 'd3'
 export default function WaterfallChart(props) {
   const { data } = props;
 
+  const [listeningDots, setListeningDots] = useState(' . . .');
+  let intervalID;
+  const updateListeningDots = () => {
+    const states = { '': ' .', ' .': ' . .', ' . .': ' . . .', ' . . .': '' };
+    setListeningDots(states[listeningDots]);
+  }
+  if (!data.length) {
+    intervalID = setInterval(() => {
+      updateListeningDots();
+    }, 500)
+  } else {
+    clearInterval(intervalID);
+  }
+
   useEffect(() => {
     d3.select('svg').remove();
     d3.select('#the-only-tooltip').remove();
@@ -23,36 +37,36 @@ export default function WaterfallChart(props) {
       if (a.adjStart > b.adjStart) return 1;
       else return -1;
     })
+    const maxTime = Math.max(...adjData.map(el => el.duration + el.adjStart))
 
     // set the dimensions and margins of the graph
     const margin = {top: 20, right: 30, bottom: 40, left: 20},
     height = 200 - margin.top - margin.bottom;
     const width = document.getElementById('waterfall-chart').offsetWidth;
+    const widthFactor = maxTime / 10000;
 
     // append the svg object to the body of the page
     const svg = d3.select('#waterfall-chart')
-      .style('overflow', 'auto')
+      .style('overflow-x', 'scroll')
       .append('svg')
-        .attr('width', '100%')
+        .attr('width', (Math.max(1, widthFactor) * 100) + '%')
         .attr('height', height + margin.top + margin.bottom)
-        .style('overflow', 'auto')
+        .style('overflow-x', 'scroll')
       .append('g')
         .attr('transform',
               'translate(' + margin.left + ',' + margin.top + ')')
-        .style('overflow', 'auto')
+        .style('overflow-x', 'scroll')
 
     // X axis
-    const maxTime = Math.max(...adjData.map(el => el.duration + el.adjStart))
     const x = d3.scaleLinear()
       .domain([0, maxTime])
-      .range([0, Math.round(width * 0.9)])
+      .range([0, Math.max(width * 0.9 * widthFactor, width * 0.9)])
       // .range([0, 2000])
 
     if (data.length) {
       svg.append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x)
-        // .ticks(0, Math.ceil(maxTime / 500) * 500, Math.ceil(maxTime / 500))
         .ticks(Math.ceil(maxTime / 500))
       )
       .selectAll('text')
@@ -74,7 +88,6 @@ export default function WaterfallChart(props) {
     // vertical gridlines
     function make_x_gridlines() {		
       return d3.axisBottom(x)
-        // .ticks(Math.ceil(maxTime / 500))
         .ticks(Math.ceil(maxTime / 500))
     };
     svg.append('g')			
