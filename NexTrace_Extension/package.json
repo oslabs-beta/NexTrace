@@ -51,16 +51,15 @@
           "name": "NexTrace",
           "contextualTitle": "NexTrace",
           "type": "webview"
-        }]
-    
-      }
-      
-    },
+        }
+      ]
+    }
+  },
   "scripts": {
     "lint": "eslint .",
     "start": "nodemon /src/server.js",
     "pretest": "npm run lint",
-    "test": "node ./test/runTest.js",
+    "test": "jest --detectOpenHandles ../react-app/src/__test__/server.test.js",
     "build-react": "webpack --config ./react-app/webpack.config.js",
     "build-sidepanel": "webpack --config ./react-sidepanel/webpack.config.js"
   },
@@ -80,6 +79,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "express": "^4.18.2",
     "glob": "^10.3.3",
+    "jest": "^29.7.0",
     "mocha": "^10.2.0",
     "nodemon": "^3.0.1",
     "style-loader": "^3.3.3",
@@ -95,10 +95,11 @@
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.12",
     "cors": "^2.8.5",
-    "http": "^0.0.1-security",
     "d3": "^7.8.5",
+    "http": "^0.0.1-security",
     "jscodeshift": "^0.15.0",
     "react": "^18.2.0",
+    "supertest": "^6.3.3",
     "typescript": "^5.2.2"
   }
 }

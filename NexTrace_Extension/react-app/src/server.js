@@ -10,33 +10,38 @@ app.use(cors());
 
 let requestArray = [];
 let consoleLogArray = [];
+const stagedData = {};
+
 const wss = new WebSocket.Server({ noServer: true });
 
 app.get('/', (req, res) => res.send('Hello, world!'));
 
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
-  const span = req.body.resourceSpans[0].scopeSpans[0].spans[0]; 
-  const obj = {name: '', type: '', method: '', duration: 0, status: '', rendering : ''}
+  const span = req.body.resourceSpans[0].scopeSpans[0].spans[0];
+  const obj = { name: '', type: '', method: '', duration: 0, status: '', rendering: '' }
 
   if (span) {
     //STORING NAME OF SPAN
     const name = span.name;
     obj.name = name;
     //STORING TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
-    for (let i = 0; i < span.attributes.length; i++){
-      if(span.attributes[i].key === 'next.span_type') {const type = span.attributes[i].value.stringValue; 
+    for (let i = 0; i < span.attributes.length; i++) {
+      if (span.attributes[i].key === 'next.span_type') {
+        const type = span.attributes[i].value.stringValue;
         obj.type = type;
       }
-      if(span.attributes[i].key === 'http.method') {const method = span.attributes[i].value.stringValue; 
+      if (span.attributes[i].key === 'http.method') {
+        const method = span.attributes[i].value.stringValue;
         obj.method = method;
       }
-      if(span.attributes[i].key === 'http.status_code') {const status = span.attributes[i].value.intValue; 
+      if (span.attributes[i].key === 'http.status_code') {
+        const status = span.attributes[i].value.intValue;
         obj.status = status;
       }
     }
     //STORING DURATION OF SPAN
-    const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
+    const duration = (span.endTimeUnixNano - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     obj.duration = Math.floor(duration);
     obj.start = Math.floor(span.startTimeUnixNano / 1000000);
     //STORES SERVER SIDE / CLIENT SIDE RENDERING DATA
@@ -45,35 +50,77 @@ app.use('/otel', (req, res, next) => {
     else obj.rendering = '';
 
     //CHECKS FOR DUPLICATES AND UPDATES / PUSHES NEW REQUESTS
-    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)){
+    if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
       requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)] = obj;
     }
     else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
     } else {
-      requestArray.push(obj);
+      if (obj.status === '') {
+        stagedData[obj.name.split(' ').pop()] = obj;
+        console.log('WE ADDED STUFF TO STAGED', stagedData);
+      } else {
+        requestArray.push(obj);
+      }
     }
+
+    if (requestArray.length > 0) {
       sendToSocketBySocketId('Metric', requestArray);
     }
-    return res.status(200).json('Span Received');
-  });
-
-
-app.post('/getLogs', (req,res,next) => {
-  let consoleLog = JSON.parse(req.body.log);
-  const path = req.body.path;
-
-  if (typeof consoleLog === 'string'){
-    consoleLog = consoleLog
   }
-  else if (typeof consoleLog === 'object'){
-    consoleLog = JSON.stringify(consoleLog)
-  }
+  return res.status(200).json('Span Received');
+});
 
-  if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
-  } else {
-    consoleLogArray.push({ consoleLog, path });
-    sendToSocketBySocketId('Console', consoleLogArray);
+
+app.post('/getLogs', (req, res, next) => {
+  let consoleLog = req.body.log.map(arg => JSON.parse(arg));
+  try {
+    // let consoleLog = JSON.parse(req.body.log);
+    // console.log('here is the console log: ', consoleLog);
+    if (consoleLog[2] === 'NTASYNC') {
+      //Check if staging area has endpoint currently.
+      if (stagedData[consoleLog[0]]) {
+        stagedData[consoleLog[0]].status = consoleLog[1];
+        console.log('the changed property on staged data: ', stagedData[consoleLog[0]]);
+        console.log('here is the staged data after ADDING: ', stagedData);
+
+        if (requestArray.some(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)) {
+          requestArray[requestArray.findIndex(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)] = stagedData[consoleLog[0]];
+        }
+        else {
+          requestArray.push(stagedData[consoleLog[0]])
+          sendToSocketBySocketId('Metric', requestArray);
+          console.log('console log before deletion.');
+          delete stagedData[consoleLog[0]];
+          console.log('console log after deletion');
+          console.log('the staged data after deletion: ', stagedData);
+        }
+
+      } else {
+        console.log('IN THE ELSE');
+        stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '' };
+      }
+    }
+
+    else {
+      const path = req.body.path;
+
+      if (typeof consoleLog === 'string') {
+        consoleLog = consoleLog
+      }
+      else if (typeof consoleLog === 'object') {
+        consoleLog = JSON.stringify(consoleLog)
+      }
+
+      // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
+      // } else {
+      consoleLogArray.push({ consoleLog, path });
+      sendToSocketBySocketId('Console', consoleLogArray);
+    }
     return res.status(200).send('Received');
+    // }
+  }
+  catch (err) {
+    return next(err);
   }
 });
 
@@ -83,7 +130,7 @@ app.use((req, res) => res.status(404).send('This is not the page you\'re looking
 
 /*Catch unkown Middleware errors*/
 app.use((err, req, res, next) => {
-  console.log('error here: ', err);
+  console.log('ERROR HERE: ', err);
   const defaultErr = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,
@@ -102,9 +149,7 @@ wss.on('connection', (socket) => {
 
     if (data.socketId) {
       connectedClients.set(data.socketId, socket);
-      console.log(`WebSocket connection established for socketId: ${data.socketId}`);
     } else {
-      console.log('Received message from client:', data);
     }
     if (data.socketId === 'Metric') sendToSocketBySocketId('Metric', requestArray);
     else if (data.socketId === 'Console') sendToSocketBySocketId('Console', consoleLogArray);
@@ -114,7 +159,6 @@ wss.on('connection', (socket) => {
     connectedClients.forEach((client, socketId) => {
       if (client === socket) {
         connectedClients.delete(socketId);
-        console.log(`WebSocket connection closed for socketId: ${socketId}`);
       }
     });
   });
@@ -129,7 +173,7 @@ function sendToSocketBySocketId(socketId, message) {
 
 //SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
 let serverInstance;
-function server () {
+function server() {
   serverInstance = app.listen(port, () => {
     console.log(`Server is listening on port: ${port}`);
     requestArray = [];
@@ -142,7 +186,7 @@ function server () {
   });
 };
 
-function closeServer () {
+function closeServer() {
   console.log(`Server is closing port: ${port}`);
   serverInstance.close();
 }
