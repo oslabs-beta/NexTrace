@@ -1,9 +1,18 @@
-const transformer = (file, api) => {
+const transformer = (file, api, path) => {
     const j = api.jscodeshift.withParser('tsx');
-
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
+
+    //Checks if code already have boilerplate written, if true then returns back to source
+    const check = ast.find(j.VariableDeclarator, {
+        id: { type: "Identifier", name: "collectorOptions" },
+        init: {
+            type: "ObjectExpression",
+        }
+    });
+    if (check.__paths.length > 0) return ast.toSource();
+
 
     /*
 
@@ -227,7 +236,7 @@ const transformer = (file, api) => {
 
     The following code generates this using jscodeshift:
     
-    fetch("http://localhost:3695", {
+    fetch("http://localhost:3695/getLogs?nocache=<DATE-HERE>", {
         method: "POST",
 
         headers: {
@@ -245,7 +254,7 @@ const transformer = (file, api) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695'),
+                j.literal(`http://localhost:3695/getLogs?nocache=${Date.now()}`),
                 j.objectExpression([
                     j.property(
                         'init',
@@ -275,6 +284,11 @@ const transformer = (file, api) => {
                                     'init',
                                     j.identifier('log'),
                                     j.identifier('content')
+                                ),
+                                j.property(
+                                    'init',
+                                    j.identifier('path'),
+                                    j.literal(`${path}`)
                                 )
                             ])
                         ]
@@ -308,7 +322,7 @@ const transformer = (file, api) => {
     */
 
     const dispatchFunctionStatement = j.functionDeclaration(
-        j.identifier('captureAndSend'),
+        j.identifier('captureAndSendNT'),
         [j.restElement(j.identifier('args'))],
         j.blockStatement([
             j.variableDeclaration(
@@ -373,7 +387,7 @@ const transformer = (file, api) => {
     function createCaptureAndSendInvocation(args) {
         return j.expressionStatement(
             j.callExpression(
-                j.identifier('captureAndSend'),
+                j.identifier('captureAndSendNT'),
                 args
             )
         )
@@ -415,8 +429,9 @@ const transformer = (file, api) => {
     rootNode.body.unshift(traceBaseRequireStatemt);
     rootNode.body.unshift(OTLPTraceExporterRequireStatement);
     rootNode.body.unshift(traceRequireStatement);
-
+    
     return ast.toSource();
+    
 }
 
 module.exports = { transformer };

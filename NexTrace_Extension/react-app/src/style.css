@@ -1,3 +1,71 @@
 body {
-  background-color: rgba(255, 187, 0, 0.631);
+  background-color: rgba(48, 48, 48, 0.631);
+}
+
+#waterfall-chart {
+  background-color: rgb(30, 30, 30);
+  border: 2px;
+  padding: 10px;
+  border-radius: 5px;
+  border-style: solid;
+  border-color: black;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  z-index: 2;
+  position: relative;
+  overflow: scroll;
+  overflow-x: scroll;
+}
+
+.MuiPaper-root{
+  margin-top: 20px;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 5000;
+  bottom: 125%;
+  left: 50%;
+  /* margin-left: -60px; */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.x-axis-title {
+  color: whitesmoke;
+}
+
+#listening-header {
+  display: flexbox;
+  align-items: center;
+  margin: 5%;
 }

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Table from './components/table';
 
 export default function App() {
-  const [tableData, setTableData] = useState({ name: '', path: '', button: 'Start' });
+  const [tableData, setTableData] = useState({ name: '', path: '', rootDir: [], button: 'Start' });
   const vscode = window.vscodeApi;
-
+  
   useEffect(() => {
     vscode.postMessage('NexTrace.getState');
 
@@ -25,5 +25,5 @@ export default function App() {
   }, []);
 
 
-  return <Table name={tableData.name} path={tableData.path} button={tableData.button} setTableData={setTableData}/>;
+  return <Table name={tableData.name} path={tableData.path} rootDir={tableData.rootDir} button={tableData.button} setTableData={setTableData}/>;
 }
