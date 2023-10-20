@@ -1,5 +1,5 @@
 body {
-  background-color: rgba(155, 154, 150, 0.631);
+  background-color: rgba(48, 48, 48, 0.631);
 }
 
 #waterfall-chart {
@@ -14,7 +14,8 @@ body {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   z-index: 2;
   position: relative;
-  overflow: hidden;
+  overflow: scroll;
+  overflow-x: scroll;
 }
 
 .MuiPaper-root{
@@ -57,4 +58,14 @@ body {
 .tooltip:hover .tooltiptext {
   visibility: visible;
   opacity: 1;
+}
+
+.x-axis-title {
+  color: whitesmoke;
+}
+
+#listening-header {
+  display: flexbox;
+  align-items: center;
+  margin: 5%;
 }
