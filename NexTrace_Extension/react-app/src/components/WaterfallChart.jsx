@@ -4,19 +4,17 @@ import * as d3 from 'd3'
 export default function WaterfallChart(props) {
   const { data } = props;
 
-  const [listeningDots, setListeningDots] = useState(' . . .');
-  let intervalID;
-  const updateListeningDots = () => {
-    const states = { '': ' .', ' .': ' . .', ' . .': ' . . .', ' . . .': '' };
-    setListeningDots(states[listeningDots]);
-  }
-  if (!data.length) {
-    intervalID = setInterval(() => {
-      updateListeningDots();
-    }, 500)
-  } else {
-    clearInterval(intervalID);
-  }
+  // let listeningString;
+  // if (!data.length) {
+  //   const [listeningDots, setListeningDots] = useState(' . . .');
+  //   const updateListeningDots = () => {
+  //     const states = { '': ' .', ' .': ' . .', ' . .': ' . . .', ' . . .': '' };
+  //     setListeningDots(states[listeningDots]);
+  //   }
+
+  //   setTimeout(() => updateListeningDots(), 200)
+  //   listeningString = 'Listening' + listeningDots;
+  // }
 
   useEffect(() => {
     d3.select('svg').remove();
@@ -61,7 +59,6 @@ export default function WaterfallChart(props) {
     const x = d3.scaleLinear()
       .domain([0, maxTime])
       .range([0, Math.max(width * 0.9 * widthFactor, width * 0.9)])
-      // .range([0, 2000])
 
     if (data.length) {
       svg.append('g')
@@ -172,8 +169,19 @@ export default function WaterfallChart(props) {
         .style('fill', 'lightgrey')
         .style('font-size', '80%')
         .text('Duration (ms)')
-  }, [data]);
 
+    // show "Listening . . ." when no data exists to display
+    // if (!data.length) {
+    //   svg.append('text')
+    //       .attr('x', (width / 2) - 40)
+    //       .attr('y', height / 2)
+    //       .attr('text-anchor', 'start')
+    //       // .attr('id', 'listening-header')
+    //       .style('fill', 'lightgrey')
+    //       .style('font-size', '200%')
+    //       .text(listeningString)
+    // }
+  }, [data]);
       
   return (
     <div id="waterfall-chart"></div>

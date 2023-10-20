@@ -63,3 +63,9 @@ body {
 .x-axis-title {
   color: whitesmoke;
 }
+
+#listening-header {
+  display: flexbox;
+  align-items: center;
+  margin: 5%;
+}
