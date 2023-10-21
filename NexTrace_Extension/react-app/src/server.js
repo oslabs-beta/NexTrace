@@ -10,6 +10,7 @@ app.use(cors());
 
 let requestArray = [];
 let consoleLogArray = [];
+const stagedData = {};
 
 const wss = new WebSocket.Server({ noServer: true });
 
@@ -54,32 +55,66 @@ app.use('/otel', (req, res, next) => {
     }
     else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
     } else {
-      requestArray.push(obj);
+      if (obj.status === '') {
+        stagedData[obj.name.split(' ').pop()] = obj;
+      } else {
+        requestArray.push(obj);
+      }
     }
-    sendToSocketBySocketId('Metric', requestArray);
+
+    if (requestArray.length > 0) {
+      sendToSocketBySocketId('Metric', requestArray);
+    }
   }
   return res.status(200).json('Span Received');
 });
 
 
 app.post('/getLogs', (req, res, next) => {
-  let consoleLog = JSON.parse(req.body.log);
-  console.log('the log: ', consoleLog);
-  const path = req.body.path;
+  let consoleLog = req.body.log.map(arg => JSON.parse(arg));
+  try {
+    // let consoleLog = JSON.parse(req.body.log);
+    // console.log('here is the console log: ', consoleLog);
+    if (consoleLog[2] === 'NTASYNC') {
+      //Check if staging area has endpoint currently.
+      if (stagedData[consoleLog[0]]) {
+        stagedData[consoleLog[0]].status = consoleLog[1];
 
-  if (typeof consoleLog === 'string') {
-    consoleLog = consoleLog
-  }
-  else if (typeof consoleLog === 'object') {
-    consoleLog = JSON.stringify(consoleLog)
-  }
+        if (requestArray.some(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)) {
+          requestArray[requestArray.findIndex(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)] = stagedData[consoleLog[0]];
+        }
+        else {
+          requestArray.push(stagedData[consoleLog[0]])
+          sendToSocketBySocketId('Metric', requestArray);
+          delete stagedData[consoleLog[0]];
+        }
 
-  // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
-  // } else {
-  consoleLogArray.push({ consoleLog, path });
-  sendToSocketBySocketId('Console', consoleLogArray);
-  return res.status(200).send('Received');
-  // }
+      } else {
+        stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '' };
+      }
+    }
+
+    else {
+      const path = req.body.path;
+
+      if (typeof consoleLog === 'string') {
+        consoleLog = consoleLog
+      }
+      else if (typeof consoleLog === 'object') {
+        consoleLog = JSON.stringify(consoleLog)
+      }
+
+      // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
+      // } else {
+      consoleLogArray.push({ consoleLog, path });
+      sendToSocketBySocketId('Console', consoleLogArray);
+    }
+    return res.status(200).send('Received');
+    // }
+  }
+  catch (err) {
+    return next(err);
+  }
 });
 
 
@@ -88,7 +123,7 @@ app.use((req, res) => res.status(404).send('This is not the page you\'re looking
 
 /*Catch unkown Middleware errors*/
 app.use((err, req, res, next) => {
-  console.log('error here: ', err);
+  console.log('ERROR HERE: ', err);
   const defaultErr = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,
