@@ -92,7 +92,7 @@ app.post('/getLogs', (req, res, next) => {
         }
 
       } else {
-        stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '' };
+        stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '', start: 0 };
       }
     }
 

@@ -3,24 +3,23 @@ import * as d3 from 'd3';
 
 export default function PieChartDuration(props) {
   const { reqData } = props;
-  
+
   const newObj = {};
   reqData.forEach(obj => {
-    if(!newObj[obj.name]){
-        newObj[obj.name] = {duration: obj.duration, length: 1}
+    if (!newObj[obj.name]) {
+      newObj[obj.name] = { duration: obj.duration, length: 1 }
     } else {
       newObj[obj.name].duration += obj.duration;
       newObj[obj.name].length += 1;
     }
   })
-  
+
   const data = Object.entries(newObj).map(([name, group]) => {
-      const averageDuration = Math.floor(group.duration / group.length);
-      return { label: name, value: averageDuration };
+    const averageDuration = Math.floor(group.duration / group.length);
+    return { label: name, value: averageDuration };
   });
   // Dimensions
-  let width, height;
-  data.length > 0 ? [width, height] = [window.innerWidth * 0.3, window.innerWidth * 0.3] : [width, height] = [0, 0];
+  let [width, height] = [window.innerWidth * 0.3, window.innerWidth * 0.3];
   const radius = Math.min(width, height) / 2;
 
   // created adjusted dataset for relative start times
@@ -36,6 +35,43 @@ export default function PieChartDuration(props) {
       .attr('height', height)
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+    if (data.length === 0) {
+      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
+      let counter = 0;
+
+      const placeholderData = [1];
+      const placeholderColor = '#e0e0e0';
+
+      const placeholderPie = d3.pie().value(d => d);
+      const arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+
+      svg.selectAll('.placeholderArc')
+        .data(placeholderPie(placeholderData))
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .style('fill', placeholderColor);
+
+      const listeningText = svg.append('text')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('dy', '.35em')
+        .style('text-anchor', 'middle');
+
+      const intervalId = setInterval(() => {
+        counter++;
+        if (counter > 2) counter = 0;
+
+        listeningText.text(listenStrings[counter]);
+      }, 1000);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
 
     // Generate an array of random colors
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -70,7 +106,10 @@ export default function PieChartDuration(props) {
 
   }, [data]);
 
-    return (
-            <span className='pieChart' id='pie-avg-duration'></span>
-    );
+  return (
+    <div>
+      <span className='pieChart' id='pie-avg-duration'></span>
+      <h2 className='pieChartTitle'>Average Duration</h2>
+    </div>
+  );
 }

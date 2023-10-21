@@ -6,37 +6,73 @@ export default function PieChartSum(props) {
 
   const newObj = {};
   reqData.forEach(obj => {
-    if(!newObj[obj.name]){
-        newObj[obj.name] = {duration: obj.duration}
+    if (!newObj[obj.name]) {
+      newObj[obj.name] = { duration: obj.duration }
     } else {
       newObj[obj.name].duration += obj.duration;
     }
   })
-  
+
   const data = Object.entries(newObj).map(([name, group]) => {
-      const sumDuration = group.duration;
-      return { label: name, value: sumDuration };
+    const sumDuration = group.duration;
+    return { label: name, value: sumDuration };
   });
 
-  // Dimensions
-  let width, height;
-  data.length > 0 ? [width, height] = [window.innerWidth * 0.3, window.innerWidth * 0.3] : [width, height] = [0, 0];
-  const radius = Math.min(width, height) / 2;
-  
-  // created adjusted dataset for relative start times
-  useEffect(() => {
-    const container = document.getElementById('pie-sum-duration');
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
+   // Dimensions
+   let [width, height] = [window.innerWidth * 0.3, window.innerWidth * 0.3];
+   const radius = Math.min(width, height) / 2;
+ 
+   // created adjusted dataset for relative start times
+   useEffect(() => {
+     const container = document.getElementById('pie-sum-duration');
+     while (container.firstChild) {
+       container.removeChild(container.firstChild);
+     }
 
-      // Create SVG container
+    // Create SVG container
     const svg = d3.select('#pie-sum-duration')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+    if (data.length === 0) {
+      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
+      let counter = 0;
+
+      const placeholderData = [1];
+      const placeholderColor = '#e0e0e0';
+
+      const placeholderPie = d3.pie().value(d => d);
+      const arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+
+      svg.selectAll('.placeholderArc')
+        .data(placeholderPie(placeholderData))
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .style('fill', placeholderColor);
+
+      const listeningText = svg.append('text')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('dy', '.35em')
+        .style('text-anchor', 'middle');
+
+      const intervalId = setInterval(() => {
+        counter++;
+        if (counter > 2) counter = 0;
+
+        listeningText.text(listenStrings[counter]);
+      }, 1000);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
 
     // Generate an array of random colors
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -71,7 +107,10 @@ export default function PieChartSum(props) {
 
   }, [data]);
 
-    return (
-            <span className='pieChart' id='pie-sum-duration'></span>
-    );
+  return (
+    <div className='pieChartSumContainer'>
+      <span className='pieChart' id='pie-sum-duration'></span>
+      <h2 className='pieChartTitle'>Total Duration</h2>
+    </div>
+  );
 }
