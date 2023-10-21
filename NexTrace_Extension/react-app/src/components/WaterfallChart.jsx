@@ -192,6 +192,22 @@ export default function WaterfallChart(props) {
         .style('fill', 'lightgrey')
         .style('font-size', '80%')
         .text('Duration (ms)')
+    
+    // legend (bottom left corner colors for server/client)
+    svg.append('text')
+        .attr('x', 30)
+        .attr('y', height + 34)
+        .attr('text-anchor', 'end')
+        .style('font-size', '80%')
+        .style('fill', '#b36969')
+        .text('server')
+    svg.append('text')
+        .attr('x', 70)
+        .attr('y', height + 34)
+        .attr('text-anchor', 'end')
+        .style('font-size', '80%')
+        .style('fill', '#6972b3')
+        .text('client')
 
     // show "Listening . . ." when no data exists to display
     if (!data.length) {
