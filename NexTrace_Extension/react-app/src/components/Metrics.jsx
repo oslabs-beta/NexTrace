@@ -71,7 +71,7 @@ export default function CustomizedTables() {
     <PieChartStatus  reqData={awaitedData} />
     </div>
     <WaterfallChart data={awaitedData} />
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} data-testid='metrics'>
       <Table sx={{ minWidth: 450 }} aria-label="customized table">
         <TableHead>
           <TableRow>
