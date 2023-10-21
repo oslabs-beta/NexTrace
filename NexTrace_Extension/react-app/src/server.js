@@ -91,14 +91,12 @@ app.post('/getLogs', (req, res, next) => {
       console.log('NTASYNC RECEIVED!: ', consoleLog);
       //Check if staging area has endpoint currently.
       if (stagedData[consoleLog[0]]) {
-        console.log('it already existed in staged, so we added its status: ', stagedData[consoleLog[0]]);
         stagedData[consoleLog[0]].status = consoleLog[1];
 
         // if (requestArray.some(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)) {
         //   requestArray[requestArray.findIndex(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)] = stagedData[consoleLog[0]];
         // }
         if (stagedData[consoleLog[0]].status === '') {
-          console.log('the stagedData is not ready. ', stagedData[consoleLog[0]]);
         }
         else {
           requestArray.push(stagedData[consoleLog[0]])
@@ -107,7 +105,7 @@ app.post('/getLogs', (req, res, next) => {
         }
 
       } else {
-        stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '' };
+        stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '', start: 0 };
       }
     }
 
