@@ -66,7 +66,11 @@
     "lint": "eslint .",
     "start": "nodemon /src/server.js",
     "pretest": "npm run lint",
-    "test": "jest --env jsdom babel-jest ./react-app/src/__test__/app.test.js",
+    "test:app": "jest --env jsdom babel-jest ./react-app/src/__test__/app.test.js",
+    "test:metrics": "jest --env jsdom babel-jest ./react-app/src/__test__/metrics.test.js",
+    "test:console": "jest --env jsdom babel-jest ./react-app/src/__test__/console.test.js",
+    "test:server": "jest --env node ./react-app/src/__test__/server.test.js",
+    "test": "npm run test:console && npm run test:metrics && npm run test:app && npm run test:server",
     "build-react": "webpack --config ./react-app/webpack.config.js",
     "build-sidepanel": "webpack --config ./react-sidepanel/webpack.config.js"
   },

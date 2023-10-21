@@ -191,6 +191,8 @@ function closeServer() {
   serverInstance.close();
 }
 
+function getPort() {
+  if (serverInstance) return serverInstance.address().port;
+}
 
-
-module.exports = {server, closeServer, app};
+module.exports = {server, closeServer, app, getPort};
