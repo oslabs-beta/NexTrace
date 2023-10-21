@@ -3,6 +3,7 @@ import * as d3 from 'd3'
 
 export default function WaterfallChart(props) {
   const { data } = props;
+
   // created adjusted dataset for relative start times
   const minStart = Math.min(...data.map(el => el.start));
   const adjData = [];
@@ -19,27 +20,21 @@ export default function WaterfallChart(props) {
     else return -1;
   })
 
-  // Calculate the maximum data value
-  const maxDataValue = Math.max(...adjData.map(el => el.duration + el.adjStart)) + 1000;
+  // show "Listening . . ." when no data exists to display
+  const [listeningDots, setListeningDots] = useState(' . . .');
+  const updateListeningDots = () => {
+    const states = { '': ' .', ' .': ' . .', ' . .': ' . . .', ' . . .': '' };
+    setListeningDots(states[listeningDots]);
+  }
+  if (!data.length) {
+    setTimeout(() => {
+      updateListeningDots()
+    }, 150)
+  }
+  const listeningString = 'Listening' + listeningDots;
 
-  // Calculate the tick interval (e.g., 500)  
-  const tickInterval = 500;
 
-  // Calculate the number of ticks based on the interval
-  const numTicks = Math.ceil(maxDataValue / tickInterval);
-
-  // let listeningString;
-  // if (!data.length) {
-  //   const [listeningDots, setListeningDots] = useState(' . . .');
-  //   const updateListeningDots = () => {
-  //     const states = { '': ' .', ' .': ' . .', ' . .': ' . . .', ' . . .': '' };
-  //     setListeningDots(states[listeningDots]);
-  //   }
-
-  //   setTimeout(() => updateListeningDots(), 200)
-  //   listeningString = 'Listening' + listeningDots;
-  // }
-
+  // render waterfall chart from data
   useEffect(() => {
     const container = document.getElementById('waterfall-chart');
     while (container.firstChild) {
@@ -147,19 +142,20 @@ export default function WaterfallChart(props) {
         tooltipString += `${key}: ${barData[key]} <br>`;
       }
 
+      const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
       tooltip
-        .html(tooltipString)
-        .style("left", (event.x) - 450 + "px")
-        .style('position', 'absolute')
-        .style("top", (event.y) + 400 + "px")
-        .style("opacity", 1)
-        .style('display', 'inline-block')
+          .html(tooltipString)
+          .style("left",(event.x)+10+scrollPos+"px")
+          .style('position', 'absolute')
+          .style("top",(event.y)+53+"px")
+          .style("opacity", 1)
+          .style('display', 'inline-block')
     }
     const mousemove = function (event, d) {
       const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
       tooltip.style("transform", "translateY(-100%)")
-        .style("left", (event.x) + 10 + scrollPos + "px")
-        .style("top", (event.y) + 55 + "px")
+        .style("left",(event.x)+10+scrollPos+"px")
+        .style("top",(event.y)+53+"px")
 
     }
     const mouseleave = function (event, d) {
@@ -191,28 +187,43 @@ export default function WaterfallChart(props) {
 
     // x axis title
     svg.append('text')
-      .attr('x', (width / 2) - 16)
-      .attr('y', height + 34)
-      .attr('text-anchor', 'end')
-      .attr('class', 'x-axis-title')
-      .style('fill', 'lightgrey')
-      .style('font-size', '80%')
-      .text('Duration (ms)')
+        .attr('x', (width / 2) - 16)
+        .attr('y', height + 34)
+        .attr('text-anchor', 'end')
+        .attr('class', 'x-axis-title')
+        .style('fill', 'lightgrey')
+        .style('font-size', '80%')
+        .text('Duration (ms)')
+    
+    // legend (bottom left corner colors for server/client)
+    svg.append('text')
+        .attr('x', 30)
+        .attr('y', height + 34)
+        .attr('text-anchor', 'end')
+        .style('font-size', '80%')
+        .style('fill', '#b36969')
+        .text('server')
+    svg.append('text')
+        .attr('x', 70)
+        .attr('y', height + 34)
+        .attr('text-anchor', 'end')
+        .style('font-size', '80%')
+        .style('fill', '#6972b3')
+        .text('client')
 
     // show "Listening . . ." when no data exists to display
-    // if (!data.length) {
-    //   svg.append('text')
-    //       .attr('x', (width / 2) - 40)
-    //       .attr('y', height / 2)
-    //       .attr('text-anchor', 'start')
-    //       // .attr('id', 'listening-header')
-    //       .style('fill', 'lightgrey')
-    //       .style('font-size', '200%')
-    //       .text(listeningString)
-    // }
-  }, [data]);
-
+    if (!data.length) {
+      svg.append('text')
+        .attr('x', (width / 2.5))
+        .attr('y', height / 2)
+        .attr('text-anchor', 'start')
+        .style('fill', 'lightgrey')
+        .style('font-size', '200%')
+        .text(listeningString)
+    }
+  }, [data, listeningDots]);
+      
   return (
-    <div id="waterfall-chart" style={{ width: '100%', overflowX: 'scroll' }}></div>
+    <div id="waterfall-chart"></div>
   );
 }
