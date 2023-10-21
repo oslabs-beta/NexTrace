@@ -1,21 +1,38 @@
-const { server, closeServer } = require('../server');
-const app = require('express')();
-const { expect } = require('jest');
+const request = require('supertest');
+const { server, closeServer, app } = require('../server'); 
 
-describe('Server', () => {
-  let serverInstance;
-  const port = 3695;
-
+describe('Express Server', () => {
   beforeAll(() => {
-    serverInstance = server();
+    server();
   });
 
-  afterAll(() => {
-    closeServer(serverInstance);
+  afterAll((done) => {
+    closeServer();
+    done();
   });
 
-  it('should start the server', async () => {
-    const response = await app.inject({ method: 'GET', url: '/' });
-    expect(response.statusCode).toBe(200);
+  describe('POST /getLogs', () => {
+    it('responds with a success message', async () => {
+      const response = await request(app)
+        .post('/getLogs')
+        .send({ log: ['log1', 'log2'], path: '/user/path/example' });
+      expect(response.status).toBe(200);
+      expect(response.text).toBe('Received');
+    });
+
+    it('handles errors', async () => {
+      const response = await request(app)
+        .post('/getLogs')
+        .send({ log: 'invalid log' }); 
+      expect(response.status).toBe(500); 
+    });
+  });
+
+  describe('Unknown Routes Handler', () => {
+    it('responds with a 404 for unknown routes', async () => {
+      const response = await request(app).get('/unknown-route');
+      expect(response.status).toBe(404);
+      expect(response.text).toBe('This is not the page you\'re looking for...');
+    });
   });
 });

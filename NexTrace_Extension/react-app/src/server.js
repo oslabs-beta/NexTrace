@@ -192,4 +192,5 @@ function closeServer() {
 }
 
 
-module.exports = { server, closeServer };
+
+module.exports = {server, closeServer, app};
