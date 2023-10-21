@@ -9,7 +9,9 @@ import TableHead from '@mui/material/TableHead';
 import TableContainer from '@mui/material/TableContainer';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import WaterfallChart from './WaterfallChart';
-import PieChartComponent from './PieChart';
+import PieChartSum from './PieChartSum';
+import PieChartStatus from './PieChartStatus';
+import PieChartDuration from './PieChartDuration';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -63,7 +65,11 @@ export default function CustomizedTables() {
   }, []);
 
   return (<>
-    <PieChartComponent reqData={awaitedData} />
+  <div className='pieChartContainer'>
+    <PieChartDuration reqData={awaitedData} />
+    <PieChartSum reqData={awaitedData} />
+    <PieChartStatus  reqData={awaitedData} />
+  </div>
     <WaterfallChart data={awaitedData} />
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 450 }} aria-label="customized table">

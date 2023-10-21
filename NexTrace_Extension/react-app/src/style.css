@@ -69,3 +69,14 @@ body {
   align-items: center;
   margin: 5%;
 }
+
+.pieChartContainer{
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.pieChart{
+  margin-left:2em;
+  margin-right: 2em;
+}

@@ -1,38 +1,36 @@
 import React, { useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function PieChartComponent(props) {
+export default function PieChartSum(props) {
   const { reqData } = props;
   
   const newObj = {};
   reqData.forEach(obj => {
     if(!newObj[obj.name]){
-        newObj[obj.name] = {duration: obj.duration, length: 1}
+        newObj[obj.name] = {duration: obj.duration}
     } else {
       newObj[obj.name].duration += obj.duration;
-      newObj[obj.name].length += 1;
     }
   })
   
   const data = Object.entries(newObj).map(([name, group]) => {
-      const averageDuration = Math.floor(group.duration / group.length);
-      return { label: name, value: averageDuration };
+      const sumDuration = group.duration;
+      return { label: name, value: sumDuration };
   });
 
   // created adjusted dataset for relative start times
   useEffect(() => {
-    const container = document.getElementById('pie-avg-duration');
+    const container = document.getElementById('pie-sum-duration');
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
     // Dimensions
     let width, height;
-    console.log(data)
     data.length > 0 ? [width, height] = [300, 300] : [width, height] = [0, 0];
     const radius = Math.min(width, height) / 2;
 
       // Create SVG container
-    const svg = d3.select('#pie-avg-duration')
+    const svg = d3.select('#pie-sum-duration')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
@@ -69,12 +67,12 @@ export default function PieChartComponent(props) {
       .attr('dy', '.35em')
       .style('text-anchor', 'middle')
       .text(d => d.data.label);
+
+    
+
   }, [data]);
 
     return (
-        <div>
-            <span id='pie-avg-duration'></span>
-
-        </div>
+            <span className='pieChart' id='pie-sum-duration'></span>
     );
 }

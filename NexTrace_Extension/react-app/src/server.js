@@ -11,7 +11,6 @@ app.use(cors());
 let requestArray = [];
 let consoleLogArray = [];
 const stagedData = {};
-setInterval(() => console.log(stagedData), 3000)
 
 const wss = new WebSocket.Server({ noServer: true });
 
