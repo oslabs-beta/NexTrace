@@ -55,11 +55,18 @@
       ]
     }
   },
+  "jest": {
+    "transformIgnorePatterns": ["/node_modules/(?!d3|d3-array|internmap|delaunator|robust-predicates), /Nextrace_Extension/react-app/src/style.css"],
+    "moduleNameMapper": {
+      "^d3$": "<rootDir>/node_modules/d3/dist/d3.min.js",
+      "\\.(css|less)$": "<rootDir>/react-app/src/__test__/app.test.js"
+    }
+  },
   "scripts": {
     "lint": "eslint .",
     "start": "nodemon /src/server.js",
     "pretest": "npm run lint",
-    "test": "jest --env jsdom ./react-app/src/__test__/app.test.js",
+    "test": "jest --env jsdom babel-jest ./react-app/src/__test__/app.test.js",
     "build-react": "webpack --config ./react-app/webpack.config.js",
     "build-sidepanel": "webpack --config ./react-sidepanel/webpack.config.js"
   },
