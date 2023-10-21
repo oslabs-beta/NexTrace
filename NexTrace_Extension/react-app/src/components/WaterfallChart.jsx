@@ -41,7 +41,10 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
   // }
 
   useEffect(() => {
-    d3.select('svg').remove();
+    const container = document.getElementById('waterfall-chart');
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
     d3.select('#the-only-tooltip').remove();
   
     // created adjusted dataset for relative start times
@@ -74,7 +77,7 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
         .attr('width', (Math.max(1, widthFactor) * 100) + '%')
         .attr('height', height + margin.top + margin.bottom)
         .style('overflow-x', 'scroll')
-        .style('margin-right', '80px')
+        .style('margin-right', '0px')
       .append('g')
         .attr('transform',
               'translate(' + margin.left + ',' + margin.top + ')')
