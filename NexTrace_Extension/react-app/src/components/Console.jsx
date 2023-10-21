@@ -69,17 +69,17 @@ export default function ConsoleComponent() {
     }, []);
 
     return (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} data-testid={'console'}>
           <Table sx={{ width: "100%", tableLayout: "fixed" }} aria-label="customized table">
             <TableHead>
               <TableRow>
-                <StyledTableCell sx={{ width: '90%' }}>Console Logs</StyledTableCell>
-                <StyledTableCell sx={{ width: '10%' }}>Link</StyledTableCell>
+                <StyledTableCell sx={{ width: '90%' }} data-testid={'console-header'}>Console Logs</StyledTableCell>
+                <StyledTableCell sx={{ width: '10%' }} data-testid={'link-header'}>Link</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {logs.map((row, i) => (
-                <StyledTableRow key={row.name} >
+                <StyledTableRow key={row.name}>
                   <StyledTableCell component="th" scope="row" style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
                     {row.name}
                   </StyledTableCell>

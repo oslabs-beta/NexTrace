@@ -14,6 +14,72 @@ const transformer = (file, api, path) => {
     if (check.__paths.length > 0) return ast.toSource();
 
 
+
+    //Find all fetch statements.
+    ast.find(j.CallExpression, {
+        callee: {
+            name: 'fetch'
+        }
+    }).forEach(fetch => {
+        const thenCallback = j.arrowFunctionExpression(
+            [j.identifier('responseNT')],
+            j.blockStatement([
+                j.expressionStatement(
+                    j.callExpression(
+                        j.identifier(`captureAndSendNT`),
+                        [
+                            j.identifier(fetch.value.arguments[0].name || fetch.value.arguments[0].extra.raw),
+                            j.memberExpression(j.identifier('responseNT'), j.identifier('status')),
+                            j.literal('NTASYNC')
+                        ]
+                    )
+                ),
+                j.returnStatement(j.identifier('responseNT'))
+            ])
+        );
+
+        // Create a then call and replace the original fetch call
+        const thenCall = j.callExpression(
+            j.memberExpression(fetch.node, j.identifier('then')),
+            [thenCallback]
+        );
+        fetch.replace(thenCall);
+    })
+
+    ast.find(j.CallExpression, {
+        callee: {
+            type: 'MemberExpression',
+            object: { type: 'Identifier', name: 'axios' },
+            property: { type: 'Identifier', name: 'get' }
+        }
+    }).forEach(get => {
+        const thenCallback = j.arrowFunctionExpression(
+            [j.identifier('responseNT')],
+            j.blockStatement([
+                j.expressionStatement(
+                    j.callExpression(
+                        j.identifier(`captureAndSendNT`),
+                        [
+                            j.identifier(get.value.arguments[0].name || get.value.arguments[0].extra.raw),
+                            j.memberExpression(j.identifier('responseNT'), j.identifier('status')),
+                            j.literal('NTASYNC')
+                        ]
+                    )
+                ),
+                j.returnStatement(j.identifier('responseNT'))
+            ])
+        );
+
+        // Create a then call and replace the original get call
+        const thenCall = j.callExpression(
+            j.memberExpression(get.node, j.identifier('then')),
+            [thenCallback]
+        );
+        get.replace(thenCall);
+    })
+
+
+
     /*
 
     The following code generates this using jscodeshift:
@@ -429,9 +495,9 @@ const transformer = (file, api, path) => {
     rootNode.body.unshift(traceBaseRequireStatemt);
     rootNode.body.unshift(OTLPTraceExporterRequireStatement);
     rootNode.body.unshift(traceRequireStatement);
-    
+
     return ast.toSource();
-    
+
 }
 
 module.exports = { transformer };

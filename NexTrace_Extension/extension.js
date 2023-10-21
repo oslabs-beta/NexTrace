@@ -94,7 +94,6 @@ function activate(context) {
         panel.webview.html = webviewContent;        
         panel.webview.onDidReceiveMessage((message) => {
           if (message.command === 'NexTrace.fileNav') {
-            console.log('received NexTrace.fileNav command')
             vscode.commands.executeCommand(message.command, message.path)
           }
          });

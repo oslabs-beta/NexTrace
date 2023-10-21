@@ -11,7 +11,7 @@ const addLogs = (file, api, path, i) => {
             name: name => /^captureAndSend\d+$/.test(name)
         }
     })
-    if(check.__paths.length > 0) return ast.toSource();
+    if (check.__paths.length > 0) return ast.toSource();
 
     /*
 
@@ -32,17 +32,37 @@ const addLogs = (file, api, path, i) => {
     function insertContentAfter(statementPath, newContent) {
 
         let parentPath = statementPath;
-        while (parentPath && parentPath.node.type !== 'ExpressionStatement') {
-            parentPath = parentPath.parentPath;
-        }
+        if (parentPath.node.type === 'VariableDeclarator') {
+            while (parentPath && parentPath.node.type !== 'VariableDeclaration') {
+                parentPath = parentPath.parentPath;
+            }
+            if (parentPath.node.type === 'VariableDeclaration') {
+                try {
+                    const index = ast.__paths[0].__childCache.program.node.body.indexOf(parentPath.node);
+                    if (index !== -1) {
+                        ast.__paths[0].__childCache.program.node.body.splice(index + 1, 0, newContent);
+                    }
 
-        if (parentPath && parentPath.node.type === 'ExpressionStatement') {
-            parentPath.insertAfter(newContent);
+                    // console.log('New content:', JSON.stringify(newContent, null, 2));
+                    // ast.program.body.push(newContent);
+                    // parentPath.insertAfter([newContent]);
+                    // console.log('inserted after');
+                } catch (err) {
+                    console.error('error: ', err);
+                }
+
+            }
+        } else {
+            while (parentPath && parentPath.node.type !== 'ExpressionStatement') {
+                parentPath = parentPath.parentPath;
+            }
+            if (parentPath && parentPath.node.type === 'ExpressionStatement') {
+                parentPath.insertAfter(newContent);
+            }
         }
     }
 
-    //Find all the console logs and 
-
+    //Find all the console logs.
     ast.find(j.CallExpression, {
         callee: {
             type: "MemberExpression",
@@ -55,6 +75,99 @@ const addLogs = (file, api, path, i) => {
         const funcExpression = createCaptureAndSendInvocation(logArguments);
         insertContentAfter(log, funcExpression);
     })
+
+
+    //Find all fetch statements.
+    ast.find(j.CallExpression, {
+        callee: {
+            name: 'fetch'
+        }
+    }).forEach(fetch => {
+        const thenCallback = j.arrowFunctionExpression(
+            [j.identifier('responseNT')],
+            j.blockStatement([
+                j.expressionStatement(
+                    j.callExpression(
+                        j.identifier(`captureAndSend${i}`),
+                        [
+                            j.identifier(fetch.value.arguments[0].name || fetch.value.arguments[0].extra.raw),
+                            j.memberExpression(j.identifier('responseNT'), j.identifier('status')),
+                            j.literal('NTASYNC')
+                        ]
+                    )
+                ),
+                j.returnStatement(j.identifier('responseNT'))
+            ])
+        );
+
+        // Create a then call and replace the original fetch call
+        const thenCall = j.callExpression(
+            j.memberExpression(fetch.node, j.identifier('then')),
+            [thenCallback]
+        );
+        fetch.replace(thenCall);
+    })
+
+    ast.find(j.CallExpression, {
+        callee: {
+            type: 'MemberExpression',
+            object: { type: 'Identifier', name: 'axios' },
+            property: { type: 'Identifier', name: 'get' }
+        }
+    }).forEach(get => {
+        const thenCallback = j.arrowFunctionExpression(
+            [j.identifier('responseNT')],
+            j.blockStatement([
+                j.expressionStatement(
+                    j.callExpression(
+                        j.identifier(`captureAndSend${i}`),
+                        [
+                            j.identifier(get.value.arguments[0].name || get.value.arguments[0].extra.raw),
+                            j.memberExpression(j.identifier('responseNT'), j.identifier('status')),
+                            j.literal('NTASYNC')
+                        ]
+                    )
+                ),
+                j.returnStatement(j.identifier('responseNT'))
+            ])
+        );
+
+        // Create a then call and replace the original get call
+        const thenCall = j.callExpression(
+            j.memberExpression(get.node, j.identifier('then')),
+            [thenCallback]
+        );
+        get.replace(thenCall);
+    })
+
+
+    //SEPARATES CONCERN FOR AWAIT SYNTAX
+    // ast.find(j.VariableDeclarator, {
+    //     init: {
+    //         type: 'AwaitExpression'
+    //     }
+    // }).forEach(fetch => {
+    //     const sendVariable = fetch.value.id.name;
+    //     const funcExpression = j.expressionStatement(
+    //         j.callExpression(
+    //             j.identifier(`captureAndSend${i}`),
+    //             [j.literal(
+    //                 path
+    //             ),
+    //             j.memberExpression(
+    //                 j.identifier(sendVariable),
+    //                 j.identifier('status')
+    //             ),
+    //             j.literal(
+    //                 'NTASYNC'
+    //             )
+    //             ]
+    //         )
+    //     )
+    //     //Needs to be inserted after fetch. . .
+    //     insertContentAfter(fetch, funcExpression);
+    // })
+
 
     const fetchStatement = j.expressionStatement(
         j.callExpression(

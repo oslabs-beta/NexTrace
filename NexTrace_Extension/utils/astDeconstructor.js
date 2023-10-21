@@ -19,6 +19,29 @@ const detransformer = (file, api, path) => {
         j(path).remove();
     });
 
+    ast.find(j.CallExpression, {
+        callee: {
+            type: 'MemberExpression',
+            property: {
+                type: 'Identifier',
+                name: 'then'
+            }
+        },
+        arguments: {
+            0: {
+                type: 'ArrowFunctionExpression',
+                params: [
+                    {
+                        type: 'Identifier',
+                        name: 'responseNT'
+                    }
+                ]
+            }
+        }
+    }).forEach(path => {
+        path.replace(path.node.callee.object);
+    })
+
     /*
 
     The code below erases this line:
