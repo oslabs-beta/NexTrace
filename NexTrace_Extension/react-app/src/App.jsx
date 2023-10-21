@@ -3,7 +3,9 @@ import Console from './components/Console';
 import Metrics from './components/Metrics';
 
 const App = (props) => {
-  const routePath = document.getElementById('route').getAttribute('data-route-path');
+  let routePath;
+  if (props.propRoutePath) routePath = props.propRoutePath; // for integration testing
+  else routePath = document.getElementById('route').getAttribute('data-route-path');
 
   return (
     <div className='router'>

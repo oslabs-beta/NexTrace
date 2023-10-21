@@ -65,22 +65,22 @@ export default function CustomizedTables() {
   }, []);
 
   return (<>
-  <div className='pieChartContainer'>
+    <div className='pieChartContainer'>
     <PieChartDuration reqData={awaitedData} />
     <PieChartSum reqData={awaitedData} />
     <PieChartStatus  reqData={awaitedData} />
-  </div>
+    </div>
     <WaterfallChart data={awaitedData} />
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 450 }} aria-label="customized table">
         <TableHead>
           <TableRow>
-            <StyledTableCell sx={{ width: 275 }}>Endpoint</StyledTableCell>
-            <StyledTableCell align="right">Status</StyledTableCell>
-            <StyledTableCell align="right">Method</StyledTableCell>
-            <StyledTableCell align="right">Type</StyledTableCell>
-            <StyledTableCell align="right">Duration (ms)</StyledTableCell>
-            <StyledTableCell align="right">Rendering</StyledTableCell>
+            <StyledTableCell sx={{ width: 275 }} data-testid={'endpoint-header'}>Endpoint</StyledTableCell>
+            <StyledTableCell align="right" data-testid={'status-header'}>Status</StyledTableCell>
+            <StyledTableCell align="right" data-testid={'method-header'}>Method</StyledTableCell>
+            <StyledTableCell align="right" data-testid={'type-header'}>Type</StyledTableCell>
+            <StyledTableCell align="right" data-testid={'duration-header'}>Duration (ms)</StyledTableCell>
+            <StyledTableCell align="right" data-testid={'rendering-header'}>Rendering</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
