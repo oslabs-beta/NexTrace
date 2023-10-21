@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as d3 from 'd3';
 
 export default function PieChartSum(props) {
   const { reqData } = props;
-  
+
   const newObj = {};
   reqData.forEach(obj => {
     if(!newObj[obj.name]){
@@ -18,16 +18,17 @@ export default function PieChartSum(props) {
       return { label: name, value: sumDuration };
   });
 
+  // Dimensions
+  let width, height;
+  data.length > 0 ? [width, height] = [window.innerWidth * 0.3, window.innerWidth * 0.3] : [width, height] = [0, 0];
+  const radius = Math.min(width, height) / 2;
+  
   // created adjusted dataset for relative start times
   useEffect(() => {
     const container = document.getElementById('pie-sum-duration');
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
-    // Dimensions
-    let width, height;
-    data.length > 0 ? [width, height] = [300, 300] : [width, height] = [0, 0];
-    const radius = Math.min(width, height) / 2;
 
       // Create SVG container
     const svg = d3.select('#pie-sum-duration')
@@ -67,8 +68,6 @@ export default function PieChartSum(props) {
       .attr('dy', '.35em')
       .style('text-anchor', 'middle')
       .text(d => d.data.label);
-
-    
 
   }, [data]);
 

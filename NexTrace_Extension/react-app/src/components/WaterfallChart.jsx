@@ -62,14 +62,12 @@ export default function WaterfallChart(props) {
       if (a.adjStart > b.adjStart) return 1;
       else return -1;
     })
-    console.log('adjusted data: ', adjData)
     const maxTime = Math.max(...adjData.map(el => el.duration + el.adjStart))
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 30, bottom: 40, left: 20 },
       height = 200 - margin.top - margin.bottom;
     const width = document.getElementById('waterfall-chart').offsetWidth;
     const widthFactor = maxTime / 10000;
-    console.log('width factor', widthFactor, typeof widthFactor)
 
     // append the svg object to the body of the page
     const svg = d3.select('#waterfall-chart')

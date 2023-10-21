@@ -18,17 +18,17 @@ export default function PieChartStatus(props) {
       return { label: name, value: statusSum };
   });
 
+  // Dimensions
+  let width, height;
+  data.length > 0 ? [width, height] = [window.innerWidth * 0.3, window.innerWidth * 0.3] : [width, height] = [0, 0];
+  const radius = Math.min(width, height) / 2;
+
   // created adjusted dataset for relative start times
   useEffect(() => {
     const container = document.getElementById('pie-status');
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
-    // Dimensions
-    let width, height;
-    data.length > 0 ? [width, height] = [300, 300] : [width, height] = [0, 0];
-    const radius = Math.min(width, height) / 2;
-
       // Create SVG container
     const svg = d3.select('#pie-status')
       .append('svg')

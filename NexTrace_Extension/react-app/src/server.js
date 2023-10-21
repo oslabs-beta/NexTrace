@@ -11,7 +11,7 @@ app.use(cors());
 let requestArray = [];
 let consoleLogArray = [];
 const stagedData = {};
-// setInterval(() => console.log(stagedData), 10000)
+let serverStatus;
 
 const wss = new WebSocket.Server({ noServer: true });
 
@@ -20,9 +20,9 @@ app.get('/', (req, res) => res.send('Hello, world!'));
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
   const span = req.body.resourceSpans[0].scopeSpans[0].spans[0];
-  const obj = { name: '', type: '', method: '', duration: 0, status: '', rendering: '' }
+  const obj = { name: '', type: '', method: '', duration: 0, status: '', rendering: '', start: 0 }
 
-  if (span) {
+  if (span && serverStatus === true) {
     //STORING NAME OF SPAN
     const name = span.name;
     obj.name = name;
@@ -51,23 +51,16 @@ app.use('/otel', (req, res, next) => {
     else obj.rendering = '';
 
     //CHECKS FOR DUPLICATES AND UPDATES / PUSHES NEW REQUESTS
-    // if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
-    //   requestArray[requestArray.findIndex(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)] = obj;
-    // }
     if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
     } else {
       if (obj.status === '') {
         const stagedName = obj.name.split(' ').pop();
         if (stagedData[stagedName]) {
-          stagedData[stagedName] = { name: obj.name, type: obj.type, method: obj.method, duration: Number(obj.duration), status: stagedData[stagedName].status, rendering: obj.rendering, start: obj.start }
-          console.log('the element already existed in staging, so we  added our properties: ', stagedData[stagedName]);
+          stagedData[stagedName] = { name: obj.name, type: obj.type, method: obj.method, duration: obj.duration, status: stagedData[stagedName].status, rendering: obj.rendering, start: obj.start }
           requestArray.push(stagedData[stagedName]);
-          console.log('shipping out: ', stagedData[stagedName]);
-          sendToSocketBySocketId('Metric', requestArray);
           delete stagedData[stagedName];
         } else {
           stagedData[stagedName] = obj;
-          console.log('there was no matching obj in storage, we added it, but the obj didnt have a status. we added it', stagedData[stagedName]);
         }
       } else {
         requestArray.push(obj);
@@ -85,20 +78,12 @@ app.use('/otel', (req, res, next) => {
 app.post('/getLogs', (req, res, next) => {
   let consoleLog = req.body.log.map(arg => JSON.parse(arg));
   try {
-    // let consoleLog = JSON.parse(req.body.log);
-    // console.log('here is the console log: ', consoleLog);
-    if (consoleLog[2] === 'NTASYNC') {
-      console.log('NTASYNC RECEIVED!: ', consoleLog);
+    if (consoleLog[2] === 'NTASYNC' && serverStatus === true) {
       //Check if staging area has endpoint currently.
       if (stagedData[consoleLog[0]]) {
-        console.log('it already existed in staged, so we added its status: ', stagedData[consoleLog[0]]);
         stagedData[consoleLog[0]].status = consoleLog[1];
 
-        // if (requestArray.some(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)) {
-        //   requestArray[requestArray.findIndex(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)] = stagedData[consoleLog[0]];
-        // }
         if (stagedData[consoleLog[0]].status === '') {
-          console.log('the stagedData is not ready. ', stagedData[consoleLog[0]]);
         }
         else {
           requestArray.push(stagedData[consoleLog[0]])
@@ -121,10 +106,8 @@ app.post('/getLogs', (req, res, next) => {
         consoleLog = JSON.stringify(consoleLog)
       }
 
-      // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
-      // } else {
       consoleLogArray.push({ consoleLog, path });
-      sendToSocketBySocketId('Console', consoleLogArray);
+      if(serverStatus === true) sendToSocketBySocketId('Console', consoleLogArray);
     }
     return res.status(200).send('Received');
     // }
@@ -133,7 +116,6 @@ app.post('/getLogs', (req, res, next) => {
     return next(err);
   }
 });
-
 
 /*Catch unkown Routes*/
 app.use((req, res) => res.status(404).send('This is not the page you\'re looking for...'));
@@ -161,8 +143,8 @@ wss.on('connection', (socket) => {
       connectedClients.set(data.socketId, socket);
     } else {
     }
-    if (data.socketId === 'Metric') sendToSocketBySocketId('Metric', requestArray);
-    else if (data.socketId === 'Console') sendToSocketBySocketId('Console', consoleLogArray);
+    if (data.socketId === 'Metric' && serverStatus === true) sendToSocketBySocketId('Metric', requestArray);
+    else if (data.socketId === 'Console' && serverStatus === true) sendToSocketBySocketId('Console', consoleLogArray);
   });
 
   socket.on('close', () => {
@@ -188,6 +170,7 @@ function server() {
     console.log(`Server is listening on port: ${port}`);
     requestArray = [];
     consoleLogArray = [];
+    serverStatus = true;
   });
   serverInstance.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (socket) => {
@@ -199,6 +182,7 @@ function server() {
 function closeServer() {
   console.log(`Server is closing port: ${port}`);
   serverInstance.close();
+  serverStatus = false;
 }
 
 
