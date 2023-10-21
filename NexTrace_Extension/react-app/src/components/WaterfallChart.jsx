@@ -3,43 +3,38 @@ import * as d3 from 'd3'
 
 export default function WaterfallChart(props) {
   const { data } = props;
-      // created adjusted dataset for relative start times
-      const minStart = Math.min(...data.map(el => el.start));
-      const adjData = [];
-      data.forEach(obj => {
-        const newObj = Object.assign({}, obj);
-        newObj.adjStart = obj.start - minStart;
-        newObj.adjName = obj.name + ' ' + obj.method;
-        adjData.push(newObj);
-      })
-  
-      // sort adjusted dataset by adjusted start time
-      adjData.sort((a, b) => {
-        if (a.adjStart > b.adjStart) return 1;
-        else return -1;
-      })
 
-  // Calculate the maximum data value
-const maxDataValue = Math.max(...adjData.map(el => el.duration + el.adjStart)) + 1000;
+  // created adjusted dataset for relative start times
+  const minStart = Math.min(...data.map(el => el.start));
+  const adjData = [];
+  data.forEach(obj => {
+    const newObj = Object.assign({}, obj);
+    newObj.adjStart = obj.start - minStart;
+    newObj.adjName = obj.name + ' ' + obj.method;
+    adjData.push(newObj);
+  })
 
-// Calculate the tick interval (e.g., 500)  
-const tickInterval = 500;
+  // sort adjusted dataset by adjusted start time
+  adjData.sort((a, b) => {
+    if (a.adjStart > b.adjStart) return 1;
+    else return -1;
+  })
 
-// Calculate the number of ticks based on the interval
-const numTicks = Math.ceil(maxDataValue / tickInterval);
+  // show "Listening . . ." when no data exists to display
+  const [listeningDots, setListeningDots] = useState(' . . .');
+  const updateListeningDots = () => {
+    const states = { '': ' .', ' .': ' . .', ' . .': ' . . .', ' . . .': '' };
+    setListeningDots(states[listeningDots]);
+  }
+  if (!data.length) {
+    setTimeout(() => {
+      updateListeningDots()
+    }, 150)
+  }
+  const listeningString = 'Listening' + listeningDots;
 
-  // let listeningString;
-  // if (!data.length) {
-  //   const [listeningDots, setListeningDots] = useState(' . . .');
-  //   const updateListeningDots = () => {
-  //     const states = { '': ' .', ' .': ' . .', ' . .': ' . . .', ' . . .': '' };
-  //     setListeningDots(states[listeningDots]);
-  //   }
 
-  //   setTimeout(() => updateListeningDots(), 200)
-  //   listeningString = 'Listening' + listeningDots;
-  // }
-
+  // render waterfall chart from data
   useEffect(() => {
     d3.select('svg').remove();
     d3.select('#the-only-tooltip').remove();
@@ -145,11 +140,12 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
         tooltipString += `${key}: ${barData[key]} <br>`;
       }
 
+      const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
       tooltip
           .html(tooltipString)
-          .style("left",(event.x)-450+"px")
+          .style("left",(event.x)+10+scrollPos+"px")
           .style('position', 'absolute')
-          .style("top",(event.y)+400+"px")
+          .style("top",(event.y)+53+"px")
           .style("opacity", 1)
           .style('display', 'inline-block')
     }
@@ -157,7 +153,7 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
       const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
       tooltip.style("transform", "translateY(-100%)")
         .style("left",(event.x)+10+scrollPos+"px")
-        .style("top",(event.y)+55+"px")
+        .style("top",(event.y)+53+"px")
 
     }
     const mouseleave = function(event, d) {
@@ -198,19 +194,18 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
         .text('Duration (ms)')
 
     // show "Listening . . ." when no data exists to display
-    // if (!data.length) {
-    //   svg.append('text')
-    //       .attr('x', (width / 2) - 40)
-    //       .attr('y', height / 2)
-    //       .attr('text-anchor', 'start')
-    //       // .attr('id', 'listening-header')
-    //       .style('fill', 'lightgrey')
-    //       .style('font-size', '200%')
-    //       .text(listeningString)
-    // }
-  }, [data]);
+    if (!data.length) {
+      svg.append('text')
+        .attr('x', (width / 2.5))
+        .attr('y', height / 2)
+        .attr('text-anchor', 'start')
+        .style('fill', 'lightgrey')
+        .style('font-size', '200%')
+        .text(listeningString)
+    }
+  }, [data, listeningDots]);
       
   return (
-    <div id="waterfall-chart" style={{ width: '100%', overflowX: 'scroll' }}></div>
+    <div id="waterfall-chart"></div>
   );
 }
