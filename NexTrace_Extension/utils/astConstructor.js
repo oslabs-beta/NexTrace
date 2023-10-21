@@ -21,7 +21,6 @@ const transformer = (file, api, path) => {
             name: 'fetch'
         }
     }).forEach(fetch => {
-        console.log('here is the fetch: ', fetch);
         const thenCallback = j.arrowFunctionExpression(
             [j.identifier('responseNT')],
             j.blockStatement([
@@ -54,7 +53,6 @@ const transformer = (file, api, path) => {
             property: { type: 'Identifier', name: 'get' }
         }
     }).forEach(get => {
-        console.log('here is the axios: ', get);
         const thenCallback = j.arrowFunctionExpression(
             [j.identifier('responseNT')],
             j.blockStatement([
