@@ -104,7 +104,7 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
       .range([0, height])
       .domain(adjData.map(function (d) { return d.adjName; }))
       .padding(.1);
-      
+
     svg.append('g')
       .call(d3.axisLeft(y))
       .selectAll('text')
@@ -136,11 +136,11 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
       .style("border-width", "1px")
       .style("border-radius", "5px")
       .style('color', 'black')
-      .style("top","-300px")
+      .style("top", "-300px")
       .style("padding", "10px");
 
     // Three function that change the tooltip when user hover / move / leave a cell
-    const mouseover = function(event, d) {
+    const mouseover = function (event, d) {
       const barData = d3.select(this)._groups[0][0].__data__;
       let tooltipString = '';
       for (const key in barData) {
@@ -163,10 +163,10 @@ const numTicks = Math.ceil(maxDataValue / tickInterval);
         .style("top",(event.y)+55+"px")
 
     }
-    const mouseleave = function(event, d) {
+    const mouseleave = function (event, d) {
       tooltip
         .style("opacity", 0)
-        .style("top","-300px")
+        .style("top", "-300px")
         .style('display', 'none')
         .html('')
     }
