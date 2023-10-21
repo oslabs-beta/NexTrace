@@ -11,6 +11,7 @@ app.use(cors());
 let requestArray = [];
 let consoleLogArray = [];
 const stagedData = {};
+// setInterval(() => console.log(stagedData), 10000)
 
 const wss = new WebSocket.Server({ noServer: true });
 
@@ -56,13 +57,24 @@ app.use('/otel', (req, res, next) => {
     if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
     } else {
       if (obj.status === '') {
-        stagedData[obj.name.split(' ').pop()] = obj;
+        const stagedName = obj.name.split(' ').pop();
+        if (stagedData[stagedName]) {
+          stagedData[stagedName] = { name: obj.name, type: obj.type, method: obj.method, duration: Number(obj.duration), status: stagedData[stagedName].status, rendering: obj.rendering, start: obj.start }
+          console.log('the element already existed in staging, so we  added our properties: ', stagedData[stagedName]);
+          requestArray.push(stagedData[stagedName]);
+          console.log('shipping out: ', stagedData[stagedName]);
+          sendToSocketBySocketId('Metric', requestArray);
+          delete stagedData[stagedName];
+        } else {
+          stagedData[stagedName] = obj;
+          console.log('there was no matching obj in storage, we added it, but the obj didnt have a status. we added it', stagedData[stagedName]);
+        }
       } else {
         requestArray.push(obj);
       }
     }
 
-    if (requestArray.length > 0) {
+    if (requestArray.length > 0 && obj.status !== '') {
       sendToSocketBySocketId('Metric', requestArray);
     }
   }
@@ -76,12 +88,17 @@ app.post('/getLogs', (req, res, next) => {
     // let consoleLog = JSON.parse(req.body.log);
     // console.log('here is the console log: ', consoleLog);
     if (consoleLog[2] === 'NTASYNC') {
+      console.log('NTASYNC RECEIVED!: ', consoleLog);
       //Check if staging area has endpoint currently.
       if (stagedData[consoleLog[0]]) {
+        console.log('it already existed in staged, so we added its status: ', stagedData[consoleLog[0]]);
         stagedData[consoleLog[0]].status = consoleLog[1];
 
-        if (requestArray.some(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)) {
-          requestArray[requestArray.findIndex(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)] = stagedData[consoleLog[0]];
+        // if (requestArray.some(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)) {
+        //   requestArray[requestArray.findIndex(item => item.name === stagedData[consoleLog[0]].name && item.type === stagedData[consoleLog[0]].type && item.method === stagedData[consoleLog[0]].method && item.rendering === stagedData[consoleLog[0]].rendering && item.status === stagedData[consoleLog[0]].status)] = stagedData[consoleLog[0]];
+        // }
+        if (stagedData[consoleLog[0]].status === '') {
+          console.log('the stagedData is not ready. ', stagedData[consoleLog[0]]);
         }
         else {
           requestArray.push(stagedData[consoleLog[0]])

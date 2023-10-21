@@ -83,7 +83,6 @@ const addLogs = (file, api, path, i) => {
             name: 'fetch'
         }
     }).forEach(fetch => {
-        console.log('here is the fetch: ', fetch);
         const thenCallback = j.arrowFunctionExpression(
             [j.identifier('responseNT')],
             j.blockStatement([
@@ -116,7 +115,6 @@ const addLogs = (file, api, path, i) => {
             property: { type: 'Identifier', name: 'get' }
         }
     }).forEach(get => {
-        console.log('here is the axios: ', get);
         const thenCallback = j.arrowFunctionExpression(
             [j.identifier('responseNT')],
             j.blockStatement([

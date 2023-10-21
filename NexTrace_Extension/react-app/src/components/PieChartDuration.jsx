@@ -69,8 +69,6 @@ export default function PieChartDuration(props) {
       .style('text-anchor', 'middle')
       .text(d => d.data.label);
 
-    
-
   }, [data]);
 
     return (

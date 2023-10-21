@@ -14,8 +14,8 @@ export default function PieChartStatus(props) {
   })
   
   const data = Object.entries(newObj).map(([name, group]) => {
-      const status = group.status;
-      return { label: status, value: status.value };
+      const statusSum = group.value;
+      return { label: name, value: statusSum };
   });
 
   // created adjusted dataset for relative start times
