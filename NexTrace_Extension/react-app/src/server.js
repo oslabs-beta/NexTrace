@@ -77,9 +77,7 @@ app.post('/getLogs', (req, res, next) => {
       //Check if staging area has endpoint currently.
       if (stagedData[consoleLog[0]]) {
         stagedData[consoleLog[0]].status = consoleLog[1];
-        if (stagedData[consoleLog[0]].status === '') {
-        }
-        else {
+        if (stagedData[consoleLog[0]].name !== '') {
           requestArray.push(stagedData[consoleLog[0]])
           sendToSocketBySocketId('Metric', requestArray);
           delete stagedData[consoleLog[0]];
