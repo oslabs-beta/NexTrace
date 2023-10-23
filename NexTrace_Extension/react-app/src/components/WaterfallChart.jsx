@@ -70,12 +70,10 @@ export default function WaterfallChart(props) {
       .append('svg')
       .attr('width', (Math.max(1, widthFactor) * 100) + '%')
       .attr('height', height + margin.top + margin.bottom)
-      .style('overflow-x', 'scroll')
       .style('margin-right', '0px')
       .append('g')
       .attr('transform',
         'translate(' + margin.left + ',' + margin.top + ')')
-      .style('overflow-x', 'scroll')
 
     // X axis
     const x = d3.scaleLinear()
