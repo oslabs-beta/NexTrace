@@ -24,6 +24,7 @@ export default function PieChartSum(props) {
  
    // created adjusted dataset for relative start times
    useEffect(() => {
+    d3.select('#the-only-tooltip-pie-sum').remove();
      const container = document.getElementById('pie-sum-duration');
      while (container.firstChild) {
        container.removeChild(container.firstChild);
@@ -86,13 +87,64 @@ export default function PieChartSum(props) {
     const arc = d3.arc()
       .innerRadius(0)
       .outerRadius(radius);
+    
+    // tooltip
+    const tooltip = d3.select("#pie-sum-div")
+    .append("div")
+    .style("opacity", 0)
+    .style('display', 'none')
+    .attr("class", "tooltip")
+    .attr('id', 'the-only-tooltip-pie-sum')
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style('color', 'black')
+    .style("top", "-300px")
+    .style("padding", "10px");
+
+    // Three function that change the tooltip when user hover / move / leave a cell
+    const mouseover = function (event, d) {
+      const barData = d3.select(this)._groups[0][0].__data__.data;
+      let tooltipString = '';
+      for (const key in barData) {
+        tooltipString += `${key}: ${barData[key]} <br>`;
+      }
+
+      const verticalScrollPos = window.scrollY;
+      tooltip
+          .html(tooltipString)
+          .style("left",(event.x)+10+"px")
+          .style('position', 'absolute')
+          .style("top",(event.y)+verticalScrollPos+"px")
+          .style("opacity", 1)
+          .style('display', 'inline-block')
+    }
+
+    const mousemove = function (event, d) {
+      const verticalScrollPos = window.scrollY;
+      tooltip.style("transform", "translateY(-100%)")
+        .style("left",(event.x)+10+"px")
+        .style("top",(event.y)+verticalScrollPos+"px")
+
+    }
+    const mouseleave = function (event, d) {
+      tooltip
+        .style("opacity", 0)
+        .style("top", "-300px")
+        .style('display', 'none')
+        .html('')
+    }
 
     // Create arcs
     const g = svg.selectAll('.arc')
       .data(pie(data))
       .enter()
       .append('g')
-      .attr('class', 'arc');
+      .attr('class', 'arc')
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave);
 
     g.append('path')
       .attr('d', arc)
@@ -108,7 +160,7 @@ export default function PieChartSum(props) {
   }, [data]);
 
   return (
-    <div className='pieChartSumContainer'>
+    <div className='pieChartSumContainer' id='pie-sum-div'>
       <span className='pieChart' id='pie-sum-duration'></span>
       <h2 className='pieChartTitle'>Total Duration</h2>
     </div>

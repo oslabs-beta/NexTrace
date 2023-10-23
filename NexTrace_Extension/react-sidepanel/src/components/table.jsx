@@ -98,8 +98,8 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
         <input type="file" webkitdirectory="" id="rootDir" name="rootDir" onChange={handleFile} ref={fileInputRef2} style={{ display: 'none' }}></input>
       </div>
 
-      <button className='buttonTwo' onClick={e => { handleClick('openMetrics') }}>Metrics</button>
-      <button className='buttonTwo' onClick={e => { handleClick('openConsole') }}>Logs</button>
+      <button className='buttonTwo' disabled={button === 'Start'} onClick={e => { handleClick('openMetrics') }}>Metrics</button>
+      <button className='buttonTwo' disabled={button === 'Start'} onClick={e => { handleClick('openConsole') }}>Logs</button>
 
 
       <button className="chooseButton" id="cleanFiles" type="button" onClick={() => { handleClick('removeLogs'); handleClick('detransformCode') }} disabled={button === 'Stop'}>Clean Files</button>
