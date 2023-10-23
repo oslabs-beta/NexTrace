@@ -12,17 +12,19 @@ app.use(cors());
 let [requestArray, consoleLogArray, serverStatus] = [[], [], false];
 const stagedData = {};
 
+//Sets up new Websocket Instance
 const wss = new WebSocket.Server({ noServer: true });
-app.get('/', (req, res) => res.send('Hello, world!'));
+
+//Routes request from CRUD app's boiler plate code using /otel route
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
   const span = req.body.resourceSpans[0].scopeSpans[0].spans[0];
   const obj = { name: '', type: '', method: '', duration: 0, status: '', rendering: '' }
   if (span && serverStatus === true) {
-    //STORING NAME OF SPAN
+    //Storing name of span
     const name = span.name;
     obj.name = name;
-    //STORING TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
+    //Storing Type, Method, and Status_code from Attribute Array
     for (let i = 0; i < span.attributes.length; i++) {
       if (span.attributes[i].key === 'next.span_type') {
         const type = span.attributes[i].value.stringValue;
@@ -37,15 +39,15 @@ app.use('/otel', (req, res, next) => {
         obj.status = status;
       }
     }
-    //STORING DURATION OF SPAN
+    //Storing duration of Span
     const duration = (span.endTimeUnixNano - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     obj.duration = Math.floor(duration);
     obj.start = Math.floor(span.startTimeUnixNano / 1000000);
-    //STORES SERVER SIDE / CLIENT SIDE RENDERING DATA
+    //Stores server side / client side rendering data
     if (span.kind === 3) obj.rendering = 'server';
     else if (span.kind === 2) obj.rendering = 'client';
     else obj.rendering = '';
-    //CHECKS FOR DUPLICATES AND UPDATES / PUSHES NEW REQUESTS
+    //Filters requests, stages requests and sends requests back to Metrics Component
     if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
     } else {
       if (obj.status === '') {
@@ -68,11 +70,13 @@ app.use('/otel', (req, res, next) => {
   }
   return res.status(200).json('Span Received');
 });
+
+//Routes request from CRUD App's boiler plate code using POST /getLogs route
 app.post('/getLogs', (req, res, next) => {
   let consoleLog = req.body.log.map(arg => JSON.parse(arg));
   try {
     if (consoleLog[2] === 'NTASYNC'  && serverStatus === true) {
-      //Check if staging area has endpoint currently.
+      //Checks if staging area currently has endpoint
       if (stagedData[consoleLog[0]]) {
         stagedData[consoleLog[0]].status = consoleLog[1];
         if (stagedData[consoleLog[0]].name !== '') {
@@ -117,7 +121,7 @@ app.use((err, req, res, next) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
-//WEBSOCKET CONNECTION & FUNCTION TO SEND DATA TO RESPECTIVE PANEL
+//Websocket connection & Function to send data to respective panel
 const connectedClients = new Map();
 wss.on('connection', (socket) => {
   socket.on('message', (message) => {
@@ -137,7 +141,7 @@ wss.on('connection', (socket) => {
     });
   });
 });
-
+//Function to send data to respective socketId
 function sendToSocketBySocketId(socketId, message) {
   const socket = connectedClients.get(socketId);
   if (socket) {
@@ -145,7 +149,7 @@ function sendToSocketBySocketId(socketId, message) {
   }
 }
 
-//SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
+//Server instance to Open and Close Server with Websocket Functionality
 let serverInstance;
 function server() {
   serverInstance = app.listen(port, () => {
@@ -154,20 +158,18 @@ function server() {
     consoleLogArray = [];
     serverStatus = true;
   });
-
   serverInstance.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (socket) => {
       wss.emit('connection', socket, request);
     });
   });
 };
-
 function closeServer() {
   console.log(`Server is closing port: ${port}`);
   serverInstance.close();
   serverStatus = false;
 }
-
+//Returns current port of server instance
 function getPort() {
   if (serverInstance) return serverInstance.address().port;
 }

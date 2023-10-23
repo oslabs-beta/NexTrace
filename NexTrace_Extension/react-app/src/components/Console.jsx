@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,11 +8,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { useEffect, useState } from 'react';
-
 import Button from '@mui/material/Button';
 
-
+//Styling of Table with material UI
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.common.black,
@@ -24,7 +23,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
       fontFamily: 'Merriweather',
     },
   }));
-  
   const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
@@ -34,32 +32,32 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
       border: 0,    
     },
   }));
-  
 
+//Function to parse out item.consoleLog & item.path
 function createData(name, path) {
   return { name, path };
 }
 
 export default function ConsoleComponent() {
     const [logs, setLogs] = useState([]);
-    const socket = new WebSocket('ws://localhost:3695');
     const vscode = window.vscodeApi;
-
-
+    //Initialize websocket connection for Console Panel
+    const socket = new WebSocket('ws://localhost:3695');
+    //Function to invoke file navigation command
     function jumpToFile(path) {
       vscode.postMessage({ command:'NexTrace.fileNav', path: path });
     }
     
     useEffect(() => {
+      //On connection open, send to websocket server socketId
       socket.onopen = () => {
         console.log('Console connection opened with ws://localhost:3695.');
         socket.send(JSON.stringify({socketId: 'Console'}))
       };
-  
+      //Listens for messages and sets logs state to received data
       socket.onmessage = (event) => {
         const receivedData = JSON.parse(event.data);
         setLogs(receivedData.map(item => createData(item.consoleLog, item.path)));
-
       };
   
       socket.onclose = (event) => {console.log('WebSocket connection closed:', event.code, event.reason)};

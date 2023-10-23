@@ -6,6 +6,7 @@ export default function App() {
   const vscode = window.vscodeApi;
   
   useEffect(() => {
+    //Invokes getState from extension.js, fires message back to handleMessage with retrieved state
     vscode.postMessage('NexTrace.getState');
 
     const handleMessage = (event) => {
@@ -20,7 +21,6 @@ export default function App() {
     };
 
     window.addEventListener('message', handleMessage);
-
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
