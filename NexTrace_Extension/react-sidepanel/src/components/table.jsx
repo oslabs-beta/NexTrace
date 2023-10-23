@@ -43,9 +43,18 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
       }
       else if (e.target.name === 'rootDir') {
         const fileList = e.target.files;
+        if (Object.keys(fileList).length > 100) {
+          vscode.postMessage({
+            command: 'alert',
+            text: 'WARNING: We noticed you selected a folder with a large amount of files. We filter out folders such as .next and node_modules, but consider choosing a smaller directory to reduce unnecessary overhead. Refer to our README for best practices.'
+          });
+        }
         const filePathArr = [];
+        const regex = /(\.next|node_modules|\.git|\.config|\.env|\.json|README|next-env\.d)/;
         for (const file in fileList) {
-          filePathArr.push(fileList[file].path);
+          if (!regex.test(fileList[file].path)) {
+            filePathArr.push(fileList[file].path);
+          }
         }
         setTableData({ name, path, rootDir: filePathArr, button })
       }
@@ -70,6 +79,7 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
           button === 'Start' ? handleClick('startServer') : handleClick('stopServer')
           button === 'Start' ? handleClick('transformCode') : handleClick('detransformCode');
           button === 'Start' ? handleClick('gatherFilePaths') : handleClick('removeLogs');
+          if ( button === 'Start' ) handleClick('openMetrics');
           handleClick('saveState');
         }}
       >{button === 'Start' ? (<>Start</>) : (<>Stop</>)}
@@ -88,8 +98,8 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
         <input type="file" webkitdirectory="" id="rootDir" name="rootDir" onChange={handleFile} ref={fileInputRef2} style={{ display: 'none' }}></input>
       </div>
 
-      <button className='buttonTwo' onClick={e => { handleClick('openMetrics') }}>Metrics</button>
-      <button className='buttonTwo' onClick={e => { handleClick('openConsole') }}>Logs</button>
+      <button className='buttonTwo' disabled={button === 'Start'} onClick={e => { handleClick('openMetrics') }}>Metrics</button>
+      <button className='buttonTwo' disabled={button === 'Start'} onClick={e => { handleClick('openConsole') }}>Logs</button>
 
 
       <button className="chooseButton" id="cleanFiles" type="button" onClick={() => { handleClick('removeLogs'); handleClick('detransformCode') }} disabled={button === 'Stop'}>Clean Files</button>

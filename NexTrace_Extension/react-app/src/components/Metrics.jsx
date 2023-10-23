@@ -52,9 +52,11 @@ export default function CustomizedTables() {
 
     socket.onmessage = (event) => {
       const receivedData = JSON.parse(event.data);
+      console.log("we received a message: ", event);
       const transformedData = receivedData.map(arr =>
         createNewData(arr.name.split(' ').pop(), arr.status, arr.method, arr.type, arr.duration, arr.rendering, arr.start)
       );
+      console.log('transformed data: ', transformedData);
       setAwaitedData(transformedData);
     };
 
