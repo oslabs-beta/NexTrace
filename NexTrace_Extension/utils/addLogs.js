@@ -1,10 +1,18 @@
+/*
+
+This file handles logic for adding boilerplate for every file *except* the root file that is selected.
+It uses a function "captureAndSend<NUMBER-HERE>" that is inserted after any console log or fetch/axios request found in the file and then dispatches the contents to the extension's server.
+It works in tandem with removeLog.js, which gets rid of all the code added here.
+
+*/
+
 const addLogs = (file, api, path, i) => {
     const j = api.jscodeshift.withParser('tsx');
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
 
-    //Checks if code already have boilerplate written, if true then returns back to source
+    //Checks if code already has boilerplate written, if true then no changes are made
     const check = ast.find(j.FunctionDeclaration, {
         id: {
             type: "Identifier",
@@ -42,11 +50,6 @@ const addLogs = (file, api, path, i) => {
                     if (index !== -1) {
                         ast.__paths[0].__childCache.program.node.body.splice(index + 1, 0, newContent);
                     }
-
-                    // console.log('New content:', JSON.stringify(newContent, null, 2));
-                    // ast.program.body.push(newContent);
-                    // parentPath.insertAfter([newContent]);
-                    // console.log('inserted after');
                 } catch (err) {
                     console.error('error: ', err);
                 }

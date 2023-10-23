@@ -52,14 +52,11 @@ app.use('/otel', (req, res, next) => {
         const stagedName = obj.name.split(' ').pop();
         if (stagedData[stagedName]) {
           stagedData[stagedName] = { name: obj.name, type: obj.type, method: obj.method, duration: Number(obj.duration), status: stagedData[stagedName].status, rendering: obj.rendering, start: obj.start }
-          console.log('the element already existed in staging, so we  added our properties: ', stagedData[stagedName]);
           requestArray.push(stagedData[stagedName]);
-          console.log('shipping out: ', stagedData[stagedName]);
           sendToSocketBySocketId('Metric', requestArray);
           delete stagedData[stagedName];
         } else {
           stagedData[stagedName] = obj;
-          console.log('there was no matching obj in storage, we added it, but the obj didnt have a status. we added it', stagedData[stagedName]);
         }
       } else {
         requestArray.push(obj);
@@ -78,13 +75,15 @@ app.post('/getLogs', (req, res, next) => {
       //Check if staging area has endpoint currently.
       if (stagedData[consoleLog[0]]) {
         stagedData[consoleLog[0]].status = consoleLog[1];
-        if (stagedData[consoleLog[0]].status === '') {
-        }
-        else {
+        // if (stagedData[consoleLog[0]].status === '') {
+        // }
+        // else {
+        if (stagedData[consoleLog[0]].name !== '') {
           requestArray.push(stagedData[consoleLog[0]])
           sendToSocketBySocketId('Metric', requestArray);
           delete stagedData[consoleLog[0]];
         }
+        // }
       } else {
         stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '', start: 0 };
       }
@@ -97,13 +96,10 @@ app.post('/getLogs', (req, res, next) => {
       else if (typeof consoleLog === 'object'  && serverStatus === true) {
         consoleLog = JSON.stringify(consoleLog)
       }
-      // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
-      // } else {
       consoleLogArray.push({ consoleLog, path });
       sendToSocketBySocketId('Console', consoleLogArray);
     }
     return res.status(200).send('Received');
-    // }
   }
   catch (err) {
     return next(err);
@@ -180,4 +176,4 @@ function getPort() {
   if (serverInstance) return serverInstance.address().port;
 }
 
-module.exports = {server, closeServer, app, getPort};
+module.exports = { server, closeServer, app, getPort };
