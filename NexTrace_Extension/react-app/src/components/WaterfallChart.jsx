@@ -143,19 +143,21 @@ export default function WaterfallChart(props) {
       }
 
       const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
+      const verticalScrollPos = window.scrollY;
       tooltip
           .html(tooltipString)
           .style("left",(event.x)+10+scrollPos+"px")
           .style('position', 'absolute')
-          .style("top",(event.y)+53+"px")
+          .style("top",(event.y)+verticalScrollPos-300+"px")
           .style("opacity", 1)
           .style('display', 'inline-block')
     }
     const mousemove = function (event, d) {
       const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
+      const verticalScrollPos = window.scrollY;
       tooltip.style("transform", "translateY(-100%)")
         .style("left",(event.x)+10+scrollPos+"px")
-        .style("top",(event.y)+53+"px")
+        .style("top",(event.y)+verticalScrollPos-300+"px")
 
     }
     const mouseleave = function (event, d) {

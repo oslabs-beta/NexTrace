@@ -24,6 +24,7 @@ export default function PieChartDuration(props) {
 
   // created adjusted dataset for relative start times
   useEffect(() => {
+    d3.select('#the-only-tooltip-pie-avg').remove();
     const container = document.getElementById('pie-avg-duration');
     while (container.firstChild) {
       container.removeChild(container.firstChild);
@@ -53,7 +54,7 @@ export default function PieChartDuration(props) {
         .enter()
         .append('path')
         .attr('d', arc)
-        .style('fill', placeholderColor);
+        .style('fill', placeholderColor)
 
       const listeningText = svg.append('text')
         .attr('x', 0)
@@ -85,13 +86,65 @@ export default function PieChartDuration(props) {
     const arc = d3.arc()
       .innerRadius(0)
       .outerRadius(radius);
+    
+    // tooltip
+    const tooltip = d3.select("#pie-avg-duration-div")
+    .append("div")
+    .style("opacity", 0)
+    .style('display', 'none')
+    .attr("class", "tooltip")
+    .attr('id', 'the-only-tooltip-pie-avg')
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style('color', 'black')
+    .style("top", "-300px")
+    .style("padding", "10px");
+
+    // Three function that change the tooltip when user hover / move / leave a cell
+    const mouseover = function (event, d) {
+      const barData = d3.select(this)._groups[0][0].__data__.data;
+      let tooltipString = '';
+      for (const key in barData) {
+        tooltipString += `${key}: ${barData[key]} <br>`;
+      }
+
+      const verticalScrollPos = window.scrollY;
+      tooltip
+          .html(tooltipString)
+          .style("left",(event.x)+10+"px")
+          .style('position', 'absolute')
+          .style("top",(event.y)+verticalScrollPos+"px")
+          .style("opacity", 1)
+          .style('display', 'inline-block')
+    }
+
+    // console.log('tooltipstring', tooltipString);
+    const mousemove = function (event, d) {
+      const verticalScrollPos = window.scrollY;
+      tooltip.style("transform", "translateY(-100%)")
+        .style("left",(event.x)+10+"px")
+        .style("top",(event.y)+verticalScrollPos+"px")
+
+    }
+    const mouseleave = function (event, d) {
+      tooltip
+        .style("opacity", 0)
+        .style("top", "-300px")
+        .style('display', 'none')
+        .html('')
+    }
 
     // Create arcs
     const g = svg.selectAll('.arc')
       .data(pie(data))
       .enter()
       .append('g')
-      .attr('class', 'arc');
+      .attr('class', 'arc')
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave);
 
     g.append('path')
       .attr('d', arc)
@@ -103,11 +156,12 @@ export default function PieChartDuration(props) {
       .attr('dy', '.35em')
       .style('text-anchor', 'middle')
       .text(d => d.data.label);
+  
 
   }, [data]);
 
   return (
-    <div>
+    <div id='pie-avg-duration-div'>
       <span className='pieChart' id='pie-avg-duration'></span>
       <h2 className='pieChartTitle'>Average Duration</h2>
     </div>
