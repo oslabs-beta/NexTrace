@@ -2,21 +2,23 @@ const { request } = require('http');
 const express = require('express');
 const WebSocket = require('ws');
 const cors = require('cors');
+
 const app = express();
 const port = 3695;
+
 app.use(express.json());
 app.use(cors());
-let requestArray = [];
-let consoleLogArray = [];
+
+let [requestArray, consoleLogArray, serverStatus] = [[], [], false];
 const stagedData = {};
-// setInterval(() => console.log(stagedData), 10000)
+
 const wss = new WebSocket.Server({ noServer: true });
 app.get('/', (req, res) => res.send('Hello, world!'));
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
   const span = req.body.resourceSpans[0].scopeSpans[0].spans[0];
   const obj = { name: '', type: '', method: '', duration: 0, status: '', rendering: '' }
-  if (span) {
+  if (span && serverStatus === true) {
     //STORING NAME OF SPAN
     const name = span.name;
     obj.name = name;
@@ -72,8 +74,7 @@ app.use('/otel', (req, res, next) => {
 app.post('/getLogs', (req, res, next) => {
   let consoleLog = req.body.log.map(arg => JSON.parse(arg));
   try {
-    if (consoleLog[2] === 'NTASYNC') {
-      console.log('NTASYNC RECEIVED!: ', consoleLog);
+    if (consoleLog[2] === 'NTASYNC'  && serverStatus === true) {
       //Check if staging area has endpoint currently.
       if (stagedData[consoleLog[0]]) {
         stagedData[consoleLog[0]].status = consoleLog[1];
@@ -93,7 +94,7 @@ app.post('/getLogs', (req, res, next) => {
       if (typeof consoleLog === 'string') {
         consoleLog = consoleLog
       }
-      else if (typeof consoleLog === 'object') {
+      else if (typeof consoleLog === 'object'  && serverStatus === true) {
         consoleLog = JSON.stringify(consoleLog)
       }
       // if (consoleLogArray.some(item => JSON.stringify(item.consoleLog) === JSON.stringify(consoleLog))) {
@@ -108,6 +109,7 @@ app.post('/getLogs', (req, res, next) => {
     return next(err);
   }
 });
+
 /*Catch unkown Routes*/
 app.use((req, res) => res.status(404).send('This is not the page you\'re looking for...'));
 /*Catch unkown Middleware errors*/
@@ -122,6 +124,7 @@ app.use((err, req, res, next) => {
   console.log(errorObj.log);
   return res.status(errorObj.status).json(errorObj.message);
 });
+
 //WEBSOCKET CONNECTION & FUNCTION TO SEND DATA TO RESPECTIVE PANEL
 const connectedClients = new Map();
 wss.on('connection', (socket) => {
@@ -142,12 +145,14 @@ wss.on('connection', (socket) => {
     });
   });
 });
+
 function sendToSocketBySocketId(socketId, message) {
   const socket = connectedClients.get(socketId);
   if (socket) {
     socket.send(JSON.stringify(message));
   }
 }
+
 //SERVER INSTANCE TO OPEN AND CLOSE SERVER & WEBSOCKET FUNCTIONALITY
 let serverInstance;
 function server() {
@@ -155,16 +160,20 @@ function server() {
     console.log(`Server is listening on port: ${port}`);
     requestArray = [];
     consoleLogArray = [];
+    serverStatus = true;
   });
+
   serverInstance.on('upgrade', (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (socket) => {
       wss.emit('connection', socket, request);
     });
   });
 };
+
 function closeServer() {
   console.log(`Server is closing port: ${port}`);
   serverInstance.close();
+  serverStatus = false;
 }
 
 function getPort() {

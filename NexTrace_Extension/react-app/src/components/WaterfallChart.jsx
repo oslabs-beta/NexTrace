@@ -221,6 +221,7 @@ export default function WaterfallChart(props) {
         .style('font-size', '200%')
         .text(listeningString)
     }
+
   }, [data, listeningDots]);
       
   return (

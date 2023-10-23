@@ -70,6 +70,7 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
           button === 'Start' ? handleClick('startServer') : handleClick('stopServer')
           button === 'Start' ? handleClick('transformCode') : handleClick('detransformCode');
           button === 'Start' ? handleClick('gatherFilePaths') : handleClick('removeLogs');
+          if ( button === 'Start' ) handleClick('openMetrics');
           handleClick('saveState');
         }}
       >{button === 'Start' ? (<>Start</>) : (<>Stop</>)}
