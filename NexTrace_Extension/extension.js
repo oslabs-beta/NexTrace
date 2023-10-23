@@ -195,7 +195,7 @@ function activate(context) {
   }
   catch (err) { console.log(err) }
 }
-
+//Function to invoke transform code based on files array for handling console.logs
 function handleLogs(files, command, rootPath) {
   const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
   files.forEach((path, i) => {
@@ -207,7 +207,7 @@ function handleLogs(files, command, rootPath) {
     }
   });
 }
-
+//AST Function to transform / restore code
 async function transformCode(userProvidedPath, command, index) {
   try {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
@@ -241,7 +241,7 @@ async function transformCode(userProvidedPath, command, index) {
         jscodeshift
       }, userProvidedPath, index);
     }
-
+    
     const fullRange = new vscode.Range(document.positionAt(0),
       document.positionAt(fileContent.length)
     );
