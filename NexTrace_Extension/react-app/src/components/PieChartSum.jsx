@@ -110,7 +110,8 @@ export default function PieChartSum(props) {
       const barData = d3.select(this)._groups[0][0].__data__.data;
       let tooltipString = '';
       for (const key in barData) {
-        tooltipString += `${key}: ${barData[key]} <br>`;
+        if (key === 'value') tooltipString += `total duration: ${barData[key]} ms <br>`;
+        else tooltipString += `${key}: ${barData[key]} <br>`;
       }
 
       const verticalScrollPos = window.scrollY;

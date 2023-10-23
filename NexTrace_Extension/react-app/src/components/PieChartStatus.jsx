@@ -8,9 +8,9 @@ export default function PieChartStatus(props) {
   //Adds value to status code pie section
   reqData.forEach(obj => {
     if (!newObj[obj.status]) {
-      newObj[obj.status] = { value: 100 }
+      newObj[obj.status] = { value: 1 }
     } else {
-      newObj[obj.status].value += 100;
+      newObj[obj.status].value += 1;
     }
   })
 
@@ -108,7 +108,8 @@ export default function PieChartStatus(props) {
       const barData = d3.select(this)._groups[0][0].__data__.data;
       let tooltipString = '';
       for (const key in barData) {
-        tooltipString += `${key}: ${barData[key]} <br>`;
+        if (key === 'value') tooltipString += `requests: ${barData[key]} <br>`;
+        else tooltipString += `${key}: ${barData[key]} <br>`;
       }
 
       const verticalScrollPos = window.scrollY;

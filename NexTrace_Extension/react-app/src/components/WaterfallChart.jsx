@@ -224,6 +224,9 @@ export default function WaterfallChart(props) {
         .style('font-size', '200%')
         .text(listeningString)
     }
+
+    // automatically scroll chart to end on rerender
+    document.getElementById('waterfall-chart').scrollLeft = width;
   }, [data, listeningDots]);
       
   return (
