@@ -21,10 +21,10 @@ function activate(context) {
           'Request Metrics', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
-            retainContextWhenHidden: true, 
+            retainContextWhenHidden: true,
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-          } 
+          }
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
@@ -64,10 +64,10 @@ function activate(context) {
           'Console Summary', // Title of the panel displayed to the user
           vscode.ViewColumn.One, // Editor column to show the new webview panel in.
           {
-            retainContextWhenHidden: true, 
+            retainContextWhenHidden: true,
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'react-app'))],
-          } 
+          }
         );
 
         const reactAppPath = path.join(context.extensionPath, 'react-app', 'dist', 'bundle.js');
@@ -91,12 +91,12 @@ function activate(context) {
         </body>
         </html>
         `;
-        panel.webview.html = webviewContent;        
+        panel.webview.html = webviewContent;
         panel.webview.onDidReceiveMessage((message) => {
           if (message.command === 'NexTrace.fileNav') {
             vscode.commands.executeCommand(message.command, message.path)
           }
-         });
+        });
       })
     );
 
@@ -107,11 +107,11 @@ function activate(context) {
       webviewView: null,
       resolveWebviewView: function (webviewView, context, token) {
         const panelAppUri = webviewView.webview.asWebviewUri(vscode.Uri.file(panelAppPath));
-        this.webviewView = webviewView; 
+        this.webviewView = webviewView;
         webviewView.webview.options = {
           enableScripts: true,
         };
-  
+
         webviewView.webview.html = `
         <!DOCTYPE html>
         <html lang="en">
@@ -131,14 +131,14 @@ function activate(context) {
         </body>
         </html>
         `;
-  
+
         // Handle any messages or events from the webview view here
         webviewView.webview.onDidReceiveMessage((message) => {
           // Handle the message from the webview view
           if (message.command === 'transformCode' || message.command === 'detransformCode') {
             transformCode(message.path, message.command);
           }
-          else if (message.command === 'NexTrace.saveState'){
+          else if (message.command === 'NexTrace.saveState') {
             vscode.commands.executeCommand(message.command, message)
           }
           else if (message.command === 'gatherFilePaths') {
@@ -147,6 +147,9 @@ function activate(context) {
           else if (message.command === 'removeLogs') {
             handleLogs(message.path, message.command);
           }
+          else if (message.command === 'alert') {
+            vscode.window.showInformationMessage(message.text);
+          }
           else vscode.commands.executeCommand(message);
         });
       },
@@ -154,22 +157,22 @@ function activate(context) {
     //REGISTERS PRIMARY SIDE BAR PROVIDER
     const disposable2 = vscode.window.registerWebviewViewProvider("nextrace-primary-sidebar.views", thisProvider);
     context.subscriptions.push(disposable2);
-  
+
     //REGISTERS START SERVER COMMAND
     const disposable = vscode.commands.registerCommand('NexTrace.startServer', () => { server() });
     context.subscriptions.push(disposable);
-  
+
     //REGISTERS STOP SERVER COMMAND
     const stopDisposable = vscode.commands.registerCommand('NexTrace.stopServer', () => { closeServer() });
     context.subscriptions.push(stopDisposable);
-  
-     //REGISTERS FILE NAVIGATION COMMAND
-     const disposable3 = vscode.commands.registerCommand("NexTrace.fileNav", (filePath) => { 
+
+    //REGISTERS FILE NAVIGATION COMMAND
+    const disposable3 = vscode.commands.registerCommand("NexTrace.fileNav", (filePath) => {
       const test = vscode.workspace.openTextDocument(filePath);
       vscode.window.showTextDocument(test);
     });
-     context.subscriptions.push(disposable3);
-  
+    context.subscriptions.push(disposable3);
+
     //REGISTERS STATE SAVE COMMAND FOR SIDE PANEL BUTTONS
     const stateSaveDisposable = vscode.commands.registerCommand('NexTrace.saveState', (stateData) => {
       const { path, name, rootDir, button } = stateData;
@@ -177,7 +180,7 @@ function activate(context) {
       context.globalState.update('sidePanelState', state)
     });
     context.subscriptions.push(stateSaveDisposable);
-  
+
     //REGISTERS STATE GET COMMAND FOR SIDE PANEL BUTTONS
     const stateGetDisposable = vscode.commands.registerCommand('NexTrace.getState', () => {
       const savedState = context.globalState.get('sidePanelState');
@@ -187,10 +190,10 @@ function activate(context) {
       });
     });
     context.subscriptions.push(stateGetDisposable);
-  
+
     console.log('Congratulations, your extension "NexTrace" is now active!');
   }
-  catch (err) {console.log(err)}
+  catch (err) { console.log(err) }
 }
 
 function handleLogs(files, command, rootPath) {
@@ -253,7 +256,7 @@ async function transformCode(userProvidedPath, command, index) {
 function deactivate() {
 }
 
-module.exports = {  
+module.exports = {
   activate,
   deactivate
 }

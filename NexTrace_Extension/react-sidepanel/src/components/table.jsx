@@ -43,9 +43,18 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
       }
       else if (e.target.name === 'rootDir') {
         const fileList = e.target.files;
+        if (Object.keys(fileList).length > 100) {
+          vscode.postMessage({
+            command: 'alert',
+            text: 'WARNING: We noticed you selected a folder with a large amount of files. We filter out folders such as .next and node_modules, but consider choosing a smaller directory to reduce unnecessary overhead. Refer to our README for best practices.'
+          });
+        }
         const filePathArr = [];
+        const regex = /(\.next|node_modules|\.git|\.config|\.env|\.json|README|next-env\.d)/;
         for (const file in fileList) {
-          filePathArr.push(fileList[file].path);
+          if (!regex.test(fileList[file].path)) {
+            filePathArr.push(fileList[file].path);
+          }
         }
         setTableData({ name, path, rootDir: filePathArr, button })
       }
