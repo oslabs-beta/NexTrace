@@ -1,9 +1,7 @@
 /*
-
 This file handles logic for adding boilerplate for every file *except* the root file that is selected.
 It uses a function "captureAndSend<NUMBER-HERE>" that is inserted after any console log or fetch/axios request found in the file and then dispatches the contents to the extension's server.
 It works in tandem with removeLog.js, which gets rid of all the code added here.
-
 */
 
 const addLogs = (file, api, path, i) => {

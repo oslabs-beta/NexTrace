@@ -6,7 +6,6 @@ It works in tandem with addLog.js, which added of all the code that gets removed
 */
 
 const removeLogs = (file, api, i) => {
-    console.log('firing the script on: ', file);
     const j = api.jscodeshift.withParser('tsx');
     const ast = j(file.source);
 
