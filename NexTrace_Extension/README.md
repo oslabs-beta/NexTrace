@@ -92,16 +92,15 @@ First, install dependencies in your Next.js app:
   ```
 
 ### Installation
-Simply search for Nextrace your VSCode Extensions and click Install.
+Simply search for Nextrace in your VSCode Extensions tab and click Install.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+1. Start your Next.js app and open it in the browser
+2. Open the NexTrace sidepanel
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -110,15 +109,15 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
+- [x] Instrumentation with OpenTelemetry API
+- [x] AST Traversal to add instrumentation code for a file
+  - [x] Upload an app's root directory and instrument the whole codebase
+- [x] Waterfall and Pie charts to visualize observability metrics
+  - [x] Add Tooltips on hover
+- [x] AST Traversal to grab all console.logs and display them in one place
+  - [x] Add button to each console.log which navigates to its file of origin
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/oslabs-beta/NexTrace/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -200,7 +199,7 @@ Use this space to list resources you find helpful and would like to give credit 
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
 
-[opentelemetry.io]: https://img.shields.io/badge/opentelemetry-blue
+[opentelemetry.io]: https://img.shields.io/badge/OpenTelemetry-blue
 [opentelemetry-url]: https://opentelemetry.io/
 [Express.js]: https://img.shields.io/badge/Express.js-404D59?style=for-the-badge
 [Express-url]: https://expressjs.com/
