@@ -238,13 +238,20 @@ async function transformCode(userProvidedPath, command, index) {
         jscodeshift
       }, userProvidedPath, index);
     }
-
     const fullRange = new vscode.Range(document.positionAt(0),
       document.positionAt(fileContent.length)
     );
     const edit = new vscode.WorkspaceEdit();
     edit.replace(document.uri, fullRange, transformedContent);
-    await vscode.workspace.applyEdit(edit);
+    const success = await vscode.workspace.applyEdit(edit);
+    if (!success) {
+      console.log('failed to change file');
+    }
+    try {
+      document.save()
+    } catch (err) {
+      console.log('an error occurred: ', err);
+    }
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }
