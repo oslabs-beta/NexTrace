@@ -33,12 +33,16 @@
         "title": "Open NexTrace Console"
       }
     ],
+    "permissions": [
+      "workspace",
+      "files"
+    ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "nextrace-activitybar",
           "title": "NexTrace",
-          "icon": "$(squirrel)",
+          "icon": "$(terminal-ubuntu)",
           "command": "NexTrace.startServer",
           "type": "webview"
         }

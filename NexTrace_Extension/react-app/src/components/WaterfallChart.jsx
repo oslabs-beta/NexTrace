@@ -58,6 +58,7 @@ export default function WaterfallChart(props) {
       else return -1;
     })
     const maxTime = Math.max(...adjData.map(el => el.duration + el.adjStart))
+
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 30, bottom: 40, left: 20 },
       height = 200 - margin.top - margin.bottom;
@@ -150,14 +151,15 @@ export default function WaterfallChart(props) {
           .style("opacity", 1)
           .style('display', 'inline-block')
     }
+
     const mousemove = function (event, d) {
       const scrollPos = document.getElementById('waterfall-chart').scrollLeft;
       const verticalScrollPos = window.scrollY;
       tooltip.style("transform", "translateY(-100%)")
         .style("left",(event.x)+10+scrollPos+"px")
         .style("top",(event.y)+verticalScrollPos-300+"px")
-
     }
+
     const mouseleave = function (event, d) {
       tooltip
         .style("opacity", 0)
@@ -203,6 +205,7 @@ export default function WaterfallChart(props) {
         .style('font-size', '80%')
         .style('fill', '#b36969')
         .text('server')
+
     svg.append('text')
         .attr('x', 70)
         .attr('y', height + 34)
@@ -222,6 +225,8 @@ export default function WaterfallChart(props) {
         .text(listeningString)
     }
 
+    // automatically scroll chart to end on rerender
+    document.getElementById('waterfall-chart').scrollLeft = width;
   }, [data, listeningDots]);
       
   return (

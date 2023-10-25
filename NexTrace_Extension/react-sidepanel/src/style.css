@@ -113,7 +113,6 @@ body {
 }
 
 .chooseButtonImage {
-  background-image: url('../assets/Selection_007.png');
   background-size: contain;
   background-repeat: no-repeat;
   width: 1em;

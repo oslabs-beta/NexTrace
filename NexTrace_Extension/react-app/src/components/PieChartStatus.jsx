@@ -3,16 +3,18 @@ import * as d3 from 'd3';
 
 export default function PieChartStatus(props) {
   const { reqData } = props;
-
   const newObj = {};
+
+  //Adds value to status code pie section
   reqData.forEach(obj => {
     if (!newObj[obj.status]) {
-      newObj[obj.status] = { value: 100 }
+      newObj[obj.status] = { value: 1 }
     } else {
-      newObj[obj.status].value += 100;
+      newObj[obj.status].value += 1;
     }
   })
 
+  //Declares array of objects with label and value property
   const data = Object.entries(newObj).map(([name, group]) => {
     const statusSum = group.value;
     return { label: name, value: statusSum };
@@ -37,14 +39,14 @@ export default function PieChartStatus(props) {
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
 
+    //Checks if Data is present, if not display listening animation
     if (data.length === 0) {
-      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
       let counter = 0;
-
       const placeholderData = [1];
       const placeholderColor = '#e0e0e0';
-
+      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
       const placeholderPie = d3.pie().value(d => d);
+      
       const arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
@@ -65,7 +67,6 @@ export default function PieChartStatus(props) {
       const intervalId = setInterval(() => {
         counter++;
         if (counter > 2) counter = 0;
-
         listeningText.text(listenStrings[counter]);
       }, 1000);
 
@@ -86,7 +87,6 @@ export default function PieChartStatus(props) {
     const arc = d3.arc()
       .innerRadius(0)
       .outerRadius(radius);
-
     
     // tooltip
     const tooltip = d3.select("#pie-avg-duration-div")
@@ -108,7 +108,8 @@ export default function PieChartStatus(props) {
       const barData = d3.select(this)._groups[0][0].__data__.data;
       let tooltipString = '';
       for (const key in barData) {
-        tooltipString += `${key}: ${barData[key]} <br>`;
+        if (key === 'value') tooltipString += `requests: ${barData[key]} <br>`;
+        else tooltipString += `${key}: ${barData[key]} <br>`;
       }
 
       const verticalScrollPos = window.scrollY;

@@ -1,9 +1,7 @@
 /*
-
 This file handles logic for adding boilerplate for every file *except* the root file that is selected.
 It uses a function "captureAndSend<NUMBER-HERE>" that is inserted after any console log or fetch/axios request found in the file and then dispatches the contents to the extension's server.
 It works in tandem with removeLog.js, which gets rid of all the code added here.
-
 */
 
 const addLogs = (file, api, path, i) => {
@@ -143,35 +141,6 @@ const addLogs = (file, api, path, i) => {
         get.replace(thenCall);
     })
 
-
-    //SEPARATES CONCERN FOR AWAIT SYNTAX
-    // ast.find(j.VariableDeclarator, {
-    //     init: {
-    //         type: 'AwaitExpression'
-    //     }
-    // }).forEach(fetch => {
-    //     const sendVariable = fetch.value.id.name;
-    //     const funcExpression = j.expressionStatement(
-    //         j.callExpression(
-    //             j.identifier(`captureAndSend${i}`),
-    //             [j.literal(
-    //                 path
-    //             ),
-    //             j.memberExpression(
-    //                 j.identifier(sendVariable),
-    //                 j.identifier('status')
-    //             ),
-    //             j.literal(
-    //                 'NTASYNC'
-    //             )
-    //             ]
-    //         )
-    //     )
-    //     //Needs to be inserted after fetch. . .
-    //     insertContentAfter(fetch, funcExpression);
-    // })
-
-
     const fetchStatement = j.expressionStatement(
         j.callExpression(
             j.identifier('fetch'),
@@ -284,142 +253,3 @@ const addLogs = (file, api, path, i) => {
 }
 
 module.exports = { addLogs };
-
-
-//EXTRA STUFF
-
-/*
-
-
-    //Adding the dispatcher function to each file.  Problem?
-    // rootNode.body.unshift(dispatchFunctionStatement);
-
-
-    // const transformedCode = ast.toSource();
-    // const cleanedCode = transformedCode.replace(';;', ';');
-    // return transformedCode;
-    // return cleanedCode;
-
-//  /*
-
-//     The following code generates this using jscodeshift:
-
-//     fetch("http://localhost:3695", {
-//         method: "POST",
-
-//         headers: {
-//             "Content-Type": "application/json"
-//         },
-
-//         body: JSON.stringify({
-//             log: content,
-//             path: <PATH-ARGUMENT-HERE>
-//         })
-//     });
-
-//     */
-
-//     const fetchStatement = j.expressionStatement(
-//         j.callExpression(
-//             j.identifier('fetch'),
-//             [
-//                 j.literal('http://localhost:3695'),
-//                 j.objectExpression([
-//                     j.property(
-//                         'init',
-//                         j.identifier('method'),
-//                         j.literal('POST')
-//                     ),
-//                     j.property(
-//                         'init',
-//                         j.identifier('headers'),
-//                         j.objectExpression([
-//                             j.property(
-//                                 'init',
-//                                 j.literal('Content-Type'),
-//                                 j.literal('application/json')
-//                             )
-//                         ])
-//                     ),
-//                     j.property(
-//                         'init',
-//                         j.identifier('body'),
-//                         j.callExpression(
-//                             j.memberExpression(
-//                                 j.identifier('JSON'),
-//                                 j.identifier('stringify')), [
-//                             j.objectExpression([
-//                                 j.property(
-//                                     'init',
-//                                     j.identifier('log'),
-//                                     j.identifier('content')
-//                                 )
-//                             ],
-//                                 j.property(
-//                                     'init',
-//                                     j.identifier('path'),
-//                                     j.literal(path)
-//                                 )
-//                             )
-//                         ]
-//                         )
-//                     )
-//                 ])
-//             ]
-//         )
-//     )
-
-//     /*
-
-//     The following code generates this using jscodeshift:
-
-//     function captureAndSend(...args) {
-//         const content = args.map(arg => JSON.stringify(arg));
-
-//         fetch("http://localhost:3695", {
-//             method: "POST",
-
-//             headers: {
-//                 "Content-Type": "application/json"
-//             },
-
-//             body: JSON.stringify({
-//                 log: content
-//                 path: <PATH-ARGUMENT-HERE>
-//             })
-//         });
-//     }
-
-//     */
-
-//     const dispatchFunctionStatement = j.functionDeclaration(
-//         j.identifier('captureAndSend'),
-//         [j.restElement(j.identifier('args'))],
-//         j.blockStatement([
-//             j.variableDeclaration(
-//                 'const',
-//                 [
-//                     j.variableDeclarator(
-//                         j.identifier('content'),
-//                         j.callExpression(
-//                             j.memberExpression(
-//                                 j.identifier('args'),
-//                                 j.identifier('map')
-//                             ),
-//                             [
-//                                 j.arrowFunctionExpression(
-//                                     [j.identifier('arg')],
-//                                     j.callExpression(
-//                                         j.memberExpression(j.identifier('JSON'), j.identifier('stringify')),
-//                                         [j.identifier('arg')]
-//                                     )
-//                                 )
-//                             ]
-//                         )
-//                     )
-//                 ]
-//             ),
-//             fetchStatement
-//         ])
-//     );
-

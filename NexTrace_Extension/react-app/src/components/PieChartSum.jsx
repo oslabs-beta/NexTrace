@@ -3,8 +3,9 @@ import * as d3 from 'd3';
 
 export default function PieChartSum(props) {
   const { reqData } = props;
-
   const newObj = {};
+
+  //Adds duration and length to calculate average duration of each request
   reqData.forEach(obj => {
     if (!newObj[obj.name]) {
       newObj[obj.name] = { duration: obj.duration }
@@ -13,6 +14,7 @@ export default function PieChartSum(props) {
     }
   })
 
+  //Declares array of objects with label and value property
   const data = Object.entries(newObj).map(([name, group]) => {
     const sumDuration = group.duration;
     return { label: name, value: sumDuration };
@@ -37,15 +39,15 @@ export default function PieChartSum(props) {
       .attr('height', height)
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
-
+    
+      //Checks if Data is present, if not display listening animation
     if (data.length === 0) {
-      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
       let counter = 0;
-
       const placeholderData = [1];
       const placeholderColor = '#e0e0e0';
-
+      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
       const placeholderPie = d3.pie().value(d => d);
+      
       const arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
@@ -108,7 +110,8 @@ export default function PieChartSum(props) {
       const barData = d3.select(this)._groups[0][0].__data__.data;
       let tooltipString = '';
       for (const key in barData) {
-        tooltipString += `${key}: ${barData[key]} <br>`;
+        if (key === 'value') tooltipString += `total duration: ${barData[key]} ms <br>`;
+        else tooltipString += `${key}: ${barData[key]} <br>`;
       }
 
       const verticalScrollPos = window.scrollY;

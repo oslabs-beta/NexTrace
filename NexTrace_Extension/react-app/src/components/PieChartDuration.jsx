@@ -3,8 +3,9 @@ import * as d3 from 'd3';
 
 export default function PieChartDuration(props) {
   const { reqData } = props;
-
   const newObj = {};
+
+  //Adds duration and length to calculate average duration of each request
   reqData.forEach(obj => {
     if (!newObj[obj.name]) {
       newObj[obj.name] = { duration: obj.duration, length: 1 }
@@ -13,38 +14,39 @@ export default function PieChartDuration(props) {
       newObj[obj.name].length += 1;
     }
   })
-
+//Declares array of objects with label and value property
   const data = Object.entries(newObj).map(([name, group]) => {
     const averageDuration = Math.floor(group.duration / group.length);
     return { label: name, value: averageDuration };
   });
+
   // Dimensions
   let [width, height] = [window.innerWidth * 0.3, window.innerWidth * 0.3];
   const radius = Math.min(width, height) / 2;
 
-  // created adjusted dataset for relative start times
+  //Created adjusted dataset for relative start times
   useEffect(() => {
     d3.select('#the-only-tooltip-pie-avg').remove();
     const container = document.getElementById('pie-avg-duration');
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
-      // Create SVG container
+    // Create SVG container
     const svg = d3.select('#pie-avg-duration')
       .append('svg')
       .attr('width', width)
       .attr('height', height)
       .append('g')
       .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
-
+    
+    //Checks if Data is present, if not display listening animation
     if (data.length === 0) {
-      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
       let counter = 0;
-
       const placeholderData = [1];
       const placeholderColor = '#e0e0e0';
-
+      const listenStrings = ['Listening.    ', 'Listening. .  ', 'Listening. . .'];
       const placeholderPie = d3.pie().value(d => d);
+
       const arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
@@ -107,7 +109,8 @@ export default function PieChartDuration(props) {
       const barData = d3.select(this)._groups[0][0].__data__.data;
       let tooltipString = '';
       for (const key in barData) {
-        tooltipString += `${key}: ${barData[key]} <br>`;
+        if (key === 'value') tooltipString += `avg duration: ${barData[key]} ms <br>`;
+        else tooltipString += `${key}: ${barData[key]} <br>`;
       }
 
       const verticalScrollPos = window.scrollY;
@@ -120,7 +123,6 @@ export default function PieChartDuration(props) {
           .style('display', 'inline-block')
     }
 
-    // console.log('tooltipstring', tooltipString);
     const mousemove = function (event, d) {
       const verticalScrollPos = window.scrollY;
       tooltip.style("transform", "translateY(-100%)")
@@ -156,8 +158,6 @@ export default function PieChartDuration(props) {
       .attr('dy', '.35em')
       .style('text-anchor', 'middle')
       .text(d => d.data.label);
-  
-
   }, [data]);
 
   return (

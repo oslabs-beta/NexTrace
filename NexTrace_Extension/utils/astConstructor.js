@@ -78,18 +78,14 @@ const transformer = (file, api, path) => {
         get.replace(thenCall);
     })
 
-
-
     /*
 
     The following code generates this using jscodeshift:
-         so
      const {
         trace: trace
         } = require("@opentelemetry/api");
 
     */
-
     const traceRequireStatement = j.variableDeclaration(
         'const',
         [
@@ -116,7 +112,6 @@ const transformer = (file, api, path) => {
     const { OTLPTraceExporter: OTLPTraceExporter } =  require('@opentelemetry/exporter-trace-otlp-http');
 
     */
-
     const OTLPTraceExporterRequireStatement = j.variableDeclaration(
         'const',
         [
@@ -146,7 +141,6 @@ const transformer = (file, api, path) => {
     } = require("@opentelemetry/sdk-trace-base");
 
     */
-
     const traceBaseRequireStatemt = j.variableDeclaration(
         'const',
         [

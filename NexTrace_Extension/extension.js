@@ -34,23 +34,23 @@ function activate(context) {
         const cssAppUri = panel.webview.asWebviewUri(vscode.Uri.file(cssAppPath));
 
         const webviewContent = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
-          <link rel="stylesheet" type="text/css" href="${cssAppUri}">
-        </head>
-        <body>
-          <div id="root"></div>
-          <div id="route" data-route-path="/metrics"></div>
-          <script>
-          window.vscodeApi = acquireVsCodeApi();
-          </script>
-          <script src="${reactAppUri}"></script>
-        </body>
-        </html>
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">
+            <link rel="stylesheet" type="text/css" href="${cssAppUri}">
+          </head>
+          <body>
+            <div id="root"></div>
+            <div id="route" data-route-path="/metrics"></div>
+            <script>
+            window.vscodeApi = acquireVsCodeApi();
+            </script>
+            <script src="${reactAppUri}"></script>
+          </body>
+          </html>
         `;
         panel.webview.html = webviewContent;
       })
@@ -74,22 +74,22 @@ function activate(context) {
         const reactAppUri = panel.webview.asWebviewUri(vscode.Uri.file(reactAppPath));
 
         const webviewContent = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">          
-        </head>
-        <body>
-          <div id="root"></div>
-          <div id="route" data-route-path="/console"></div>
-          <script>
-          window.vscodeApi = acquireVsCodeApi();
-          </script>
-          <script src="${reactAppUri}"></script>
-        </body>
-        </html>
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:3695 ws://localhost:3695; style-src 'self' vscode-webview-resource: 'unsafe-inline'; style-src-elem 'self' vscode-webview-resource: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://*.vscode-cdn.net vscode-webview-resource:;">          
+          </head>
+          <body>
+            <div id="root"></div>
+            <div id="route" data-route-path="/console"></div>
+            <script>
+            window.vscodeApi = acquireVsCodeApi();
+            </script>
+            <script src="${reactAppUri}"></script>
+          </body>
+          </html>
         `;
         panel.webview.html = webviewContent;
         panel.webview.onDidReceiveMessage((message) => {
@@ -123,7 +123,6 @@ function activate(context) {
         </head>
         <body>
           <div id="root"></div>
-          <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" style="margin-top: 3em;"/>
           <script>
           window.vscodeApi = acquireVsCodeApi();
           </script>
@@ -195,7 +194,7 @@ function activate(context) {
   }
   catch (err) { console.log(err) }
 }
-
+//Function to invoke transform code based on files array for handling console.logs
 function handleLogs(files, command, rootPath) {
   const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
   files.forEach((path, i) => {
@@ -207,7 +206,7 @@ function handleLogs(files, command, rootPath) {
     }
   });
 }
-
+//AST Function to transform / restore code
 async function transformCode(userProvidedPath, command, index) {
   try {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
@@ -241,13 +240,13 @@ async function transformCode(userProvidedPath, command, index) {
         jscodeshift
       }, userProvidedPath, index);
     }
-
     const fullRange = new vscode.Range(document.positionAt(0),
       document.positionAt(fileContent.length)
     );
     const edit = new vscode.WorkspaceEdit();
     edit.replace(document.uri, fullRange, transformedContent);
     await vscode.workspace.applyEdit(edit);
+    document.save()
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }
