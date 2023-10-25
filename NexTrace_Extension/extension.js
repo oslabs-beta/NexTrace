@@ -212,47 +212,42 @@ async function transformCode(userProvidedPath, command, index) {
     const document = await vscode.workspace.openTextDocument(userProvidedPath);
     const fileContent = document.getText();
     let transformedContent;
-    if (command === 'transformCode') { //adds OpenTelemetry code from user's chosen root file
+    if (command === 'transformCode') {
       transformedContent = transformer({
         source: fileContent
       }, {
         jscodeshift
       }, userProvidedPath);
     }
-    else if (command === 'detransformCode') { //removes OpenTelemetry code from user's chosen root file
+    else if (command === 'detransformCode') {
       transformedContent = detransformer({
         source: fileContent
       }, {
         jscodeshift
       }, userProvidedPath);
     }
-    else if (command === 'gatherFilePaths') { //adding console logs .then boilerplate to fetch statements
+    else if (command === 'gatherFilePaths') {
       transformedContent = addLogs({
         source: fileContent
       }, {
         jscodeshift
       }, userProvidedPath, index);
     }
-    else if (command === 'removeLogs') { //removing console logs .then boilerplate to fetch statements 
+    else if (command === 'removeLogs') {
       transformedContent = removeLogs({
         source: fileContent
       }, {
         jscodeshift
       }, userProvidedPath, index);
     }
-    
     const fullRange = new vscode.Range(document.positionAt(0),
       document.positionAt(fileContent.length)
     );
     const edit = new vscode.WorkspaceEdit();
     edit.replace(document.uri, fullRange, transformedContent);
     await vscode.workspace.applyEdit(edit);
-
-    // const contentBuffer = Buffer.from(transformedContent, 'utf8');
-    // const fs = vscode.workspace.fs;
-    // await fs.writeFile(document.uri, contentBuffer);
-
-
+    document.save()
+    
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }
