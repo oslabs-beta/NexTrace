@@ -33,6 +33,10 @@
         "title": "Open NexTrace Console"
       }
     ],
+    "permissions": [
+      "workspace",
+      "files"
+    ],
     "viewsContainers": {
       "activitybar": [
         {

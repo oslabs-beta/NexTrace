@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import { styled } from '@mui/material/styles';
@@ -13,20 +13,19 @@ import PieChartSum from './PieChartSum';
 import PieChartStatus from './PieChartStatus';
 import PieChartDuration from './PieChartDuration';
 
+//Styling of Table with material UI
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
     fontSize: 22,
     fontFamily: 'Merriweather',
-
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 16,
     fontFamily: 'Merriweather',
   },
 }));
-
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
     backgroundColor: theme.palette.action.hover,
@@ -36,20 +35,23 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+//Function to parse out incoming data
 function createNewData(name, status, method, type, duration, rendering, start) {
   return { name, status, method, type, duration, rendering, start };
 }
 
 export default function CustomizedTables() {
   const [awaitedData, setAwaitedData] = useState([]);
+  //Initialize websocket connection for metrics Panel
   const socket = new WebSocket('ws://localhost:3695');
 
   useEffect(() => {
     socket.onopen = () => {
+      //On connection open, send to websocket server socketId
       console.log('Metrics connection opened with ws://localhost:3695.');
       socket.send(JSON.stringify({ socketId: 'Metric' }))
     };
-
+    //Listens for messages and sets logs state to received data
     socket.onmessage = (event) => {
       const receivedData = JSON.parse(event.data);
       const transformedData = receivedData.map(arr =>

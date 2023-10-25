@@ -289,6 +289,3 @@ const detransformer = (file, api, path) => {
 }
 
 module.exports = { detransformer };
-
-//Babel parser.
-//npx jscodeshift -t utils/astDeconstructor.js utils/testFile.ts --parser=babel

@@ -1,5 +1,11 @@
+/*
+
+This file handles logic for removing boilerplate for every file *except* the root file that is selected.
+It works in tandem with addLog.js, which added of all the code that gets removed here.
+
+*/
+
 const removeLogs = (file, api, i) => {
-    console.log('firing the script on: ', file);
     const j = api.jscodeshift.withParser('tsx');
     const ast = j(file.source);
 
@@ -66,35 +72,3 @@ const removeLogs = (file, api, i) => {
 }
 
 module.exports = { removeLogs };
-
-
-// /*
-
-// The code below erases this line:
-
-// function captureAndSend(...args) {
-// const content = args.map(arg => JSON.stringify(arg));
-
-// fetch("http://localhost:3695", {
-//     method: "POST",
-
-//     headers: {
-//         "Content-Type": "application/json"
-//     },
-
-//     body: JSON.stringify({
-//         log: content
-//         })
-//     });
-// }
-
-// */
-
-// ast.find(j.FunctionDeclaration, {
-//     id: {
-//         type: "Identifier",
-//         name: "captureAndSend"
-//     }
-// }).forEach(path => {
-//     j(path).remove();
-// });
