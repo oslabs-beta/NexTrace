@@ -23,9 +23,8 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-
-<p align="center"><img src="../assets/nextrace-logo-condensed.png" width='500' style="margin-top: 10px; margin-bottom: -10px;"></p>
-<div>
+<p align="center"><img src="./assets/nextrace-logo-condensed.png" width='500' style="margin-top: 10px; margin-bottom: -10px;"></p>
+<br />
 
 <!-- TABLE OF CONTENTS -->
 <details>
