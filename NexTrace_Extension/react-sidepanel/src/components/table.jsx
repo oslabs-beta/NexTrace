@@ -4,7 +4,7 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
   const vscode = window.vscodeApi;
   //Function to fire VS Code commands based on passed in cmd & current button state
   const handleClick = (cmd) => {
-    if (path) {
+    if (path && rootDir.length > 0) {
       //Toggles button text to start / stop
       if (cmd === 'startServer' && button === 'Start') setTableData({ name: name, path: path, rootDir: rootDir, button: 'Stop' });
       else if (cmd === 'stopServer' && button === 'Stop') setTableData({ name: name, path: path, rootDir: rootDir, button: 'Start' });
@@ -80,7 +80,7 @@ export default function Table({ name, path, rootDir, button, setTableData }) {
           button === 'Start' ? handleClick('startServer') : handleClick('stopServer')
           button === 'Start' ? handleClick('transformCode') : handleClick('detransformCode');
           button === 'Start' ? handleClick('gatherFilePaths') : handleClick('removeLogs');
-          if ( button === 'Start' ) handleClick('openMetrics');
+          if ( button === 'Start' && path && rootDir.length > 0 ) handleClick('openMetrics');
           handleClick('saveState');
         }}
       >{button === 'Start' ? (<>Start</>) : (<>Stop</>)}
