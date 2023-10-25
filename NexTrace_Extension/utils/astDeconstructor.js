@@ -1,5 +1,5 @@
-const detransformer = (file, api) => {
-    const j = api.jscodeshift;
+const detransformer = (file, api, path) => {
+    const j = api.jscodeshift.withParser('tsx');
     const ast = j(file.source);
 
     /*
@@ -13,11 +13,34 @@ const detransformer = (file, api) => {
     ast.find(j.CallExpression, {
         callee: {
             type: "Identifier",
-            name: "captureAndSend"
+            name: "captureAndSendNT"
         }
     }).forEach(path => {
         j(path).remove();
     });
+
+    ast.find(j.CallExpression, {
+        callee: {
+            type: 'MemberExpression',
+            property: {
+                type: 'Identifier',
+                name: 'then'
+            }
+        },
+        arguments: {
+            0: {
+                type: 'ArrowFunctionExpression',
+                params: [
+                    {
+                        type: 'Identifier',
+                        name: 'responseNT'
+                    }
+                ]
+            }
+        }
+    }).forEach(path => {
+        path.replace(path.node.callee.object);
+    })
 
     /*
 
@@ -62,7 +85,7 @@ const detransformer = (file, api) => {
     ast.find(j.FunctionDeclaration, {
         id: {
             type: "Identifier",
-            name: "captureAndSend"
+            name: "captureAndSendNT"
         }
     }).forEach(path => {
         j(path).remove();
@@ -160,21 +183,10 @@ const detransformer = (file, api) => {
         id: { type: "Identifier", name: "collectorOptions" },
         init: {
             type: "ObjectExpression",
-            properties: [{
-                type: "Property",
-                key: {
-                    type: "Identifier",
-                    name: "url"
-                },
-                value: {
-                    type: "Literal",
-                    value: "http://localhost:3695/otel"
-                }
-            }]
         }
     }).forEach(path => {
         j(path).remove();
-    })
+    });
 
     /*
 
@@ -191,7 +203,6 @@ const detransformer = (file, api) => {
         id: {
             type: "ObjectPattern",
             properties: [{
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "BasicTracerProvider"
@@ -202,7 +213,6 @@ const detransformer = (file, api) => {
                 }
             },
             {
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "SimpleSpanProcessor"
@@ -218,6 +228,7 @@ const detransformer = (file, api) => {
         j(path).remove();
     });
 
+
     /*
 
     The code below erases this line:
@@ -232,7 +243,6 @@ const detransformer = (file, api) => {
         id: {
             type: "ObjectPattern",
             properties: [{
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "OTLPTraceExporter"
@@ -261,7 +271,6 @@ const detransformer = (file, api) => {
         id: {
             type: "ObjectPattern",
             properties: [{
-                type: "Property",
                 key: {
                     type: "Identifier",
                     name: "trace"
@@ -280,6 +289,3 @@ const detransformer = (file, api) => {
 }
 
 module.exports = { detransformer };
-
-//Babel parser.
-//npx jscodeshift -t utils/astDeconstructor.js utils/testFile.ts --parser=babel

@@ -1,117 +1,116 @@
-const express = require('express');
 const { request } = require('http');
+const express = require('express');
+const WebSocket = require('ws');
 const cors = require('cors');
+
 const app = express();
 const port = 3695;
 
 app.use(express.json());
 app.use(cors());
 
+let [requestArray, consoleLogArray, serverStatus] = [[], [], false];
+const stagedData = {};
 
-let requestArray = [];
+//Sets up new Websocket Instance
+const wss = new WebSocket.Server({ noServer: true });
 
-app.get('/', (req, res) => {
-  res.send('Hello, world!');
-});
-
-
-
+//Routes request from CRUD app's boiler plate code using /otel route
 app.use('/otel', (req, res, next) => {
   res.locals.trace = req.body;
-  // console.log('THE SPAN TRACE', res.locals.trace.resourceSpans[0].scopeSpans[0].spans[0]);
-  // console.log('Kind #', res.locals.trace.resourceSpans[0].scopeSpans[0].spans[0]['kind']);
-  const span = req.body.resourceSpans[0].scopeSpans[0].spans[0]; 
-  // console.log('SPAN', span)
-  const obj = {name: '', type: '', method: '', duration: 0, status: '', rendering : ''}
-
-  if (span) {
-    //ENDPOINT - NAME
+  const span = req.body.resourceSpans[0].scopeSpans[0].spans[0];
+  const obj = { name: '', type: '', method: '', duration: 0, status: '', rendering: '' }
+  if (span && serverStatus === true) {
+    //Storing name of span
     const name = span.name;
-    // console.log('Name:', name)
     obj.name = name;
-
-    // console.log('SPAN', span)
-    
-    //TYPE, METHOD, STATUS_CODE FROM ATTRIBUTES ARRAY
-    for (let i = 0; i < span.attributes.length; i++){
-      if(span.attributes[i].key === 'next.span_type') {const type = span.attributes[i].value.stringValue; 
-        // console.log('Type', type); 
+    //Storing Type, Method, and Status_code from Attribute Array
+    for (let i = 0; i < span.attributes.length; i++) {
+      if (span.attributes[i].key === 'next.span_type') {
+        const type = span.attributes[i].value.stringValue;
         obj.type = type;
       }
-      if(span.attributes[i].key === 'http.method') {const method = span.attributes[i].value.stringValue; 
-        // console.log('Method', method); 
+      if (span.attributes[i].key === 'http.method') {
+        const method = span.attributes[i].value.stringValue;
         obj.method = method;
       }
-      if(span.attributes[i].key === 'http.status_code') {const status = span.attributes[i].value.intValue; 
-        // console.log('Status', status); 
+      if (span.attributes[i].key === 'http.status_code') {
+        const status = span.attributes[i].value.intValue;
         obj.status = status;
       }
-  
     }
-    
-    //DURATION IN MS DONE
-    const duration = (span.endTimeUnixNano  - span.startTimeUnixNano) / 1000000 //converts to milliseconds
-    // console.log('Duration:', duration, 'ms');
+    //Storing duration of Span
+    const duration = (span.endTimeUnixNano - span.startTimeUnixNano) / 1000000 //converts to milliseconds
     obj.duration = Math.floor(duration);
-
-    
-      if (span.kind === 3){
-        obj.rendering = 'server';
-      }
-      else if (span.kind === 2){
-        obj.rendering = 'client';
-      }
-      else{
-        obj.rendering = '';
-      }
-
-      // obj.type === 'BaseServer.handleRequest' handles initial req but affects future client req
-
-      // Using for console logs 
-      if (requestArray.some(item => item.name === obj.name && item.type === obj.type && item.method === obj.method && item.rendering === obj.rendering && item.status === obj.status)) {
-        console.log('Duplicate, SKIP');
-      } else if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult') {
-        console.log('Don\'t want!, SKIP');
+    obj.start = Math.floor(span.startTimeUnixNano / 1000000);
+    //Stores server side / client side rendering data
+    if (span.kind === 3) obj.rendering = 'server';
+    else if (span.kind === 2) obj.rendering = 'client';
+    else obj.rendering = '';
+    //Filters requests, stages requests and sends requests back to Metrics Component
+    if (obj.type === 'AppRouteRouteHandlers.runHandler' || obj.type === 'AppRender.getBodyResult' || obj.name.split(' ').pop() === '/' || obj.name.includes('http://localhost:3695')) {
+    } else {
+      if (obj.status === '') {
+        const stagedName = obj.name.split(' ').pop();
+        if (stagedData[stagedName]) {
+          stagedData[stagedName] = { name: obj.name, type: obj.type, method: obj.method, duration: Number(obj.duration), status: stagedData[stagedName].status, rendering: obj.rendering, start: obj.start }
+          requestArray.push(stagedData[stagedName]);
+          sendToSocketBySocketId('Metric', requestArray);
+          delete stagedData[stagedName];
+        } else {
+          stagedData[stagedName] = obj;
+        }
       } else {
         requestArray.push(obj);
-        console.log('Inserted new request');
-        console.log(requestArray);
       }
-
-      // Refactored ^^
-      // if (!requestArray.some(item =>
-      //   item.name === obj.name &&
-      //   item.type === obj.type &&
-      //   item.method === obj.method &&
-      //   item.rendering === obj.rendering &&
-      //   item.status === obj.status
-      // ) && obj.type !== 'AppRouteRouteHandlers.runHandler' && obj.type !== 'AppRender.getBodyResult') {
-      //   requestArray.push(obj);
-      // }
-      
-
-
-      
     }
-  
-  // requestArray.push(obj)
-  // console.log(requestArray);
-    return res.status(200).json('Span Received');
-  });
- 
+    if (requestArray.length > 0 && obj.status !== '') {
+      sendToSocketBySocketId('Metric', requestArray);
+    }
+  }
+  return res.status(200).json('Span Received');
+});
 
-app.get('/getData', (req,res) =>{
-  return res.status(200).json(requestArray);
-})
-
-
-
+//Routes request from CRUD App's boiler plate code using POST /getLogs route
+app.post('/getLogs', (req, res, next) => {
+  let consoleLog = req.body.log.map(arg => JSON.parse(arg));
+  try {
+    if (consoleLog[2] === 'NTASYNC'  && serverStatus === true) {
+      //Checks if staging area currently has endpoint
+      if (stagedData[consoleLog[0]]) {
+        stagedData[consoleLog[0]].status = consoleLog[1];
+        if (stagedData[consoleLog[0]].name !== '') {
+          requestArray.push(stagedData[consoleLog[0]])
+          sendToSocketBySocketId('Metric', requestArray);
+          delete stagedData[consoleLog[0]];
+        }
+      } else {
+        stagedData[consoleLog[0]] = { name: '', type: '', method: '', duration: 0, status: consoleLog[1], rendering: '', start: 0 };
+      }
+    }
+    else {
+      const path = req.body.path;
+      if (typeof consoleLog === 'string') {
+        consoleLog = consoleLog
+      }
+      else if (typeof consoleLog === 'object'  && serverStatus === true) {
+        consoleLog = JSON.stringify(consoleLog)
+      }
+      consoleLogArray.push({ consoleLog, path });
+      sendToSocketBySocketId('Console', consoleLogArray);
+    }
+    return res.status(200).send('Received');
+  }
+  catch (err) {
+    return next(err);
+  }
+});
 
 /*Catch unkown Routes*/
 app.use((req, res) => res.status(404).send('This is not the page you\'re looking for...'));
-
 /*Catch unkown Middleware errors*/
 app.use((err, req, res, next) => {
+  console.log('ERROR HERE: ', err);
   const defaultErr = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,
@@ -122,23 +121,57 @@ app.use((err, req, res, next) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
-
-let serverInstance;
-function server () {
-  serverInstance = app.listen(port, () => {
-    console.log(`Server is listening on port: ${port}`);
+//Websocket connection & Function to send data to respective panel
+const connectedClients = new Map();
+wss.on('connection', (socket) => {
+  socket.on('message', (message) => {
+    const data = JSON.parse(message);
+    if (data.socketId) {
+      connectedClients.set(data.socketId, socket);
+    } else {
+    }
+    if (data.socketId === 'Metric') sendToSocketBySocketId('Metric', requestArray);
+    else if (data.socketId === 'Console') sendToSocketBySocketId('Console', consoleLogArray);
   });
-};
-
-function closeServer () {
-  console.log(`Server is closing port: ${port}`);
-  serverInstance.close();
-
-    // // Set a timeout to forcefully close the server if it doesn't stop within a certain time (e.g., 5 seconds)
-    // setTimeout(() => {
-    //   console.log('Forcibly terminating the server.');
-    //   process.exit(1); // Terminate the Node.js process
-    // }, 5000); // 5000 milliseconds (5 seconds)
+  socket.on('close', () => {
+    connectedClients.forEach((client, socketId) => {
+      if (client === socket) {
+        connectedClients.delete(socketId);
+      }
+    });
+  });
+});
+//Function to send data to respective socketId
+function sendToSocketBySocketId(socketId, message) {
+  const socket = connectedClients.get(socketId);
+  if (socket) {
+    socket.send(JSON.stringify(message));
+  }
 }
 
-module.exports = { server, closeServer };
+//Server instance to Open and Close Server with Websocket Functionality
+let serverInstance;
+function server() {
+  serverInstance = app.listen(port, () => {
+    console.log(`Server is listening on port: ${port}`);
+    requestArray = [];
+    consoleLogArray = [];
+    serverStatus = true;
+  });
+  serverInstance.on('upgrade', (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, (socket) => {
+      wss.emit('connection', socket, request);
+    });
+  });
+};
+function closeServer() {
+  console.log(`Server is closing port: ${port}`);
+  serverInstance.close();
+  serverStatus = false;
+}
+//Returns current port of server instance
+function getPort() {
+  if (serverInstance) return serverInstance.address().port;
+}
+
+module.exports = { server, closeServer, app, getPort };

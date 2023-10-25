@@ -1,19 +1,91 @@
-const transformer = (file, api) => {
-    const j = api.jscodeshift;
+const transformer = (file, api, path) => {
+    const j = api.jscodeshift.withParser('tsx');
     const ast = j(file.source);
 
     const rootNode = ast.get().node.program;
 
+    //Checks if code already have boilerplate written, if true then returns back to source
+    const check = ast.find(j.VariableDeclarator, {
+        id: { type: "Identifier", name: "collectorOptions" },
+        init: {
+            type: "ObjectExpression",
+        }
+    });
+    if (check.__paths.length > 0) return ast.toSource();
+
+
+
+    //Find all fetch statements.
+    ast.find(j.CallExpression, {
+        callee: {
+            name: 'fetch'
+        }
+    }).forEach(fetch => {
+        const thenCallback = j.arrowFunctionExpression(
+            [j.identifier('responseNT')],
+            j.blockStatement([
+                j.expressionStatement(
+                    j.callExpression(
+                        j.identifier(`captureAndSendNT`),
+                        [
+                            j.identifier(fetch.value.arguments[0].name || fetch.value.arguments[0].extra.raw),
+                            j.memberExpression(j.identifier('responseNT'), j.identifier('status')),
+                            j.literal('NTASYNC')
+                        ]
+                    )
+                ),
+                j.returnStatement(j.identifier('responseNT'))
+            ])
+        );
+
+        // Create a then call and replace the original fetch call
+        const thenCall = j.callExpression(
+            j.memberExpression(fetch.node, j.identifier('then')),
+            [thenCallback]
+        );
+        fetch.replace(thenCall);
+    })
+
+    ast.find(j.CallExpression, {
+        callee: {
+            type: 'MemberExpression',
+            object: { type: 'Identifier', name: 'axios' },
+            property: { type: 'Identifier', name: 'get' }
+        }
+    }).forEach(get => {
+        const thenCallback = j.arrowFunctionExpression(
+            [j.identifier('responseNT')],
+            j.blockStatement([
+                j.expressionStatement(
+                    j.callExpression(
+                        j.identifier(`captureAndSendNT`),
+                        [
+                            j.identifier(get.value.arguments[0].name || get.value.arguments[0].extra.raw),
+                            j.memberExpression(j.identifier('responseNT'), j.identifier('status')),
+                            j.literal('NTASYNC')
+                        ]
+                    )
+                ),
+                j.returnStatement(j.identifier('responseNT'))
+            ])
+        );
+
+        // Create a then call and replace the original get call
+        const thenCall = j.callExpression(
+            j.memberExpression(get.node, j.identifier('then')),
+            [thenCallback]
+        );
+        get.replace(thenCall);
+    })
+
     /*
 
     The following code generates this using jscodeshift:
-         
      const {
         trace: trace
         } = require("@opentelemetry/api");
 
     */
-
     const traceRequireStatement = j.variableDeclaration(
         'const',
         [
@@ -40,7 +112,6 @@ const transformer = (file, api) => {
     const { OTLPTraceExporter: OTLPTraceExporter } =  require('@opentelemetry/exporter-trace-otlp-http');
 
     */
-
     const OTLPTraceExporterRequireStatement = j.variableDeclaration(
         'const',
         [
@@ -70,7 +141,6 @@ const transformer = (file, api) => {
     } = require("@opentelemetry/sdk-trace-base");
 
     */
-
     const traceBaseRequireStatemt = j.variableDeclaration(
         'const',
         [
@@ -226,7 +296,7 @@ const transformer = (file, api) => {
 
     The following code generates this using jscodeshift:
     
-    fetch("http://localhost:3695", {
+    fetch("http://localhost:3695/getLogs?nocache=<DATE-HERE>", {
         method: "POST",
 
         headers: {
@@ -244,7 +314,7 @@ const transformer = (file, api) => {
         j.callExpression(
             j.identifier('fetch'),
             [
-                j.literal('http://localhost:3695'),
+                j.literal(`http://localhost:3695/getLogs?nocache=${Date.now()}`),
                 j.objectExpression([
                     j.property(
                         'init',
@@ -274,6 +344,11 @@ const transformer = (file, api) => {
                                     'init',
                                     j.identifier('log'),
                                     j.identifier('content')
+                                ),
+                                j.property(
+                                    'init',
+                                    j.identifier('path'),
+                                    j.literal(`${path}`)
                                 )
                             ])
                         ]
@@ -307,7 +382,7 @@ const transformer = (file, api) => {
     */
 
     const dispatchFunctionStatement = j.functionDeclaration(
-        j.identifier('captureAndSend'),
+        j.identifier('captureAndSendNT'),
         [j.restElement(j.identifier('args'))],
         j.blockStatement([
             j.variableDeclaration(
@@ -372,7 +447,7 @@ const transformer = (file, api) => {
     function createCaptureAndSendInvocation(args) {
         return j.expressionStatement(
             j.callExpression(
-                j.identifier('captureAndSend'),
+                j.identifier('captureAndSendNT'),
                 args
             )
         )
@@ -391,31 +466,32 @@ const transformer = (file, api) => {
         }
     }
 
-    // ast.find(j.CallExpression, {
-    //     callee: {
-    //         type: "MemberExpression",
-    //         object: { type: "Identifier", name: "console" },
-    //         property: { type: "Identifier", name: "log" },
-    //     }
-    // }).forEach(log => {
-    //     const logArguments = log.node.arguments;
-    //     //Create a new instance of invoking captureAndSend
-    //     const funcExpression = createCaptureAndSendInvocation(logArguments);
-    //     insertContentAfter(log, funcExpression);
-    // })
+    ast.find(j.CallExpression, {
+        callee: {
+            type: "MemberExpression",
+            object: { type: "Identifier", name: "console" },
+            property: { type: "Identifier", name: "log" },
+        }
+    }).forEach(log => {
+        const logArguments = log.node.arguments;
+        //Create a new instance of invoking captureAndSend
+        const funcExpression = createCaptureAndSendInvocation(logArguments);
+        insertContentAfter(log, funcExpression);
+    })
 
+    rootNode.body.unshift(dispatchFunctionStatement);
+    rootNode.body.unshift(providerRegisterStatement);
+    rootNode.body.unshift(setGlobalTracerStatement);
+    rootNode.body.unshift(addSpanProcessorStatement);
+    rootNode.body.unshift(exporterDeclarationStatement);
+    rootNode.body.unshift(providerDeclarationStatement);
     rootNode.body.unshift(collectorOptionsDeclaration);
-    // rootNode.body.unshift(providerRegisterStatement);
-    // rootNode.body.unshift(dispatchFunctionStatement);
-    // rootNode.body.unshift(addSpanProcessorStatement);
-    // rootNode.body.unshift(setGlobalTracerStatement);
-    // rootNode.body.unshift(exporterDeclarationStatement);
-    // rootNode.body.unshift(providerDeclarationStatement);
-    // rootNode.body.unshift(traceBaseRequireStatemt);
-    // rootNode.body.unshift(OTLPTraceExporterRequireStatement);
-    // rootNode.body.unshift(traceRequireStatement);
+    rootNode.body.unshift(traceBaseRequireStatemt);
+    rootNode.body.unshift(OTLPTraceExporterRequireStatement);
+    rootNode.body.unshift(traceRequireStatement);
 
     return ast.toSource();
+
 }
 
 module.exports = { transformer };
