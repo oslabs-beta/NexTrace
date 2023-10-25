@@ -247,7 +247,6 @@ async function transformCode(userProvidedPath, command, index) {
     edit.replace(document.uri, fullRange, transformedContent);
     await vscode.workspace.applyEdit(edit);
     document.save()
-    
   } catch (err) {
     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
   }
