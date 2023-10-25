@@ -67,7 +67,7 @@ export default function CustomizedTables() {
   }, []);
 
   return (<>
-    <div className='pieChartContainer'>
+    {/* <div className='pieChartContainer'>
     <PieChartDuration reqData={awaitedData} />
     <PieChartSum reqData={awaitedData} />
     <PieChartStatus  reqData={awaitedData} />
@@ -100,6 +100,6 @@ export default function CustomizedTables() {
           ))}
         </TableBody>
       </Table>
-    </TableContainer>
+    </TableContainer> */}
   </>);
 }
