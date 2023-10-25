@@ -67,12 +67,12 @@ export default function CustomizedTables() {
   }, []);
 
   return (<>
-    {/* <div className='pieChartContainer'>
+    <div className='pieChartContainer'>
     <PieChartDuration reqData={awaitedData} />
     <PieChartSum reqData={awaitedData} />
     <PieChartStatus  reqData={awaitedData} />
     </div>
-    <WaterfallChart data={awaitedData} />
+    <WaterfallChart data={awaitedData} /> 
     <TableContainer component={Paper} data-testid='metrics'>
       <Table sx={{ minWidth: 450 }} aria-label="customized table">
         <TableHead>
@@ -100,6 +100,6 @@ export default function CustomizedTables() {
           ))}
         </TableBody>
       </Table>
-    </TableContainer> */}
+    </TableContainer>
   </>);
 }
