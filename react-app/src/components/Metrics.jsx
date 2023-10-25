@@ -72,7 +72,7 @@ export default function CustomizedTables() {
     <PieChartSum reqData={awaitedData} />
     <PieChartStatus  reqData={awaitedData} />
     </div>
-    <WaterfallChart data={awaitedData} />
+    <WaterfallChart data={awaitedData} /> 
     <TableContainer component={Paper} data-testid='metrics'>
       <Table sx={{ minWidth: 450 }} aria-label="customized table">
         <TableHead>
