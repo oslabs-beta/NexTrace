@@ -23,10 +23,8 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-
-<p align="center"><img src="../assets/nextrace-logo-condensed.png" width='500' style="margin-top: 10px; margin-bottom: -10px;"></p>
+<p align="center"><img src="./assets/nextrace-logo-condensed.png" width='500' style="margin-top: 10px; margin-bottom: -10px;"></p>
 <br />
-<div>
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -63,23 +61,6 @@ Nextrace is a HTTP Request Performance Monitoring tool that helps you to identif
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-### Built With
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Express][Express.js]][Express-url]
-* [![opentelemetry][opentelemetry.io]][opentelemetry-url]
-* [![VSCode][VSCode]][VSCode-url]
-* [![Jest][Jest]][Jest-url]
-* [![Testing-library][Testing-library]][Testing-library-url]
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 <!-- GETTING STARTED -->
 ## Getting Started
 
@@ -92,33 +73,20 @@ First, install dependencies in your Next.js app:
   ```
 
 ### Installation
-Simply search for Nextrace your VSCode Extensions and click Install.
+Search for Nextrace in VSCode Extension Marketplace and click Install.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
+1.) Click on NexTrace Logo <br>
+2.) Click Choose File Button to select entry point to your Next.js application <br>
+3.) Click Choose Root Button to select your app folder (note: this folder should not be your project folder as it contains node_modules containing a large number of files. Instead select your app folder containing the entry point of your application) <br>
+4.) Click Start to start tracking your application's network requests <br>
+5.) Click Logs to display additional panel for your console logs for easy file Navigation <br>
+6.) When finished, click STOP. <br>
+7.) Optional: Incase of any issues removing boiler plate code, select your file and root as you did on steps 2 & 3 and click Clean Files buttton to remove boiler plate code. <br>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -154,9 +122,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Your Name - NexTrace10@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/oslabs-beta/NexTrace](https://github.com/oslabs-beta/NexTrace)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -214,4 +182,4 @@ Use this space to list resources you find helpful and would like to give credit 
 
 ## NexTrace Contributors
 
-Accelerated by [OS Labs](https://github.com/open-source-labs) and devloped by [Charles Dunlap], [Connor Keyes], [Simon Lin], & [Jose Velasco].
+Accelerated by [OS Labs](https://github.com/open-source-labs) and devloped by [Charles Dunlap](https://github.com/CharlesAndrewDunlap), [Connor Keyes](https://github.com/connorkeyes), [Simon Lin](https://github.com/kedjek), & [Jose Velasco](https://github.com/JoseAVelasco).
