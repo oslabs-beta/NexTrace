@@ -38,7 +38,7 @@
         {
           "id": "nextrace-activitybar",
           "title": "NexTrace",
-          "icon": "$(squirrel)",
+          "icon": "$(terminal-ubuntu)",
           "command": "NexTrace.startServer",
           "type": "webview"
         }
