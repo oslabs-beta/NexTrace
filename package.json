@@ -2,7 +2,7 @@
   "name": "NexTrace",
   "displayName": "NexTrace",
   "description": "Waterfall display of network requests with file navigation of console logs for Next.js Applications.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "OSLabsBetaNexTrace",
   "engines": {
     "vscode": "^1.82.0"
@@ -73,7 +73,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
     "esbuild-base": "esbuild ./extension.js --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
@@ -112,6 +112,7 @@
     "nodemon": "^3.0.1",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.5.0",
+    "vscode": "^1.1.37",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
@@ -126,6 +127,7 @@
     "babel-jest": "^29.7.0",
     "cors": "^2.8.5",
     "d3": "^7.8.5",
+    "express": "^4.18.2",
     "http": "^0.0.1-security",
     "jest-environment-jsdom": "^29.7.0",
     "jscodeshift": "^0.15.0",
