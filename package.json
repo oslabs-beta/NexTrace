@@ -59,6 +59,10 @@
       ]
     }
   },
+  "repository": {
+    "url": "https://github.com/oslabs-beta/NexTrace",
+    "type": "git"
+  },
   "jest": {
     "transformIgnorePatterns": [
       "/node_modules/(?!d3|d3-array|internmap|delaunator|robust-predicates), /Nextrace_Extension/react-app/src/style.css"
