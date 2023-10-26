@@ -11,8 +11,8 @@ const App = (props) => {
     <div className='router'>
       <main>
         {/* Routes to either metrics or console panel based on routePath element in extension.js webview html content */}
-        {routePath === '/metrics' && <Metrics />}
-        {routePath === '/console' && <Console />}
+        {/* {routePath === '/metrics' && <Metrics />}
+        {routePath === '/console' && <Console />} */}
       </main>
     </div>
   );

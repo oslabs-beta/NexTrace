@@ -2,7 +2,7 @@
   "name": "NexTrace",
   "displayName": "NexTrace",
   "description": "Waterfalls all network requests with click navigation of request origin for Next.js Applications.",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "publisher": "Team-NexTrace",
   "engines": {
     "vscode": "^1.82.0"
@@ -58,6 +58,10 @@
         }
       ]
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oslabs-beta/NexTrace"
   },
   "jest": {
     "transformIgnorePatterns": ["/node_modules/(?!d3|d3-array|internmap|delaunator|robust-predicates), /Nextrace_Extension/react-app/src/style.css"],
@@ -119,6 +123,7 @@
     "jscodeshift": "^0.15.0",
     "react": "^18.2.0",
     "supertest": "^6.3.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "express": "^4.18.2"
   }
 }

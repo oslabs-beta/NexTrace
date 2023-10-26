@@ -1,6 +1,6 @@
 const path = require('path');
 const vscode = require('vscode');
-const jscodeshift = require('jscodeshift');
+// const jscodeshift = require('jscodeshift');
 const { addLogs } = require('./utils/addLogs');
 const { removeLogs } = require('./utils/removeLogs');
 const { transformer } = require('./utils/astConstructor');
@@ -133,23 +133,23 @@ function activate(context) {
 
         // Handle any messages or events from the webview view here
         webviewView.webview.onDidReceiveMessage((message) => {
-          // Handle the message from the webview view
-          if (message.command === 'transformCode' || message.command === 'detransformCode') {
-            transformCode(message.path, message.command);
-          }
-          else if (message.command === 'NexTrace.saveState') {
-            vscode.commands.executeCommand(message.command, message)
-          }
-          else if (message.command === 'gatherFilePaths') {
-            handleLogs(message.path, message.command, message.rootPath);
-          }
-          else if (message.command === 'removeLogs') {
-            handleLogs(message.path, message.command);
-          }
-          else if (message.command === 'alert') {
-            vscode.window.showInformationMessage(message.text);
-          }
-          else vscode.commands.executeCommand(message);
+          // // Handle the message from the webview view
+          // if (message.command === 'transformCode' || message.command === 'detransformCode') {
+          //   transformCode(message.path, message.command);
+          // }
+          // else if (message.command === 'NexTrace.saveState') {
+          //   vscode.commands.executeCommand(message.command, message)
+          // }
+          // else if (message.command === 'gatherFilePaths') {
+          //   handleLogs(message.path, message.command, message.rootPath);
+          // }
+          // else if (message.command === 'removeLogs') {
+          //   handleLogs(message.path, message.command);
+          // }
+          // else if (message.command === 'alert') {
+          //   vscode.window.showInformationMessage(message.text);
+          // }
+          // else vscode.commands.executeCommand(message);
         });
       },
     };
@@ -194,63 +194,63 @@ function activate(context) {
   }
   catch (err) { console.log(err) }
 }
-//Function to invoke transform code based on files array for handling console.logs
-function handleLogs(files, command, rootPath) {
-  const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
-  files.forEach((path, i) => {
-    if (path) {
-      const fileType = path.slice(-4);
-      if ((allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1))) && path !== rootPath) {
-        transformCode(path, command, i);
-      }
-    }
-  });
-}
+// //Function to invoke transform code based on files array for handling console.logs
+// function handleLogs(files, command, rootPath) {
+//   const allowedFileTypes = new Set(['.js', '.jsx', '.ts', '.tsx']);
+//   files.forEach((path, i) => {
+//     if (path) {
+//       const fileType = path.slice(-4);
+//       if ((allowedFileTypes.has(fileType) || allowedFileTypes.has(fileType.slice(1))) && path !== rootPath) {
+//         transformCode(path, command, i);
+//       }
+//     }
+//   });
+// }
 //AST Function to transform / restore code
-async function transformCode(userProvidedPath, command, index) {
-  try {
-    const document = await vscode.workspace.openTextDocument(userProvidedPath);
-    const fileContent = document.getText();
-    let transformedContent;
-    if (command === 'transformCode') {
-      transformedContent = transformer({
-        source: fileContent
-      }, {
-        jscodeshift
-      }, userProvidedPath);
-    }
-    else if (command === 'detransformCode') {
-      transformedContent = detransformer({
-        source: fileContent
-      }, {
-        jscodeshift
-      }, userProvidedPath);
-    }
-    else if (command === 'gatherFilePaths') {
-      transformedContent = addLogs({
-        source: fileContent
-      }, {
-        jscodeshift
-      }, userProvidedPath, index);
-    }
-    else if (command === 'removeLogs') {
-      transformedContent = removeLogs({
-        source: fileContent
-      }, {
-        jscodeshift
-      }, userProvidedPath, index);
-    }
-    const fullRange = new vscode.Range(document.positionAt(0),
-      document.positionAt(fileContent.length)
-    );
-    const edit = new vscode.WorkspaceEdit();
-    edit.replace(document.uri, fullRange, transformedContent);
-    await vscode.workspace.applyEdit(edit);
-    document.save()
-  } catch (err) {
-    vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
-  }
-}
+// async function transformCode(userProvidedPath, command, index) {
+//   try {
+//     const document = await vscode.workspace.openTextDocument(userProvidedPath);
+//     const fileContent = document.getText();
+//     let transformedContent;
+//     if (command === 'transformCode') {
+//       transformedContent = transformer({
+//         source: fileContent
+//       }, {
+//         jscodeshift
+//       }, userProvidedPath);
+//     }
+//     else if (command === 'detransformCode') {
+//       transformedContent = detransformer({
+//         source: fileContent
+//       }, {
+//         jscodeshift
+//       }, userProvidedPath);
+//     }
+//     else if (command === 'gatherFilePaths') {
+//       transformedContent = addLogs({
+//         source: fileContent
+//       }, {
+//         jscodeshift
+//       }, userProvidedPath, index);
+//     }
+//     else if (command === 'removeLogs') {
+//       transformedContent = removeLogs({
+//         source: fileContent
+//       }, {
+//         jscodeshift
+//       }, userProvidedPath, index);
+//     }
+//     const fullRange = new vscode.Range(document.positionAt(0),
+//       document.positionAt(fileContent.length)
+//     );
+//     const edit = new vscode.WorkspaceEdit();
+//     edit.replace(document.uri, fullRange, transformedContent);
+//     await vscode.workspace.applyEdit(edit);
+//     document.save()
+//   } catch (err) {
+//     vscode.window.showErrorMessage('Failed to open or transform file: ', err.message);
+//   }
+// }
 
 function deactivate() {
 }
