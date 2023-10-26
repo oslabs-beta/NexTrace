@@ -2,7 +2,7 @@
   "name": "NexTrace",
   "displayName": "NexTrace",
   "description": "Waterfall display of network requests with file navigation of console logs for Next.js Applications.",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "publisher": "OSLabsBetaNexTrace",
   "engines": {
     "vscode": "^1.82.0"
@@ -105,7 +105,6 @@
     "eslint": "^8.50.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "express": "^4.18.2",
     "glob": "^10.3.3",
     "jest": "^29.7.0",
     "mocha": "^10.2.0",
