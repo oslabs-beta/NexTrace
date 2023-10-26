@@ -1,11 +1,9 @@
-![AppVeyor](https://img.shields.io/badge/version-0.0.1-blue.svg)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/open-source-labs/bunDL/issues)
+![AppVeyor](https://img.shields.io/badge/version-1.0.0-blue.svg)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/open-source-labs/NexTrace/issues)
 
 # Nextrace
 
-Nextrace is a HTTP Request Performance Monitor tool that helps you to identify and troubleshoot performance bottlenecks in your Next.js apps. It provides data on a variety of metrics, including: Endpoint, Method, Status code, Duration, Client vs Server. File navigation in NexTrace allows you to easily debug by allowing you to quickly and easily navigate to the source code files that are responsible for the console logs.
-
-<a name="readme-top"></a>
+<a id="readme-top"></a>
 
 
 
@@ -25,31 +23,8 @@ Nextrace is a HTTP Request Performance Monitor tool that helps you to identify a
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-
 <p align="center"><img src="./assets/nextrace-logo-condensed.png" width='500' style="margin-top: 10px; margin-bottom: -10px;"></p>
 <br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">Best-README-Template</h3>
-
-  <p align="center">
-    An awesome README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
-  </p>
-</div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -82,99 +57,36 @@ Nextrace is a HTTP Request Performance Monitor tool that helps you to identify a
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
-
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
+Nextrace is a HTTP Request Performance Monitoring tool that helps you to identify and troubleshoot performance bottlenecks in your Next.js app. All HTTP requests (server and client) from running your Next.js app are displayed in one place with their associated observability metrics along with intuitive visualizations of the data. All console.log statements are collected and displayed together with buttons that automatically navigate you to its respective file.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-### Built With
-
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Express][Express.js]][Express-url]
-* [![opentelemetry][opentelemetry.io]][opentelemetry-url]
-* [![VSCode][VSCode]][VSCode-url]
-* [![Jest][Jest]][Jest-url]
-* [![Testing-library][Testing-library]][Testing-library-url]
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+First, install dependencies in your Next.js app:
   ```sh
-  npm install npm@latest -g
+  npm install nextrace
   ```
 
 ### Installation
-
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
+Search for Nextrace in VSCode Extension Marketplace and click Install.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
+1.) Click on NexTrace Logo <br>
+2.) Click Choose File Button to select entry point to your Next.js application <br>
+3.) Click Choose Root Button to select your app folder (note: this folder should not be your project folder as it contains node_modules containing a large number of files. Instead select your app folder containing the entry point of your application) <br>
+4.) Click Start to start tracking your application's network requests <br>
+5.) Click Logs to display additional panel for your console logs for easy file Navigation <br>
+6.) When finished, click STOP. <br>
+7.) Optional: Incase of any issues removing boiler plate code, select your file and root as you did on steps 2 & 3 and click Clean Files buttton to remove boiler plate code. <br>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -210,9 +122,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Your Name - NexTrace10@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/oslabs-beta/NexTrace](https://github.com/oslabs-beta/NexTrace)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -249,7 +161,7 @@ Use this space to list resources you find helpful and would like to give credit 
 [license-shield]: https://img.shields.io/github/license/oslabs-beta/NexTrace.svg?style=for-the-badge
 [license-url]: https://github.com/oslabs-beta/NexTrace/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
+[linkedin-url]: https://www.linkedin.com/company/nextrace-dev
 [product-screenshot]: images/screenshot.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
@@ -270,4 +182,4 @@ Use this space to list resources you find helpful and would like to give credit 
 
 ## NexTrace Contributors
 
-Accelerated by [OS Labs](https://github.com/open-source-labs) and devloped by [Charles Dunlap], [Connor Keyes], [Simon Lin], & [Jose Velasco].
+Accelerated by [OS Labs](https://github.com/open-source-labs) and devloped by [Charles Dunlap](https://github.com/CharlesAndrewDunlap), [Connor Keyes](https://github.com/connorkeyes), [Simon Lin](https://github.com/kedjek), & [Jose Velasco](https://github.com/JoseAVelasco).
