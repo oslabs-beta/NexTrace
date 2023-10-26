@@ -84,9 +84,11 @@ Search for Nextrace in VSCode Extension Marketplace and click Install.
 2.) Click Choose File Button to select entry point to your Next.js application <br>
 3.) Click Choose Root Button to select your app folder (note: this folder should not be your project folder as it contains node_modules containing a large number of files. Instead select your app folder containing the entry point of your application) <br>
 4.) Click Start to start tracking your application's network requests <br>
+<p align="center"><img src="./assets/demo1.0.gif" width='800' style="margin-top: 1em; margin-bottom: 1em;"></p> 
 5.) Click Logs to display additional panel for your console logs for easy file Navigation <br>
 6.) When finished, click STOP. <br>
 7.) Optional: Incase of any issues removing boiler plate code, select your file and root as you did on steps 2 & 3 and click Clean Files buttton to remove boiler plate code. <br>
+<p align="center"><img src="./assets/demo2.0.gif" width='800' style="margin-top: 1em; margin-bottom: 1em;"></p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -130,22 +132,20 @@ Project Link: [https://github.com/oslabs-beta/NexTrace](https://github.com/oslab
 
 
 
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
+### Built With
 
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![NPM](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![WebSocket](https://img.shields.io/badge/WS-Websocket-2ea44f?style=for-the-badge&logo=appveyor)
+![MUI](https://img.shields.io/badge/Material%20UI-007FFF?style=for-the-badge&logo=mui&logoColor=white)
+![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-3d348b?style=for-the-badge&logo=opentelemetry&logoColor=white)
+![d3js](https://img.shields.io/badge/d3-red?style=for-the-badge&logo=d3.js)
+![Webpack](https://img.shields.io/badge/webpack-%238DD6F9.svg?style=for-the-badge&logo=webpack&logoColor=black)
+![Babel](https://img.shields.io/badge/Babel-F9DC3e?style=for-the-badge&logo=babel&logoColor=black)
+![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
