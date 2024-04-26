@@ -75,7 +75,7 @@ app.use('/otel', (req, res, next) => {
 app.post('/getLogs', (req, res, next) => {
   let consoleLog = req.body.log.map(arg => JSON.parse(arg));
   try {
-    if (consoleLog[2] === 'NTASYNC'  && serverStatus === true) {
+    if (consoleLog[2] === 'NTASYNC' && serverStatus === true) {
       //Checks if staging area currently has endpoint
       if (stagedData[consoleLog[0]]) {
         stagedData[consoleLog[0]].status = consoleLog[1];
@@ -93,7 +93,7 @@ app.post('/getLogs', (req, res, next) => {
       if (typeof consoleLog === 'string') {
         consoleLog = consoleLog
       }
-      else if (typeof consoleLog === 'object'  && serverStatus === true) {
+      else if (typeof consoleLog === 'object' && serverStatus === true) {
         consoleLog = JSON.stringify(consoleLog)
       }
       consoleLogArray.push({ consoleLog, path });
@@ -174,4 +174,4 @@ function getPort() {
   if (serverInstance) return serverInstance.address().port;
 }
 
-module.exports = { server, closeServer, app, getPort };
+module.exports = { server, closeServer, app, getPort, stagedData };
